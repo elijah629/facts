@@ -60,7 +60,7 @@ export function parseAssignment(row: HTMLTableRowElement): Assignment {
   }
 
   return {
-    status,
+    status: "excuse", // fallback
     name,
     description,
 
