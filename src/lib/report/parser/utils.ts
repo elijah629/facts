@@ -5,7 +5,7 @@ export function formatName(name: string) {
 }
 
 export function normalizeWeights(weights: number[]): number[] {
-  if (weights.some(x => isNaN(x))) {
+  if (weights.some(x => isNaN(x) || !x)) {
     return weights.fill(1 / weights.length);
   }
   
