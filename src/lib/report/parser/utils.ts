@@ -5,6 +5,10 @@ export function formatName(name: string) {
 }
 
 export function normalizeWeights(weights: number[]): number[] {
+  if (weights.some(x => isNaN(x))) {
+    return weights.fill(1 / weights.length);
+  }
+  
   const total = weights.reduce((a, b) => a + b, 0);
 
   if (total === 0) {
