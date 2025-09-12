@@ -15,7 +15,7 @@ function parseSectionHeader(table: HTMLTableElement): SectionHeader {
     (weightEl as HTMLTableCellElement).innerText
       .trim()
       .substring("Weight = ".length),
-  );
+  ) || 0;
 
   return {
     name,
