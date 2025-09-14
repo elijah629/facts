@@ -12,16 +12,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { classGrade, gpa, letterGrade } from "@/lib/grades";
+import { classGpa, classGrade, gpa, letterGrade } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
 import { timeAgo } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "./ui/label";
 
 export function ReportSidebar() {
-  const lastUpdated = useReport((x) => x.lastUpdated);
-  const report = useReport((x) => x.report);
-  const clear = useReport((x) => x.clear);
+  const { lastUpdated, report, clear, weighted, setWeighted } = useReport();
 
   return (
     <Sidebar>
@@ -35,9 +35,27 @@ export function ReportSidebar() {
                 </div>
                 <div className="flex flex-col gap-2 leading-none">
                   <span className="font-semibold">🔥 facts 🔥</span>
-                  {report && <>GPA: {gpa(report.classes).toFixed(3)}</>}
+                  {report && (
+                    <>GPA: {gpa(report.classes, weighted).toFixed(3)}</>
+                  )}
                 </div>
               </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={weighted}
+                  onCheckedChange={setWeighted}
+                  id="weighted-gpa"
+                />
+                <Label htmlFor="weighted-gpa">
+                  Weighted GPA (&#8805;Soph.)
+                </Label>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

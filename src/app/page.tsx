@@ -6,6 +6,7 @@ import { useReport } from "@/lib/report/store";
 
 export default function Home() {
   const report = useReport((x) => x.report);
+  const weighted = useReport((x) => x.weighted);
 
   if (!report) {
     return (
@@ -22,7 +23,7 @@ export default function Home() {
     );
   }
 
-  const currentGPA = gpa(report.classes);
+  const currentGPA = gpa(report.classes, weighted);
 
   return (
     <>
