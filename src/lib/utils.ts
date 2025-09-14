@@ -15,3 +15,32 @@ export function timeAgo(date: number): string {
   if (diff < 86400) return rtf.format(-Math.floor(diff / 3600), "hour");
   return rtf.format(-Math.floor(diff / 86400), "day");
 }
+
+const monthNames = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+] as const;
+
+export function formatDate(date: string): string {
+  const [month, day] = date.split("/");
+  const suffix =
+    day.endsWith("1") && day !== "11"
+      ? "st"
+      : day.endsWith("2") && day !== "12"
+        ? "nd"
+        : day.endsWith("3") && day !== "13"
+          ? "rd"
+          : "th";
+
+  return `${monthNames[Number(month) - 1]} ${day[0] === "0" ? day[1] : day}${suffix}`;
+}

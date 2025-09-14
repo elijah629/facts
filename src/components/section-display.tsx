@@ -1,4 +1,3 @@
-import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -11,11 +10,11 @@ import type { Section } from "@/types/report";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from "./ui/table";
+} from "@/components/ui/table";
+import { AssignmentRow } from "@/components/assignment-row";
 
 export function SectionDisplay({ section }: { section: Section }) {
   const percentage = sectionGrade(section);
@@ -56,66 +55,19 @@ export function SectionDisplay({ section }: { section: Section }) {
           </TableHeader>
           <TableBody>
             {section.assignments.map((assignment, index) => (
-              <TableRow key={index}>
-                <TableCell className="break-words whitespace-break-spaces flex flex-col">
-                  {assignment.name}
-                  {assignment.description && (
-                    <span className="font-sm mt-2 text-muted-foreground">
-                      {assignment.description}
-                    </span>
-                  )}
-                </TableCell>
-                <TableCell>{assignment.due}</TableCell>
-                {assignment.status === "valid" ? (
-                  <>
-                    <TableCell>
-                      {assignment.points}/{assignment.maxPoints}
-                    </TableCell>
-                    <TableCell>
-                      {(
-                        (assignment.points * 100) /
-                        assignment.maxPoints
-                      ).toFixed(3)}
-                      %
-                    </TableCell>
-                  </>
-                ) : assignment.status === "missing" ? (
-                  <>
-                    <TableCell>0/{assignment.maxPoints}</TableCell>
-                    <TableCell>0%</TableCell>
-                  </>
-                ) : (
-                  <>
-                    <TableCell></TableCell>
-                    <TableCell></TableCell>
-                  </>
-                )}
-                <TableCell>
-                  {(assignment.status === "valid" ||
+              <AssignmentRow
+                key={index}
+                weakPoint={
+                  (assignment.status === "valid" ||
                     assignment.status === "missing") &&
-                    Math.min(
-                      1,
-                      (assignment.status === "valid" ? assignment.points : 0) /
-                        assignment.maxPoints,
-                    ) < Math.min(1, percentage) && (
-                      <span className="text-sm text-destructive">
-                        Weak point
-                      </span>
-                    )}
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={
-                      assignment.status === "missing"
-                        ? "destructive"
-                        : "outline"
-                    }
-                  >
-                    {assignment.status[0].toUpperCase() +
-                      assignment.status.substring(1)}
-                  </Badge>
-                </TableCell>
-              </TableRow>
+                  Math.min(
+                    1,
+                    (assignment.status === "valid" ? assignment.points : 0) /
+                      assignment.maxPoints,
+                  ) < Math.min(1, percentage)
+                }
+                assignment={assignment}
+              />
             ))}
           </TableBody>
         </Table>
