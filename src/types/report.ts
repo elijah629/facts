@@ -28,6 +28,9 @@ export interface ClassHeader {
 
   /// Instructor of the class
   instructor: string;
+
+  /// How the class is graded
+  gradingMethod: "points" | "mixed" | "percent";
 }
 
 export type Section = {
@@ -39,7 +42,8 @@ export interface SectionHeader {
   description?: string;
 
   /// Weight of the section in the interval [0, 1]. The sum of all sections must be 1.
-  weight: number;
+  /// NOTE: This does not apply to every grading method (all but POINTS)
+  weight?: number;
 }
 
 export type Assignment = (

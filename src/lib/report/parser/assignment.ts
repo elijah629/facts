@@ -1,4 +1,4 @@
-import { Assignment } from "@/types/report";
+import type { Assignment } from "@/types/report";
 
 export function parseAssignment(row: HTMLTableRowElement): Assignment {
   let [

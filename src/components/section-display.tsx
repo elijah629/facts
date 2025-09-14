@@ -6,8 +6,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { Section } from "@/types/report";
 import { sectionGrade } from "@/lib/grades";
+import type { Section } from "@/types/report";
 import {
   Table,
   TableBody,
@@ -21,7 +21,7 @@ export function SectionDisplay({ section }: { section: Section }) {
   const percentage = sectionGrade(section);
 
   if (percentage === false) {
-    return <></>;
+    return;
   }
 
   return (
@@ -29,18 +29,31 @@ export function SectionDisplay({ section }: { section: Section }) {
       <CardHeader className="pb-2">
         <div className="flex justify-between items-center">
           <div>
-            <CardTitle className="text-lg">{section.name}</CardTitle>
-            <CardDescription>
-              {section.description} Weight: {section.weight * 100}%
-            </CardDescription>
+            <CardTitle className="text-lg">
+              {section.name}
+              {section.weight && <> ({section.weight * 100}%)</>}
+            </CardTitle>
+            <CardDescription>{section.description}</CardDescription>
           </div>
           <div className="text-right">
-            <div className="font-semibold">{percentage.toFixed(3)}%</div>
+            <div className="font-semibold">
+              {(percentage * 100).toFixed(3)}%
+            </div>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Due</TableHead>
+              <TableHead>Points</TableHead>
+              <TableHead>Percent</TableHead>
+              <TableHead></TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
           <TableBody>
             {section.assignments.map((assignment, index) => (
               <TableRow key={index}>
@@ -81,11 +94,10 @@ export function SectionDisplay({ section }: { section: Section }) {
                   {(assignment.status === "valid" ||
                     assignment.status === "missing") &&
                     Math.min(
-                      100,
-                      ((assignment.status === "valid" ? assignment.points : 0) *
-                        100) /
+                      1,
+                      (assignment.status === "valid" ? assignment.points : 0) /
                         assignment.maxPoints,
-                    ) < Math.min(100, percentage) && (
+                    ) < Math.min(1, percentage) && (
                       <span className="text-sm text-destructive">
                         Weak point
                       </span>

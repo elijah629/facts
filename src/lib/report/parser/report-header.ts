@@ -1,4 +1,4 @@
-import { ReportHeader } from "@/types/report";
+import type { ReportHeader } from "@/types/report";
 import { formatName } from "./utils";
 
 export function parseReportHeader(table: HTMLTableElement): ReportHeader {
@@ -16,7 +16,7 @@ export function parseReportHeader(table: HTMLTableElement): ReportHeader {
   ).innerText.split("-");
 
   const min = Number(yearRange[0]);
-  const max = Number(yearRange[0]);
+  const max = Number(yearRange[1]);
 
   return {
     for: $for,

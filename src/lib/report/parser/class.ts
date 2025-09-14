@@ -1,4 +1,4 @@
-import { Class, ClassHeader } from "@/types/report";
+import type { Class, ClassHeader } from "@/types/report";
 import { parseSection } from "./section";
 import { formatName, normalizeWeights } from "./utils";
 
@@ -13,6 +13,13 @@ function parseClassHeader(table: HTMLTableElement): ClassHeader {
   const fullName = (
     secondRow.firstElementChild as HTMLTableCellElement
   ).innerText.trim();
+
+  const gradingMethod = (
+    secondRow.children[2] as HTMLTableCellElement
+  ).innerText
+    .trim()
+    .toLowerCase() as ClassHeader["gradingMethod"];
+
   const displayName = (
     thirdRow.firstElementChild as HTMLTableCellElement
   ).innerText.trim();
@@ -21,6 +28,7 @@ function parseClassHeader(table: HTMLTableElement): ClassHeader {
     fullName,
     displayName,
     instructor,
+    gradingMethod,
   };
 }
 
@@ -37,7 +45,12 @@ export function parseClass(tables: HTMLTableElement[]): Class {
   }
 
   const weights = sections.map((x) => x.weight);
-  const normalized = normalizeWeights(weights);
+
+  if (weights.some((x) => typeof x === "undefined")) {
+    return { ...header, sections };
+  }
+
+  const normalized = normalizeWeights(weights as number[]);
 
   for (let i = 0; i < sections.length; i++) {
     sections[i].weight = normalized[i];

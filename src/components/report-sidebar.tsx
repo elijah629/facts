@@ -1,5 +1,7 @@
 "use client";
 
+import { GraduationCap, TrashIcon } from "lucide-react";
+import Link from "next/link";
 import {
   Sidebar,
   SidebarContent,
@@ -12,12 +14,14 @@ import {
 } from "@/components/ui/sidebar";
 import { classGrade, gpa, letterGrade } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
-import { GraduationCap } from "lucide-react";
+import { timeAgo } from "@/lib/utils";
 import { Badge } from "./ui/badge";
-import Link from "next/link";
+import { Button } from "./ui/button";
 
 export function ReportSidebar() {
+  const lastUpdated = useReport((x) => x.lastUpdated);
   const report = useReport((x) => x.report);
+  const clear = useReport((x) => x.clear);
 
   return (
     <Sidebar>
@@ -49,7 +53,7 @@ export function ReportSidebar() {
                 return (
                   <SidebarMenuItem key={cls.fullName}>
                     <SidebarMenuButton asChild>
-                      <Link href={"/class/" + i}>
+                      <Link href={`/class/${i}`}>
                         <div className="flex items-center gap-2">
                           <GraduationCap size={16} />
                           <span>{cls.displayName}</span>
@@ -66,7 +70,28 @@ export function ReportSidebar() {
           </SidebarGroup>
         )}
       </SidebarContent>
-      <SidebarFooter />
+      <SidebarFooter>
+        <span className="text-sm">
+          App Version:{" "}
+          {new Date(
+            Number(process.env.NEXT_PUBLIC_BUILD_DATE),
+          ).toLocaleDateString()}
+        </span>
+
+        {lastUpdated && (
+          <span className="text-sm">Last fetched: {timeAgo(lastUpdated)}</span>
+        )}
+        {report && (
+          <Button
+            variant="destructive"
+            onClick={() => {
+              clear();
+            }}
+          >
+            <TrashIcon /> Clear report
+          </Button>
+        )}
+      </SidebarFooter>
     </Sidebar>
   );
 }

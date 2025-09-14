@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ReportInput } from "@/components/report-input";
+import { ReportSidebar } from "@/components/report-sidebar";
+import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { ReportInput } from "@/components/report-input";
-import { ReportSidebar } from "@/components/report-sidebar";
-import { Separator } from "@/components/ui/separator";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

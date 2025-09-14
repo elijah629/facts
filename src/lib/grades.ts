@@ -1,56 +1,85 @@
-import { Assignment, Class, Section } from "@/types/report";
+import type { Assignment, Class, Section } from "@/types/report";
 
 export function letterGrade(percentage: number): string {
-  if (percentage >= 97) return "A+";
-  if (percentage >= 93) return "A";
-  if (percentage >= 90) return "A-";
-  if (percentage >= 87) return "B+";
-  if (percentage >= 83) return "B";
-  if (percentage >= 80) return "B-";
-  if (percentage >= 77) return "C+";
-  if (percentage >= 73) return "C";
-  if (percentage >= 70) return "C-";
-  if (percentage >= 67) return "D+";
-  if (percentage >= 63) return "D";
-  if (percentage >= 60) return "D-";
+  if (percentage >= 0.97) return "A+";
+  if (percentage >= 0.93) return "A";
+  if (percentage >= 0.9) return "A-";
+  if (percentage >= 0.87) return "B+";
+  if (percentage >= 0.83) return "B";
+  if (percentage >= 0.8) return "B-";
+  if (percentage >= 0.77) return "C+";
+  if (percentage >= 0.73) return "C";
+  if (percentage >= 0.7) return "C-";
+  if (percentage >= 0.67) return "D+";
+  if (percentage >= 0.63) return "D";
+  if (percentage >= 0.6) return "D-";
 
   return "F";
 }
 
 export function sectionGrade(section: Section): false | number {
-  if (section.assignments.length === 0) {
+  const { totalPoints, possiblePoints } = sectionPoints(section);
+
+  if (possiblePoints === 0) {
     return false;
+  }
+
+  return totalPoints / possiblePoints;
+}
+
+export function sectionPoints(section: Section): {
+  totalPoints: number;
+  possiblePoints: number;
+} {
+  if (section.assignments.length === 0) {
+    return { totalPoints: 0, possiblePoints: 0 };
   }
 
   const points = section.assignments.map(assignmentPoints);
 
   const totalPoints = points.reduce((sum, { points }) => sum + points, 0);
-  const maximalPoints = points.reduce(
+  const possiblePoints = points.reduce(
     (sum, { maxPoints }) => sum + maxPoints,
     0,
   );
 
-  const percentage = (totalPoints / maximalPoints) * 100;
-
-  return percentage;
+  return { totalPoints, possiblePoints };
 }
 
 export function classGrade(cls: Class): number {
-  let weightedSum = 0;
-  let totalWeight = 0; // is not always 1, for sections without assisgnments
+  switch (cls.gradingMethod) {
+    case "points": {
+      let totalPoints = 0;
+      let possiblePoints = 0;
 
-  for (const section of cls.sections) {
-    const grade = sectionGrade(section);
+      for (const section of cls.sections) {
+        const points = sectionPoints(section);
 
-    if (grade === false) {
-      continue;
+        totalPoints += points.totalPoints;
+        possiblePoints += points.possiblePoints;
+      }
+
+      return totalPoints / possiblePoints;
     }
+    case "mixed":
+    case "percent": {
+      let weightedSum = 0;
+      let totalWeight = 0; // is not always 1, for sections without assisgnments
 
-    weightedSum += grade * section.weight;
-    totalWeight += section.weight;
+      for (const section of cls.sections) {
+        const grade = sectionGrade(section);
+
+        if (grade === false) {
+          continue;
+        }
+
+        weightedSum += grade * (section.weight ?? 0);
+        totalWeight += section.weight ?? 0;
+      }
+
+      return weightedSum / totalWeight;
+    }
   }
-
-  return weightedSum / totalWeight;
 }
 
 export function assignmentPoints(assignment: Assignment): {
@@ -79,7 +108,7 @@ export function gpa(classes: Class[]): number {
   for (const cls of classes) {
     const grade = classGrade(cls);
 
-    totalPoints += grade / 100;
+    totalPoints += grade;
   }
 
   return classes.length > 0 ? (totalPoints / classes.length) * 4.3 : 0;

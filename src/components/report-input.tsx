@@ -1,13 +1,15 @@
 "use client";
 
-import { useReport } from "@/lib/report/store";
-import { Input } from "./ui/input";
-import { Button } from "./ui/button";
-import { parseReportFromHtml } from "../lib/report/parser";
+import { useState } from "react";
 import { serverFetch } from "@/app/actions";
+import { useReport } from "@/lib/report/store";
+import { parseReportFromHtml } from "../lib/report/parser";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
 
 export function ReportInput() {
   const { reportUrl, setReport, setReportUrl } = useReport();
+  const [fetching, setFetching] = useState(false);
 
   return (
     <form
@@ -15,8 +17,10 @@ export function ReportInput() {
       onSubmit={async (e) => {
         e.preventDefault();
 
+        setFetching(true);
         const html = await serverFetch(reportUrl);
         const report = parseReportFromHtml(html);
+        setFetching(false);
 
         setReport(report);
       }}
@@ -27,7 +31,9 @@ export function ReportInput() {
         value={reportUrl}
         onChange={(event) => setReportUrl(event.target.value)}
       />
-      <Button type="submit">Fetch</Button>
+      <Button type="submit" disabled={fetching}>
+        {fetching ? "Fetching" : "Fetch"}
+      </Button>
     </form>
   );
 }

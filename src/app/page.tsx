@@ -1,8 +1,8 @@
 "use client";
 
+import { CalendarIcon, Dot } from "lucide-react";
 import { gpa } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
-import { CalendarIcon, Dot } from "lucide-react";
 
 export default function Home() {
   const report = useReport((x) => x.report);

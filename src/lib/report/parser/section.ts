@@ -1,4 +1,4 @@
-import { Section, SectionHeader } from "@/types/report";
+import type { Section, SectionHeader } from "@/types/report";
 import { parseAssignment } from "./assignment";
 
 function parseSectionHeader(table: HTMLTableElement): SectionHeader {
@@ -11,16 +11,14 @@ function parseSectionHeader(table: HTMLTableElement): SectionHeader {
   const description =
     (descriptionEl as HTMLTableCellElement).innerText.trim() || undefined;
 
-  const weight = Number(
-    (weightEl as HTMLTableCellElement).innerText
-      .trim()
-      .substring("Weight = ".length),
-  );
+  const weight = (weightEl as HTMLTableCellElement).innerText
+    .trim()
+    .substring("Weight = ".length);
 
   return {
     name,
     description,
-    weight,
+    weight: weight.length === 0 ? undefined : Number(weight),
   };
 }
 

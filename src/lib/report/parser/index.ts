@@ -1,6 +1,6 @@
-import { Report } from "@/types/report";
-import { parseReportHeader } from "./report-header";
+import type { Report } from "@/types/report";
 import { parseClass } from "./class";
+import { parseReportHeader } from "./report-header";
 
 export function parseReportFromHtml(html: string): Report {
   const doc = Document.parseHTMLUnsafe(html);
