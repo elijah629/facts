@@ -20,7 +20,7 @@ export const useReport = create(
       reportUrl: "",
       report: undefined,
       lastUpdated: undefined,
-      weighted: false,
+      weighted: true,
 
       setWeighted: (weighted: boolean) => set({ weighted }),
       setReport: (report: Report) => set({ report, lastUpdated: Date.now() }),
