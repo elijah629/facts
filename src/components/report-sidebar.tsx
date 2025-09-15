@@ -53,7 +53,7 @@ export function ReportSidebar() {
                   id="weighted-gpa"
                 />
                 <Label htmlFor="weighted-gpa">
-                  Weighted GPA (&#8805;Soph.)
+                    AP/Honors Boost
                 </Label>
               </div>
             </SidebarMenuButton>
