@@ -119,6 +119,12 @@ export function ReportSidebar() {
           </Link>
         </span>
 
+        <span>
+          <Link href="https://github.com/elijah629/facts" className="underline">
+            source code
+          </Link>
+        </span>
+
         {report && (
           <Button
             variant="destructive"

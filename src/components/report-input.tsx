@@ -10,6 +10,10 @@ import { Input } from "./ui/input";
 export function ReportInput() {
   const { reportUrl, setReport, setReportUrl } = useReport();
   const [fetching, setFetching] = useState(false);
+  const [text, setText] = useState("Fetch");
+  const [buttonVariant, setButtonVariant] = useState<
+    "destructive" | "default" | undefined
+  >(undefined);
 
   return (
     <form
@@ -18,21 +22,41 @@ export function ReportInput() {
         e.preventDefault();
 
         setFetching(true);
-        const html = await serverFetch(reportUrl);
-        const report = parseReportFromHtml(html);
-        setFetching(false);
+        setText("Fetching...");
+        setButtonVariant(undefined);
 
-        setReport(report);
+        try {
+          const html = await serverFetch(reportUrl);
+          const report = parseReportFromHtml(html);
+
+          setReport(report);
+
+          setText("Fetched");
+          setButtonVariant(undefined);
+        } catch {
+          setText("Invalid");
+          setButtonVariant("destructive");
+        } finally {
+          setFetching(false);
+        }
       }}
     >
       <Input
         placeholder="Report URL"
         type="url"
         value={reportUrl}
-        onChange={(event) => setReportUrl(event.target.value)}
+        onChange={(event) => {
+          setReportUrl(event.target.value);
+          setButtonVariant(undefined);
+          setText("Fetch");
+        }}
       />
-      <Button type="submit" disabled={fetching}>
-        {fetching ? "Fetching" : "Fetch"}
+      <Button
+        type="submit"
+        disabled={fetching}
+        {...(buttonVariant ? { variant: buttonVariant } : {})}
+      >
+        {text}
       </Button>
     </form>
   );
