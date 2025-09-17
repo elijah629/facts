@@ -29,6 +29,7 @@ export const useReport = create(
     }),
     {
       name: "report-storage",
+      version: 1,
       /*partialize: ({ reportUrl, setReport, setReportUrl }) => ({
         reportUrl,
         setReport,

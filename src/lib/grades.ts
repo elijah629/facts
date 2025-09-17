@@ -1,94 +1,101 @@
 import type { Assignment, Class, Section } from "@/types/report";
 
-export function letterGrade(percentage: number): string {
-  if (percentage >= 0.98) return "A+";
-  if (percentage >= 0.93) return "A";
-  if (percentage >= 0.9) return "A-";
-  if (percentage >= 0.87) return "B+";
-  if (percentage >= 0.83) return "B";
-  if (percentage >= 0.8) return "B-";
-  if (percentage >= 0.77) return "C+";
-  if (percentage >= 0.73) return "C";
-  if (percentage >= 0.7) return "C-";
-  if (percentage >= 0.67) return "D+";
-  if (percentage >= 0.63) return "D";
-  if (percentage >= 0.6) return "D-";
+export enum LetterGrade {
+  Ap = "A+",
+  A = "A",
+  Am = "A-",
+  Bp = "B+",
+  B = "B",
+  Bm = "B-",
+  Cp = "C+",
+  C = "C",
+  Cm = "C-",
+  Dp = "D+",
+  D = "D",
+  Dm = "D-",
+  F = "F",
+}
 
-  return "F";
+export const GPA_WEIGHTS: Record<ClassType, Record<LetterGrade, number>> = {
+  regular: {
+    [LetterGrade.Ap]: 4.3,
+    [LetterGrade.A]: 4.0,
+    [LetterGrade.Am]: 3.7,
+    [LetterGrade.Bp]: 3.3,
+    [LetterGrade.B]: 3.0,
+    [LetterGrade.Bm]: 2.7,
+    [LetterGrade.Cp]: 2.3,
+    [LetterGrade.C]: 2.0,
+    [LetterGrade.Cm]: 1.7,
+    [LetterGrade.Dp]: 1.3,
+    [LetterGrade.D]: 1.0,
+    [LetterGrade.Dm]: 0.7,
+    [LetterGrade.F]: 0.0,
+  },
+  weighted: {
+    [LetterGrade.Ap]: 5.3,
+    [LetterGrade.A]: 5.0,
+    [LetterGrade.Am]: 4.7,
+    [LetterGrade.Bp]: 4.3,
+    [LetterGrade.B]: 4.0,
+    [LetterGrade.Bm]: 3.7,
+    [LetterGrade.Cp]: 3.3,
+    [LetterGrade.C]: 3.0,
+    [LetterGrade.Cm]: 1.7,
+    [LetterGrade.Dp]: 1.3,
+    [LetterGrade.D]: 1.0,
+    [LetterGrade.Dm]: 0.7,
+    [LetterGrade.F]: 0.0,
+  },
+};
+
+// [min, max)
+export const LETTER_RANGES: Record<LetterGrade, { min: number; max: number }> =
+  {
+    [LetterGrade.Ap]: { min: 0.98, max: 1.0 },
+    [LetterGrade.A]: { min: 0.93, max: 0.98 },
+    [LetterGrade.Am]: { min: 0.9, max: 0.93 },
+    [LetterGrade.Bp]: { min: 0.87, max: 0.9 },
+    [LetterGrade.B]: { min: 0.83, max: 0.87 },
+    [LetterGrade.Bm]: { min: 0.8, max: 0.83 },
+    [LetterGrade.Cp]: { min: 0.77, max: 0.8 },
+    [LetterGrade.C]: { min: 0.73, max: 0.77 },
+    [LetterGrade.Cm]: { min: 0.7, max: 0.73 },
+    [LetterGrade.Dp]: { min: 0.67, max: 0.7 },
+    [LetterGrade.D]: { min: 0.63, max: 0.67 },
+    [LetterGrade.Dm]: { min: 0.6, max: 0.63 },
+    [LetterGrade.F]: { min: 0.0, max: 0.6 },
+  };
+
+export function letterGrade(percentage: number): LetterGrade {
+  if (percentage >= LETTER_RANGES[LetterGrade.Ap].min) return LetterGrade.Ap;
+  if (percentage >= LETTER_RANGES[LetterGrade.A].min) return LetterGrade.A;
+  if (percentage >= LETTER_RANGES[LetterGrade.Am].min) return LetterGrade.Am;
+  if (percentage >= LETTER_RANGES[LetterGrade.Bp].min) return LetterGrade.Bp;
+  if (percentage >= LETTER_RANGES[LetterGrade.B].min) return LetterGrade.B;
+  if (percentage >= LETTER_RANGES[LetterGrade.Bm].min) return LetterGrade.Bm;
+  if (percentage >= LETTER_RANGES[LetterGrade.Cp].min) return LetterGrade.Cp;
+  if (percentage >= LETTER_RANGES[LetterGrade.C].min) return LetterGrade.C;
+  if (percentage >= LETTER_RANGES[LetterGrade.Cm].min) return LetterGrade.Cm;
+  if (percentage >= LETTER_RANGES[LetterGrade.Dp].min) return LetterGrade.Dp;
+  if (percentage >= LETTER_RANGES[LetterGrade.D].min) return LetterGrade.D;
+  if (percentage >= LETTER_RANGES[LetterGrade.Dm].min) return LetterGrade.Dm;
+
+  return LetterGrade.F;
 }
 
 type ClassType = "regular" | "weighted";
 
 export function classGpa(cls: Class, classType: ClassType | undefined): number {
   const p = classGrade(cls);
+
   const cT: ClassType = classType
     ? classType
     : cls.displayName.endsWith("(H)") || cls.displayName.startsWith("AP")
       ? "weighted"
       : "regular";
 
-  const maxGPA = cT === "weighted" ? 5.3 : 4.3;
-  const pct = Math.min(p, 1.0);
-
-  let gpa: number;
-
-  if (cT === "weighted") {
-    gpa =
-      pct >= 0.98
-        ? 5.3
-        : pct >= 0.93
-          ? 5.0 + ((pct - 0.93) * (5.3 - 5.0)) / (0.98 - 0.93)
-          : pct >= 0.9
-            ? 4.7 + ((pct - 0.9) * (5.0 - 4.7)) / (0.93 - 0.9)
-            : pct >= 0.87
-              ? 4.3 + ((pct - 0.87) * (4.7 - 4.3)) / (0.9 - 0.87)
-              : pct >= 0.83
-                ? 4.0 + ((pct - 0.83) * (4.3 - 4.0)) / (0.87 - 0.83)
-                : pct >= 0.8
-                  ? 3.7 + ((pct - 0.8) * (4.0 - 3.7)) / (0.83 - 0.8)
-                  : pct >= 0.77
-                    ? 3.3 + ((pct - 0.77) * (3.7 - 3.3)) / (0.8 - 0.77)
-                    : pct >= 0.73
-                      ? 3.0 + ((pct - 0.73) * (3.3 - 3.0)) / (0.77 - 0.73)
-                      : pct >= 0.7
-                        ? 1.7 + ((pct - 0.7) * (3.0 - 1.7)) / (0.73 - 0.7)
-                        : pct >= 0.67
-                          ? 1.3 + ((pct - 0.67) * (1.7 - 1.3)) / (0.7 - 0.67)
-                          : pct >= 0.63
-                            ? 1.0 + ((pct - 0.63) * (1.3 - 1.0)) / (0.67 - 0.63)
-                            : pct >= 0.6
-                              ? 0.7 + ((pct - 0.6) * (1.0 - 0.7)) / (0.63 - 0.6)
-                              : 0;
-  } else {
-    gpa =
-      pct >= 0.98
-        ? 4.3
-        : pct >= 0.93
-          ? 4.0 + ((pct - 0.93) * (4.3 - 4.0)) / (0.98 - 0.93)
-          : pct >= 0.9
-            ? 3.7 + ((pct - 0.9) * (4.0 - 3.7)) / (0.93 - 0.9)
-            : pct >= 0.87
-              ? 3.3 + ((pct - 0.87) * (3.7 - 3.3)) / (0.9 - 0.87)
-              : pct >= 0.83
-                ? 3.0 + ((pct - 0.83) * (3.3 - 3.0)) / (0.87 - 0.83)
-                : pct >= 0.8
-                  ? 2.7 + ((pct - 0.8) * (3.0 - 2.7)) / (0.83 - 0.8)
-                  : pct >= 0.77
-                    ? 2.3 + ((pct - 0.77) * (2.7 - 2.3)) / (0.8 - 0.77)
-                    : pct >= 0.73
-                      ? 2.0 + ((pct - 0.73) * (2.3 - 2.0)) / (0.77 - 0.73)
-                      : pct >= 0.7
-                        ? 1.7 + ((pct - 0.7) * (2.0 - 1.7)) / (0.73 - 0.7)
-                        : pct >= 0.67
-                          ? 1.3 + ((pct - 0.67) * (1.7 - 1.3)) / (0.7 - 0.67)
-                          : pct >= 0.63
-                            ? 1.0 + ((pct - 0.63) * (1.3 - 1.0)) / (0.67 - 0.63)
-                            : pct >= 0.6
-                              ? 0.7 + ((pct - 0.6) * (1.0 - 0.7)) / (0.63 - 0.6)
-                              : 0;
-  }
-
-  return p <= 1 ? gpa : gpa + (p - 1) * maxGPA;
+  return GPA_WEIGHTS[cT][letterGrade(p)];
 }
 
 export function gpa(classes: Class[], weighted: boolean = true): number {

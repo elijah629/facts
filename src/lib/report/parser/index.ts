@@ -1,6 +1,7 @@
 import type { Report } from "@/types/report";
 import { parseClass } from "./class";
 import { parseReportHeader } from "./report-header";
+import { fullyDateReport } from "./utils";
 
 export function parseReportFromHtml(html: string): Report {
   const doc = Document.parseHTMLUnsafe(html);
@@ -11,7 +12,7 @@ export function parseReportFromHtml(html: string): Report {
 
   classes.sort((a, b) => Number(a.fullName.at(-1)) - Number(b.fullName.at(-1)));
 
-  return { ...reportHeader, classes };
+  return fullyDateReport({ ...reportHeader, classes });
 }
 
 function extractTableGroups(doc: Document): HTMLTableElement[][] {

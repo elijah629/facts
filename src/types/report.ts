@@ -52,11 +52,6 @@ export type Assignment = (
 
       points: number;
       maxPoints: number;
-      // average: number, // points / maxPoints
-
-      /*curve: number;
-      bonus: number;
-      penalty: number;*/
     }
   | {
       // 0/0
@@ -67,13 +62,10 @@ export type Assignment = (
       maxPoints: number;
       status: "missing";
     }
-  //| {
-  //   status: string;
-  //}
 ) & {
   name: string;
   description?: string;
 
-  due: string;
+  due: Date;
   note?: string;
 };

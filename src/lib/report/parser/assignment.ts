@@ -7,7 +7,7 @@ export function parseAssignment(row: HTMLTableRowElement): Assignment {
     maxPoints,
     _average,
     status,
-    due,
+    rawDue,
     _curve,
     _bonus,
     _penalty,
@@ -15,6 +15,9 @@ export function parseAssignment(row: HTMLTableRowElement): Assignment {
   ] = Array.from(row.children).map(
     (cell) => (cell as HTMLTableCellElement).innerText,
   );
+
+  const [month, day] = rawDue.split("/").map(Number);
+  const due = new Date(0, month - 1, day);
 
   const [name, description] = rawName.split(": ");
 

@@ -1,8 +1,9 @@
 "use client";
 
 import { CalendarIcon, Dot } from "lucide-react";
-import { gpa } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
+import { generateGpaChartData } from "@/lib/dated-gpa";
+import { GpaChart } from "@/components/gpa-chart";
 
 export default function Home() {
   const report = useReport((x) => x.report);
@@ -23,21 +24,23 @@ export default function Home() {
     );
   }
 
-  const currentGPA = gpa(report.classes, weighted);
+  const chartData = generateGpaChartData(report, weighted);
+  const currentGPA = chartData.at(-1)!.gpa;
 
   return (
     <>
       <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
         Hello {report.for}! 👋
       </h2>
-      <p className="leading-7 flex items-center [&:not(:first-child)]:mt-6">
+      <p className="leading-7 flex text-lg items-center [&:not(:first-child)]:mt-6">
         <CalendarIcon size={16} className="mr-1" />
         {report.term}
         <Dot size={16} /> {report.yearRange.min}-{report.yearRange.max}
-      </p>
-      <p className="leading-7 [&:not(:first-child)]:mt-6">
+        <Dot size={16} />
         GPA: {currentGPA.toFixed(3)}
       </p>
+      <p className="leading-7 [&:not(:first-child)]:mt-6"></p>
+      <GpaChart chartData={chartData} />
     </>
   );
 }

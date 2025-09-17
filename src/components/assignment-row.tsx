@@ -1,7 +1,6 @@
 import { Assignment } from "@/types/report";
 import { TableCell, TableRow } from "./ui/table";
 import { Badge } from "./ui/badge";
-import { formatDate } from "@/lib/utils";
 
 export function AssignmentRow({
   assignment,
@@ -20,7 +19,13 @@ export function AssignmentRow({
           </span>
         )}
       </TableCell>
-      <TableCell>{formatDate(assignment.due)}</TableCell>
+      <TableCell>
+        {new Date(assignment.due).toLocaleDateString("en-US", {
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })}
+      </TableCell>
       {assignment.status === "valid" ? (
         <>
           <TableCell>

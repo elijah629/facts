@@ -1,6 +1,6 @@
 "use client";
 
-import { GraduationCap, TrashIcon } from "lucide-react";
+import { ChartAreaIcon, GraduationCap, TrashIcon } from "lucide-react";
 import Link from "next/link";
 import {
   Sidebar,
@@ -45,6 +45,20 @@ export function ReportSidebar() {
         </SidebarMenu>
         <SidebarMenu>
           <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/gpa-guide">
+                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-secondary-foreground">
+                  <ChartAreaIcon size={24} />
+                </div>
+                <div className="flex flex-col gap-2 leading-none">
+                  GPA Guide
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+        <SidebarMenu>
+          <SidebarMenuItem>
             <SidebarMenuButton asChild>
               <div className="flex items-center space-x-2">
                 <Switch
@@ -52,9 +66,7 @@ export function ReportSidebar() {
                   onCheckedChange={setWeighted}
                   id="weighted-gpa"
                 />
-                <Label htmlFor="weighted-gpa">
-                    AP/Honors Boost
-                </Label>
+                <Label htmlFor="weighted-gpa">AP/Honors Boost</Label>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -99,6 +111,14 @@ export function ReportSidebar() {
         {lastUpdated && (
           <span className="text-sm">Last fetched: {timeAgo(lastUpdated)}</span>
         )}
+
+        <span>
+          made with ❤ by{" "}
+          <Link href="https://eli.best" className="underline">
+            eli
+          </Link>
+        </span>
+
         {report && (
           <Button
             variant="destructive"
