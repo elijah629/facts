@@ -32,7 +32,7 @@ export function AssignmentRow({
             {assignment.points}/{assignment.maxPoints}
           </TableCell>
           <TableCell>
-            {((assignment.points * 100) / assignment.maxPoints).toFixed(3)}%
+            {((assignment.points * 100) / Math.min(1, assignment.maxPoints)).toFixed(3)}%
           </TableCell>
         </>
       ) : assignment.status === "missing" ? (
