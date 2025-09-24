@@ -16,8 +16,6 @@ export function parseAssignment(row: HTMLTableRowElement): Assignment {
     (cell) => (cell as HTMLTableCellElement).innerText,
   );
 
-  maxPoints = Math.min(1, maxPoints);
-
   const [month, day] = rawDue.split("/").map(Number);
   const due = new Date(0, month - 1, day);
 
