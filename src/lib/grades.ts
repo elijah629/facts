@@ -142,7 +142,7 @@ export function sectionAverage(section: Section): number | false {
   }
 
   const avgs = section.assignments.map(assignmentPoints).map(({ points, maxPoints }) => points / maxPoints);
-  const avg = points.reduce((a, b) => a + b) / avgs.length;
+  const avg = avgs.reduce((a, b) => a + b) / avgs.length;
 
   return avg;
 }
