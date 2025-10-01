@@ -107,7 +107,26 @@ export function gpa(classes: Class[], weighted: boolean = true): number {
   return classes.length > 0 ? totalGp / classes.length : 0;
 }
 
-export function sectionGrade(section: Section): false | number {
+export function assignmentPoints(assignment: Assignment): {
+  points: number;
+  maxPoints: number;
+} {
+  if (assignment.status === "valid") {
+    return { points: assignment.points, maxPoints: assignment.maxPoints };
+  }
+
+  if (assignment.status === "missing") {
+    return { points: 0, maxPoints: assignment.maxPoints };
+  }
+
+  if (assignment.status === "excuse") {
+    return { points: 0, maxPoints: 0 };
+  }
+
+  return { points: 0, maxPoints: 0 };
+}
+
+export function sectionGrade(section: Section): number | false {
   const { totalPoints, possiblePoints } = sectionPoints(section);
 
   if (possiblePoints === 0) {
@@ -115,6 +134,17 @@ export function sectionGrade(section: Section): false | number {
   }
 
   return totalPoints / possiblePoints;
+}
+
+export function sectionAverage(section: Section): number | false {
+  if (section.assignments.length === 0) {
+    return false;
+  }
+
+  const avgs = section.assignments.map(assignmentPoints).map(({ points, maxPoints }) => points / maxPoints);
+  const avg = points.reduce((a, b) => a + b) / avgs.length;
+
+  return avg;
 }
 
 export function sectionPoints(section: Section): {
@@ -157,7 +187,7 @@ export function classGrade(cls: Class): number {
       let totalWeight = 0; // is not always 1, for sections without assisgnments
 
       for (const section of cls.sections) {
-        const grade = sectionGrade(section);
+        const grade = cls.gradingMethod === "mixed" ? sectionGrade(section) : sectionAverage(section);
 
         if (grade === false) {
           continue;
@@ -170,23 +200,4 @@ export function classGrade(cls: Class): number {
       return weightedSum / totalWeight;
     }
   }
-}
-
-export function assignmentPoints(assignment: Assignment): {
-  points: number;
-  maxPoints: number;
-} {
-  if (assignment.status === "valid") {
-    return { points: assignment.points, maxPoints: assignment.maxPoints };
-  }
-
-  if (assignment.status === "missing") {
-    return { points: 0, maxPoints: assignment.maxPoints };
-  }
-
-  if (assignment.status === "excuse") {
-    return { points: 0, maxPoints: 0 };
-  }
-
-  return { points: 0, maxPoints: 0 };
 }
