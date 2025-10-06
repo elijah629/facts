@@ -5,8 +5,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { sectionGrade } from "@/lib/grades";
-import type { Section } from "@/types/report";
+import { sectionGrade, sectionAverage } from "@/lib/grades";
+import type { Section, Class } from "@/types/report";
 import {
   Table,
   TableBody,
@@ -16,8 +16,8 @@ import {
 } from "@/components/ui/table";
 import { AssignmentRow } from "@/components/assignment-row";
 
-export function SectionDisplay({ section }: { section: Section }) {
-  const percentage = sectionGrade(section);
+export function SectionDisplay({ section, cls }: { section: Section, cls: Class }) {
+  const percentage = cls.gradingMethod === "mixed" ? sectionGrade(section) : sectionAverage(section);
 
   if (percentage === false) {
     return;
