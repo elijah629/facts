@@ -43,7 +43,7 @@ export function ClassReport({ index }: { index: number }) {
       </div>
       <div className="flex flex-col gap-4">
         {cls.sections.map((x) => (
-          <SectionDisplay key={x.name} section={x} />
+          <SectionDisplay key={x.name} section={x} cls={cls} />
         ))}
       </div>
     </>
