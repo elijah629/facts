@@ -141,7 +141,7 @@ export function sectionAverage(section: Section): number | false {
     return false;
   }
 
-  const avgs = section.assignments.map(assignmentPoints).map(({ points, maxPoints }) => points / Math.max(1, maxPoints));
+  const avgs = section.assignments.filter(x => x.status !== "excuse").map(assignmentPoints).map(({ points, maxPoints }) => points / Math.max(1, maxPoints));
   const avg = avgs.reduce((a, b) => a + b) / avgs.length;
 
   return avg;
