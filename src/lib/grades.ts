@@ -136,6 +136,19 @@ export function sectionGrade(section: Section): number | false {
   return totalPoints / possiblePoints;
 }
 
+export function factsSectionGrade(section: Section): number | false {
+  const { totalPoints, possiblePoints } = sectionPoints(section);
+
+  if (possiblePoints === 0) {
+    return false;
+  }
+
+	return Math.round(section.assignments
+		.map(assignmentPoints)
+		.map(({ points, maxPoints }) => Math.round((points / maxPoints) * 100) * maxPoints)
+		.reduce((a, b) => a + b, 0) / possiblePoints);
+}
+
 export function sectionAverage(section: Section): number | false {
   if (section.assignments.length === 0) {
     return false;
@@ -187,7 +200,7 @@ export function classGrade(cls: Class): number {
       let totalWeight = 0; // is not always 1, for sections without assisgnments
 
       for (const section of cls.sections) {
-        const grade = cls.gradingMethod === "mixed" ? sectionGrade(section) : sectionAverage(section);
+        const grade = cls.gradingMethod === "mixed" ? factsSectionGrade(section) : sectionAverage(section);
 
         if (grade === false) {
           continue;
