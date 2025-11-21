@@ -146,7 +146,7 @@ export function factsSectionGrade(section: Section): number | false {
 	return Math.round(section.assignments
 		.map(assignmentPoints)
 		.map(({ points, maxPoints }) => Math.round((points / maxPoints) * 100) * maxPoints)
-		.reduce((a, b) => a + b, 0) / possiblePoints);
+		.reduce((a, b) => a + b, 0) / possiblePoints * 100);
 }
 
 export function sectionAverage(section: Section): number | false {
@@ -200,7 +200,7 @@ export function classGrade(cls: Class): number {
       let totalWeight = 0; // is not always 1, for sections without assisgnments
 
       for (const section of cls.sections) {
-        const grade = cls.gradingMethod === "mixed" ? factsSectionGrade(section) : sectionAverage(section);
+        const grade = cls.gradingMethod === "mixed" ? sectionGrade(section) : sectionAverage(section);
 
         if (grade === false) {
           continue;
