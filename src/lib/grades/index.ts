@@ -1,4 +1,12 @@
-import type { Assignment, Class, Section } from "@/types/report";
+import type { Assignment, Class } from "@/types/report";
+import {
+  sectionGradeWeighted,
+  sectionGradeUnweighted,
+  sectionGradePoints,
+} from "./section";
+import { roundTo } from "../utils";
+
+export * from "./section";
 
 export enum LetterGrade {
   Ap = "A+",
@@ -126,59 +134,6 @@ export function assignmentPoints(assignment: Assignment): {
   return { points: 0, maxPoints: 0 };
 }
 
-export function sectionGrade(section: Section): number | false {
-  const { totalPoints, possiblePoints } = sectionPoints(section);
-
-  if (possiblePoints === 0) {
-    return false;
-  }
-
-  return totalPoints / possiblePoints;
-}
-
-export function factsSectionGrade(section: Section): number | false {
-  const { totalPoints, possiblePoints } = sectionPoints(section);
-
-  if (possiblePoints === 0) {
-    return false;
-  }
-
-	return Math.round(section.assignments
-		.map(assignmentPoints)
-		.map(({ points, maxPoints }) => Math.round((points / maxPoints) * 100) * maxPoints)
-		.reduce((a, b) => a + b, 0) / possiblePoints * 100);
-}
-
-export function sectionAverage(section: Section): number | false {
-  if (section.assignments.length === 0) {
-    return false;
-  }
-
-  const avgs = section.assignments.filter(x => x.status !== "excuse").map(assignmentPoints).map(({ points, maxPoints }) => points / Math.max(1, maxPoints));
-  const avg = avgs.reduce((a, b) => a + b) / avgs.length;
-
-  return avg;
-}
-
-export function sectionPoints(section: Section): {
-  totalPoints: number;
-  possiblePoints: number;
-} {
-  if (section.assignments.length === 0) {
-    return { totalPoints: 0, possiblePoints: 0 };
-  }
-
-  const points = section.assignments.map(assignmentPoints);
-
-  const totalPoints = points.reduce((sum, { points }) => sum + points, 0);
-  const possiblePoints = points.reduce(
-    (sum, { maxPoints }) => sum + maxPoints,
-    0,
-  );
-
-  return { totalPoints, possiblePoints };
-}
-
 export function classGrade(cls: Class): number {
   switch (cls.gradingMethod) {
     case "points": {
@@ -186,7 +141,7 @@ export function classGrade(cls: Class): number {
       let possiblePoints = 0;
 
       for (const section of cls.sections) {
-        const points = sectionPoints(section);
+        const points = sectionGradePoints(section);
 
         totalPoints += points.totalPoints;
         possiblePoints += points.possiblePoints;
@@ -197,10 +152,13 @@ export function classGrade(cls: Class): number {
     case "mixed":
     case "percent": {
       let weightedSum = 0;
-      let totalWeight = 0; // is not always 1, for sections without assisgnments
+      let totalWeight = 0;
 
       for (const section of cls.sections) {
-        const grade = cls.gradingMethod === "mixed" ? sectionGrade(section) : sectionAverage(section);
+        const grade =
+          cls.gradingMethod === "mixed"
+            ? sectionGradeWeighted(section, cls.roundingPrecision)
+            : sectionGradeUnweighted(section);
 
         if (grade === false) {
           continue;
@@ -210,7 +168,11 @@ export function classGrade(cls: Class): number {
         totalWeight += section.weight ?? 0;
       }
 
-      return weightedSum / totalWeight;
+      const grade = weightedSum / totalWeight;
+
+      return cls.gradingMethod === "mixed"
+        ? roundTo(grade, cls.roundingPrecision + 2)
+        : grade;
     }
   }
 }

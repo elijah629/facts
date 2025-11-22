@@ -19,7 +19,8 @@ export function parseAssignment(row: HTMLTableRowElement): Assignment {
   const [month, day] = rawDue.split("/").map(Number);
   const due = new Date(0, month - 1, day);
 
-  const [name, description] = rawName.split(": ");
+  const [name, _description] = rawName.split(": ");
+  const description = name === _description ? undefined : _description;
 
   status = status.toLowerCase() as Assignment["status"];
 

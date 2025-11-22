@@ -1,6 +1,6 @@
 "use client";
 
-import { Dot, Presentation } from "lucide-react";
+import { Dot, User } from "lucide-react";
 import { classGrade, letterGrade } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
 import { SectionDisplay } from "./section-display";
@@ -26,19 +26,23 @@ export function ClassReport({ index }: { index: number }) {
     <>
       <div className="mb-8">
         <div className="flex items-center gap-2">
-          <h1 className="text-3xl font-bold">{cls.displayName}</h1>
-          <Badge variant="outline">{(percentage * 100).toFixed(3)}%</Badge>
+          <h1 className="sm:text-3xl text-xl font-bold">{cls.displayName}</h1>
+          <Badge variant="outline" className="font-mono">
+            {(percentage * 100).toFixed(cls.roundingPrecision)}%
+          </Badge>
           <Badge variant="default">{letter}</Badge>
         </div>
         <div className="flex items-center gap-1 text-muted-foreground">
-          <h2 className="text-sm text-muted-foreground">{cls.fullName}</h2>
+          <h2 className="text-sm text-muted-foreground font-mono">
+            {cls.fullName}
+          </h2>
           <Dot size={16} />
           <div className="flex items-center gap-2">
-            <Presentation className="h-4 w-4" />
+            <User className="h-4 w-4" />
             <span>{cls.instructor}</span>
           </div>
           <Dot size={16} />
-          <span>Grading: {cls.gradingMethod}</span>
+          <span>{cls.gradingMethod.toUpperCase()}</span>
         </div>
       </div>
       <div className="flex flex-col gap-4">

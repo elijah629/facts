@@ -17,6 +17,9 @@ export interface ReportHeader {
 export type Class = {
   /// Grading sections with weights
   sections: Section[];
+
+  /// How many decimals after the decimal point (optional: 0 if not present). this is used to maintain accuracy with oddly rounded classes with the mixed grading method
+  roundingPrecision: number;
 } & ClassHeader;
 
 export interface ClassHeader {

@@ -15,7 +15,7 @@ export default function Home() {
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
           Setup guide
         </h2>
-        <p className="leading-7 [&:not(:first-child)]:mt-6">
+        <p className="leading-7 not-first:mt-6">
           Visit your school email. Look for a message from "Renweb", open it.
           Inside of that email, there will be a link. Copy and paste it into the
           box above, then click "Fetch"
@@ -32,14 +32,19 @@ export default function Home() {
       <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
         Hello {report.for}! 👋
       </h2>
-      <p className="leading-7 flex text-lg items-center [&:not(:first-child)]:mt-6">
+      <p className="leading-7 flex text-lg items-center not-first:mt-6">
         <CalendarIcon size={16} className="mr-1" />
         {report.term}
         <Dot size={16} /> {report.yearRange.min}-{report.yearRange.max}
         <Dot size={16} />
-        GPA: {currentGPA.toFixed(3)}
+        <span>
+          GPA:{" "}
+          <span className="font-mono font-semibold">
+            {currentGPA.toFixed(3)}
+          </span>
+        </span>
       </p>
-      <p className="leading-7 [&:not(:first-child)]:mt-6"></p>
+      <p className="leading-7 not-first:mt-6"></p>
       <GpaChart chartData={chartData} />
     </>
   );

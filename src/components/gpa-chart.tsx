@@ -1,6 +1,6 @@
 "use client";
 
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts";
+import { CartesianGrid, Line, LineChart, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -17,6 +17,7 @@ import {
   CustomTooltipProps,
 } from "@/components/ui/chart";
 import { GpaSnapshot } from "@/lib/dated-gpa";
+import { GPA_WEIGHTS } from "@/lib/grades";
 
 const chartConfig = {
   gpa: {
@@ -46,6 +47,11 @@ export function GpaChart({ chartData }: { chartData: GpaSnapshot[] }) {
             }}
           >
             <CartesianGrid vertical={true} />
+            <YAxis
+              domain={[0, GPA_WEIGHTS.weighted["A+"]]}
+              tickCount={20}
+              hide
+            />
             <XAxis
               dataKey="date"
               tickLine={false}

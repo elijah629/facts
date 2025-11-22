@@ -15,3 +15,8 @@ export function timeAgo(date: number): string {
   if (diff < 86400) return rtf.format(-Math.floor(diff / 3600), "hour");
   return rtf.format(-Math.floor(diff / 86400), "day");
 }
+
+export function roundTo(value: number, decimals: number): number {
+  const p = Math.pow(10, decimals);
+  return Math.round(value * p) / p;
+}

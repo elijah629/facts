@@ -44,10 +44,27 @@ export function parseClass(tables: HTMLTableElement[]): Class {
     sections.push(parseSection(header, body));
   }
 
+  if (header.gradingMethod === "mixed" || header.gradingMethod === "percent") {
+    sections.sort((a, b) => b.weight! - a.weight!);
+  }
+
+  let lastI = tables.length % 2 === 0 ? tables.length - 1 : tables.length - 2;
+
+  const roundingPrecision = (
+    (
+      (
+        (tables[lastI + 1].firstElementChild as HTMLTableSectionElement)
+          .lastElementChild as HTMLTableRowElement
+      ).children[1] as HTMLTableCellElement
+    ).innerText
+      .trim()
+      .split(".")[1] || ""
+  ).length;
+
   const weights = sections.map((x) => x.weight);
 
   if (weights.some((x) => typeof x === "undefined")) {
-    return { ...header, sections };
+    return { ...header, sections, roundingPrecision };
   }
 
   const normalized = normalizeWeights(weights as number[]);
@@ -56,5 +73,5 @@ export function parseClass(tables: HTMLTableElement[]): Class {
     sections[i].weight = normalized[i];
   }
 
-  return { ...header, sections };
+  return { ...header, sections, roundingPrecision };
 }
