@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { AssignmentRow } from "@/components/assignment-row";
 import { cn, roundTo } from "@/lib/utils";
-import { ArrowRight, Dot } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export function SectionDisplay({
   section,
@@ -48,7 +48,10 @@ export function SectionDisplay({
               {section.name}
               <ArrowRight size={16} />
               {section.weight && (
-                <span className="font-mono"> {section.weight * 100}%</span>
+                <span className="font-mono">
+                  {" "}
+                  {(section.weight * 100).toFixed(2)}%
+                </span>
               )}
             </CardTitle>
             <CardDescription>{section.description}</CardDescription>

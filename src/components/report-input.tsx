@@ -15,6 +15,14 @@ export function ReportInput() {
     "destructive" | "default" | undefined
   >(undefined);
 
+  async function paste() {
+    const content = await navigator.clipboard.readText();
+
+    setReportUrl(content);
+    setButtonVariant(undefined);
+    setText("Fetch");
+  }
+
   return (
     <form
       className="flex w-full gap-2"
@@ -51,6 +59,14 @@ export function ReportInput() {
           setText("Fetch");
         }}
       />
+      <Button
+        onClick={(e) => {
+          e.preventDefault();
+          paste();
+        }}
+      >
+        Paste
+      </Button>
       <Button
         type="submit"
         disabled={fetching}

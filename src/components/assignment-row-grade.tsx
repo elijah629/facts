@@ -1,3 +1,4 @@
+import { letterGrade } from "@/lib/grades";
 import { roundTo } from "@/lib/utils";
 
 export function AssignmentRowGrade({
@@ -13,7 +14,7 @@ export function AssignmentRowGrade({
     <>
       {points}/{maxPoints}{" "}
       <span className={grade >= 100 ? "glow" : "text-muted-foreground"}>
-        ({roundTo(grade, 3)}
+        ({letterGrade(grade / 100)} {roundTo(grade, 3)}
         %)
       </span>
     </>
