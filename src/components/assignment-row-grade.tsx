@@ -14,7 +14,7 @@ export function AssignmentRowGrade({
     <>
       {points}/{maxPoints}{" "}
       <span className={grade >= 100 ? "glow" : "text-muted-foreground"}>
-        ({letterGrade(grade / 100)} {roundTo(grade, 3)}
+        ({letterGrade(grade / 100)} {roundTo(grade, 3).toFixed(3)}
         %)
       </span>
     </>
