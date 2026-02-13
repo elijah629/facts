@@ -4,7 +4,7 @@ import {
   sectionGradeUnweighted,
   sectionGradePoints,
 } from "./section";
-import { roundTo } from "../utils";
+import { roundTo, ceilTo } from "../utils";
 
 export * from "./section";
 
@@ -171,7 +171,7 @@ export function classGrade(cls: Class): number {
       const grade = weightedSum / totalWeight;
 
       return cls.gradingMethod === "mixed"
-        ? roundTo(grade, cls.roundingPrecision + 2)
+        ? ceilTo(grade, cls.roundingPrecision + 2)
         : grade;
     }
   }
