@@ -18,5 +18,8 @@ export function timeAgo(date: number): string {
 
 export function roundTo(value: number, decimals: number): number {
   const p = Math.pow(10, decimals);
-  return Math.round(value * p) / p;
+
+  // NOTE: Rounding up because thats what facts does in most situations
+  // May want to address uses of this function to avoid confusion
+  return Math.ceil(value * p) / p;
 }
