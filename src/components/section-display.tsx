@@ -50,7 +50,7 @@ export function SectionDisplay({
               {section.weight && (
                 <span className="font-mono">
                   {" "}
-                  {(section.weight * 100).toFixed(2)}%
+                  {(section.weight * 100).toPrecision(2)}%
                 </span>
               )}
             </CardTitle>
