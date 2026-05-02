@@ -1,3 +1,5 @@
+import { ArrowRight } from "lucide-react";
+import { AssignmentRow } from "@/components/assignment-row";
 import {
   Card,
   CardContent,
@@ -5,8 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { sectionGradeUnweighted, sectionGradeWeighted } from "@/lib/grades";
-import type { Section, Class } from "@/types/report";
 import {
   Table,
   TableBody,
@@ -14,9 +14,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { AssignmentRow } from "@/components/assignment-row";
+import { sectionGradeUnweighted, sectionGradeWeighted } from "@/lib/grades";
 import { cn, roundTo } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
+import type { Class, Section } from "@/types/report";
 
 export function SectionDisplay({
   section,
@@ -77,9 +77,9 @@ export function SectionDisplay({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {section.assignments.map((assignment, index) => (
+              {section.assignments.map((assignment) => (
                 <AssignmentRow
-                  key={index}
+                  key={`${assignment.name}-${new Date(assignment.due).getTime()}`}
                   weakPoint={
                     (assignment.status === "valid" ||
                       assignment.status === "missing") &&

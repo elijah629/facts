@@ -1,13 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { SelectClass } from "@/components/select-class";
 import { SelectSection } from "@/components/select-section";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { classGrade } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
-import { useState } from "react";
 
 export default function FinalCalculator() {
   const report = useReport((x) => x.report);

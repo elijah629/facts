@@ -1,10 +1,10 @@
 import type { Assignment, Class } from "@/types/report";
+import { ceilTo } from "../utils";
 import {
-  sectionGradeWeighted,
-  sectionGradeUnweighted,
   sectionGradePoints,
+  sectionGradeUnweighted,
+  sectionGradeWeighted,
 } from "./section";
-import { roundTo, ceilTo } from "../utils";
 
 export * from "./section";
 

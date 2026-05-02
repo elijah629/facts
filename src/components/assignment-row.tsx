@@ -1,8 +1,8 @@
-import { Assignment } from "@/types/report";
-import { TableCell, TableRow } from "./ui/table";
-import { Badge } from "./ui/badge";
 import { Check } from "lucide-react";
+import type { Assignment } from "@/types/report";
 import { AssignmentRowGrade } from "./assignment-row-grade";
+import { Badge } from "./ui/badge";
+import { TableCell, TableRow } from "./ui/table";
 
 export function AssignmentRow({
   assignment,
@@ -36,9 +36,7 @@ export function AssignmentRow({
           />
         ) : assignment.status === "missing" ? (
           <AssignmentRowGrade points={0} maxPoints={assignment.maxPoints} />
-        ) : (
-          <></>
-        )}
+        ) : null}
       </TableCell>
       <TableCell>
         {weakPoint && (

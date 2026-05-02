@@ -17,13 +17,13 @@ export function timeAgo(date: number): string {
 }
 
 export function roundTo(value: number, decimals: number): number {
-  const p = Math.pow(10, decimals);
+  const p = 10 ** decimals;
 
   return Math.round(value * p) / p;
 }
 
 export function ceilTo(value: number, decimals: number): number {
-  const p = Math.pow(10, decimals);
+  const p = 10 ** decimals;
 
   return Math.ceil(value * p) / p;
 }

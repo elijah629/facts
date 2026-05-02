@@ -6,11 +6,13 @@ export default async function Class({
 }: {
   params: Promise<{ index: string }>;
 }) {
-  const index = parseInt((await params).index, 10);
+  const { index: indexParam } = await params;
 
-  if (Number.isNaN(index)) {
+  if (!/^\d+$/.test(indexParam)) {
     notFound();
   }
+
+  const index = Number(indexParam);
 
   return <ClassReport index={index} />;
 }

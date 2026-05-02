@@ -10,13 +10,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
-  ChartConfig,
+  type ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-  CustomTooltipProps,
 } from "@/components/ui/chart";
-import { GpaSnapshot } from "@/lib/dated-gpa";
+import type { GpaSnapshot } from "@/lib/dated-gpa";
 import { GPA_WEIGHTS } from "@/lib/grades";
 
 const chartConfig = {
@@ -67,9 +66,7 @@ export function GpaChart({ chartData }: { chartData: GpaSnapshot[] }) {
             />
             <ChartTooltip
               cursor={false}
-              content={(props: CustomTooltipProps) => (
-                <ChartTooltipContent {...props} hideLabel />
-              )}
+              content={(props) => <ChartTooltipContent {...props} hideLabel />}
             />
             <Line
               dataKey="gpa"

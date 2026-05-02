@@ -1,5 +1,5 @@
-import type { Section } from "@/types/report";
 import { roundTo } from "@/lib/utils";
+import type { Section } from "@/types/report";
 import { assignmentPoints } from ".";
 
 export function sectionGradeWeighted(

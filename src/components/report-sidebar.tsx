@@ -17,12 +17,12 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { Switch } from "@/components/ui/switch";
 import { classGrade, gpa, letterGrade } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
 import { timeAgo } from "@/lib/utils";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "./ui/label";
 
 export function ReportSidebar() {
@@ -122,7 +122,7 @@ export function ReportSidebar() {
       </SidebarContent>
       <SidebarFooter>
         <span className="text-sm">
-          <strong>App Version</strong>: {process.env.NEXT_PUBLIC_BUILD_DATE}
+          <strong>App Version</strong>: {process.env.NEXT_PUBLIC_APP_VERSION}
           {lastUpdated && (
             <>
               <br />

@@ -3,13 +3,12 @@
 import * as React from "react";
 import * as RechartsPrimitive from "recharts";
 import type { LegendPayload } from "recharts/types/component/DefaultLegendContent";
-import {
+import type {
   NameType,
-  Payload,
   ValueType,
 } from "recharts/types/component/DefaultTooltipContent";
 import type { Props as LegendProps } from "recharts/types/component/Legend";
-import { TooltipContentProps } from "recharts/types/component/Tooltip";
+import type { TooltipContentProps } from "recharts/types/component/Tooltip";
 
 import { cn } from "@/lib/utils";
 
@@ -40,13 +39,6 @@ export type CustomTooltipProps = TooltipContentProps<ValueType, NameType> & {
   labelFormatter?: (
     label: TooltipContentProps<number, string>["label"],
     payload: TooltipContentProps<number, string>["payload"],
-  ) => React.ReactNode;
-  formatter?: (
-    value: number | string,
-    name: string,
-    item: Payload<number | string, string>,
-    index: number,
-    payload: ReadonlyArray<Payload<number | string, string>>,
   ) => React.ReactNode;
   labelClassName?: string;
   color?: string;
@@ -118,6 +110,7 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
 
   return (
     <style
+      // biome-ignore lint/security/noDangerouslySetInnerHtml: Chart CSS variables are generated from local chart config.
       dangerouslySetInnerHTML={{
         __html: Object.entries(THEMES)
           .map(
@@ -221,7 +214,7 @@ function ChartTooltipContent({
 
           return (
             <div
-              key={item.dataKey}
+              key={`${item.dataKey ?? item.name ?? index}`}
               className={cn(
                 "[&>svg]:text-muted-foreground flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5",
                 indicator === "dot" && "items-center",
@@ -376,9 +369,9 @@ function getPayloadConfigFromPayload(
 
 export {
   ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
   ChartLegend,
   ChartLegendContent,
   ChartStyle,
+  ChartTooltip,
+  ChartTooltipContent,
 };

@@ -2,7 +2,11 @@ import type { ReportHeader } from "@/types/report";
 import { formatName } from "./utils";
 
 export function parseReportHeader(table: HTMLTableElement): ReportHeader {
-  const tBody = table.firstElementChild!;
+  const tBody = table.firstElementChild;
+
+  if (!tBody) {
+    throw new Error("Report header table is missing a body.");
+  }
 
   const [_, firstRow, secondRow] = tBody.children;
 

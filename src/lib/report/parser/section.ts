@@ -2,7 +2,12 @@ import type { Section, SectionHeader } from "@/types/report";
 import { parseAssignment } from "./assignment";
 
 function parseSectionHeader(table: HTMLTableElement): SectionHeader {
-  const tBody = table.firstElementChild!;
+  const tBody = table.firstElementChild;
+
+  if (!tBody) {
+    throw new Error("Section header table is missing a body.");
+  }
+
   const row = tBody.children[1];
 
   const [nameEl, descriptionEl, weightEl] = row.children;
@@ -27,7 +32,12 @@ export function parseSection(
   bodyEl: HTMLTableElement,
 ): Section {
   const header = parseSectionHeader(headerEl);
-  const tBody = bodyEl.firstElementChild!;
+  const tBody = bodyEl.firstElementChild;
+
+  if (!tBody) {
+    throw new Error("Section body table is missing a body.");
+  }
+
   const last =
     (
       (tBody.lastElementChild as HTMLTableRowElement)

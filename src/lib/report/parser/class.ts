@@ -3,7 +3,11 @@ import { parseSection } from "./section";
 import { formatName, normalizeWeights } from "./utils";
 
 function parseClassHeader(table: HTMLTableElement): ClassHeader {
-  const tBody = table.firstElementChild!;
+  const tBody = table.firstElementChild;
+
+  if (!tBody) {
+    throw new Error("Class header table is missing a body.");
+  }
 
   const [_, firstRow, secondRow, thirdRow] = tBody.children;
 
@@ -45,10 +49,10 @@ export function parseClass(tables: HTMLTableElement[]): Class {
   }
 
   if (header.gradingMethod === "mixed" || header.gradingMethod === "percent") {
-    sections.sort((a, b) => b.weight! - a.weight!);
+    sections.sort((a, b) => (b.weight ?? 0) - (a.weight ?? 0));
   }
 
-  let lastI = tables.length % 2 === 0 ? tables.length - 1 : tables.length - 2;
+  const lastI = tables.length % 2 === 0 ? tables.length - 1 : tables.length - 2;
 
   const roundingPrecision = (
     (

@@ -30,22 +30,22 @@ export function generateGpaChartData(
 
   const snapshots: GpaSnapshot[] = [];
 
-  const firstTime = uniqueTimes[0];
-  const oneDayMs = 24 * 60 * 60 * 1000;
-  snapshots.push({ date: new Date(firstTime - oneDayMs), gpa: 0 });
-
   for (const t of uniqueTimes) {
     const snapshotDate = new Date(t);
 
-    const classesAtSnapshot: Class[] = report.classes.map((cls) => ({
-      ...cls,
-      sections: cls.sections.map((section) => ({
-        ...section,
-        assignments: section.assignments.filter(
-          (a) => new Date(a.due).getTime() <= t,
-        ),
-      })),
-    }));
+    const classesAtSnapshot: Class[] = report.classes
+      .map((cls) => ({
+        ...cls,
+        sections: cls.sections.map((section) => ({
+          ...section,
+          assignments: section.assignments.filter(
+            (a) => new Date(a.due).getTime() <= t,
+          ),
+        })),
+      }))
+      .filter((cls) =>
+        cls.sections.some((section) => section.assignments.length > 0),
+      );
 
     const currentGpa = gpa(classesAtSnapshot, useWeightedGpa);
 

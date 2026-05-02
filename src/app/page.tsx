@@ -1,9 +1,10 @@
 "use client";
 
 import { CalendarIcon, Dot } from "lucide-react";
-import { useReport } from "@/lib/report/store";
-import { generateGpaChartData } from "@/lib/dated-gpa";
 import { GpaChart } from "@/components/gpa-chart";
+import { StudentOverview } from "@/components/student-overview";
+import { generateGpaChartData } from "@/lib/dated-gpa";
+import { useReport } from "@/lib/report/store";
 
 export default function Home() {
   const report = useReport((x) => x.report);
@@ -25,7 +26,7 @@ export default function Home() {
   }
 
   const chartData = generateGpaChartData(report, weighted);
-  const currentGPA = chartData.at(-1)!.gpa;
+  const currentGPA = chartData.at(-1)?.gpa ?? 0;
 
   return (
     <>
@@ -44,8 +45,12 @@ export default function Home() {
           </span>
         </span>
       </p>
-      <p className="leading-7 not-first:mt-6"></p>
-      <GpaChart chartData={chartData} />
+      <div className="mt-6">
+        <StudentOverview report={report} />
+      </div>
+      <div className="mt-6">
+        <GpaChart chartData={chartData} />
+      </div>
     </>
   );
 }

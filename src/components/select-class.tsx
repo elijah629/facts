@@ -1,3 +1,4 @@
+import { GraduationCap } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -7,8 +8,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Class } from "@/types/report";
-import { GraduationCap } from "lucide-react";
+import type { Class } from "@/types/report";
 
 export function SelectClass({
   classes,

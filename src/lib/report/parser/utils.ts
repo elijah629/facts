@@ -1,9 +1,9 @@
-import { Report } from "@/types/report";
+import type { Report } from "@/types/report";
 
 /// Last, First -> First Last
 export function formatName(name: string) {
   const [last, first] = name.split(", ");
-  return first.trim() + " " + last.trim();
+  return `${first.trim()} ${last.trim()}`;
 }
 
 export function normalizeWeights(weights: number[]): number[] {
