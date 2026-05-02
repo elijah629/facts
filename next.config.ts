@@ -1,13 +1,10 @@
-import { readFileSync } from "node:fs";
 import type { NextConfig } from "next";
 
-const packageJson = JSON.parse(
-  readFileSync(new URL("./package.json", import.meta.url), "utf8"),
-) as { version: string };
+const buildDate = new Date().toISOString().slice(0, 10);
 
 const nextConfig: NextConfig = {
   env: {
-    NEXT_PUBLIC_APP_VERSION: packageJson.version,
+    NEXT_PUBLIC_APP_VERSION: buildDate,
   },
 };
 
