@@ -148,7 +148,7 @@ function classWithLowestReplaced(
 ): Class {
   const lowest = findLowestAssignment(cls, sectionIndex);
 
-  if (sectionIndex === null || !lowest) {
+  if (sectionIndex === null || !lowest || finalPercent <= lowest.percent) {
     return cls;
   }
 
@@ -472,7 +472,8 @@ export default function FinalCalculator() {
                     </div>
                     <p className="text-muted-foreground text-sm">
                       Use the final score in the final category and also swap it
-                      into the lowest score from a different category.
+                      into the lowest score from a different category only if
+                      the final is higher.
                     </p>
                   </div>
                   <Switch
@@ -517,7 +518,7 @@ export default function FinalCalculator() {
                       {lowestAssignment && selectedDropSection
                         ? `Lowest score: ${lowestAssignment.assignment.name} (${formatPercent(
                             lowestAssignment.percent,
-                          )}) in ${selectedDropSection.name}.`
+                          )}) in ${selectedDropSection.name}. It will only be replaced by a higher final score.`
                         : "Choose a category with graded assignments to replace its lowest score."}
                     </p>
                   </div>
