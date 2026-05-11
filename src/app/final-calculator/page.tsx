@@ -263,6 +263,20 @@ function requiredFinalScore(
   return { maxGrade, minGrade, score: high };
 }
 
+function findFinalSectionIndex(cls: Class | undefined): string | undefined {
+  if (!cls) {
+    return undefined;
+  }
+
+  const index = cls.sections.findIndex((section) =>
+    [section.name, section.description].some((value) =>
+      value?.toLowerCase().includes("final"),
+    ),
+  );
+
+  return index === -1 ? undefined : index.toString();
+}
+
 function useSelectedClass(
   reportClasses: Class[],
   classIndex: string | undefined,
@@ -406,8 +420,10 @@ export default function FinalCalculator() {
                 <Select
                   value={classIndex}
                   onValueChange={(value) => {
+                    const nextClass = classes[Number(value)];
+
                     setClassIndex(value);
-                    setFinalSectionIndex(undefined);
+                    setFinalSectionIndex(findFinalSectionIndex(nextClass));
                     setDropSectionIndex(undefined);
                   }}
                 >
@@ -433,6 +449,7 @@ export default function FinalCalculator() {
               <div className="grid gap-2">
                 <Label>Final category</Label>
                 <Select
+                  key={classIndex ?? "no-class"}
                   disabled={!selectedClass}
                   value={finalSectionIndex}
                   onValueChange={(value) => {
@@ -486,6 +503,7 @@ export default function FinalCalculator() {
                   <div className="mt-4 grid gap-2">
                     <Label>Category to drop from</Label>
                     <Select
+                      key={`${classIndex ?? "no-class"}-${finalSectionIndex ?? "no-final"}`}
                       disabled={!selectedClass || !finalSectionIndex}
                       value={dropSectionIndex}
                       onValueChange={setDropSectionIndex}
