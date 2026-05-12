@@ -4,11 +4,15 @@ import {
   ArrowRightLeft,
   BookOpenCheck,
   Calculator,
+  CheckCircle2,
   GraduationCap,
   Info,
+  Sparkles,
   Target,
+  TrendingUp,
 } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -37,12 +41,7 @@ import { useReport } from "@/lib/report/store";
 import type { Assignment, Class } from "@/types/report";
 
 type CalculatorMode = "required" | "projected";
-
-type LowestAssignment = {
-  assignment: Assignment;
-  index: number;
-  percent: number;
-};
+type FinalPlacement = "category" | "add-assignment" | "replace-lowest";
 
 const FINAL_SEARCH_MAX = 200;
 
@@ -93,107 +92,21 @@ function selectedSectionGrade(
   return sectionGradeUnweighted(section);
 }
 
-function findLowestAssignment(
-  cls: Class | undefined,
-  sectionIndex: number | null,
-): LowestAssignment | null {
-  if (!cls || sectionIndex === null) {
-    return null;
-  }
-
-  const section = cls.sections[sectionIndex];
-
-  if (!section) {
-    return null;
-  }
-
-  return section.assignments.reduce<LowestAssignment | null>(
-    (currentLowest, assignment, index) => {
-      const percent = assignmentPercent(assignment);
-
-      if (percent === null) {
-        return currentLowest;
-      }
-
-      if (!currentLowest || percent < currentLowest.percent) {
-        return { assignment, index, percent };
-      }
-
-      return currentLowest;
-    },
-    null,
-  );
-}
-
-function replacementAssignment(
-  originalAssignment: Assignment,
-  finalPercent: number,
-): Assignment {
-  if (originalAssignment.status === "excuse") {
-    return originalAssignment;
-  }
-
-  return {
-    ...originalAssignment,
-    name: `${originalAssignment.name} (replaced by final)`,
-    points: finalPercent * originalAssignment.maxPoints,
-    status: "valid",
-  };
-}
-
-function classWithLowestReplaced(
+function gradeWithCategoryOverride(
   cls: Class,
-  sectionIndex: number | null,
+  sectionIndex: number,
   finalPercent: number,
-): Class {
-  const lowest = findLowestAssignment(cls, sectionIndex);
-
-  if (sectionIndex === null || !lowest || finalPercent <= lowest.percent) {
-    return cls;
-  }
-
-  return {
-    ...cls,
-    sections: cls.sections.map((section, index) => {
-      if (index !== sectionIndex) {
-        return section;
-      }
-
-      return {
-        ...section,
-        assignments: section.assignments.map((assignment, assignmentIndex) =>
-          assignmentIndex === lowest.index
-            ? replacementAssignment(assignment, finalPercent)
-            : assignment,
-        ),
-      };
-    }),
-  };
-}
-
-function gradeWithFinalCategory(
-  cls: Class,
-  finalSectionIndex: number,
-  finalPercent: number,
-  dropSectionIndex: number | null,
 ): number | null {
   if (cls.gradingMethod === "points") {
     return null;
   }
 
-  const adjustedClass = classWithLowestReplaced(
-    cls,
-    dropSectionIndex,
-    finalPercent,
-  );
   let weightedSum = 0;
   let totalWeight = 0;
 
-  for (const [index, section] of adjustedClass.sections.entries()) {
+  for (const [index, section] of cls.sections.entries()) {
     const grade =
-      index === finalSectionIndex
-        ? finalPercent
-        : selectedSectionGrade(adjustedClass, index);
+      index === sectionIndex ? finalPercent : selectedSectionGrade(cls, index);
 
     if (grade === false) {
       continue;
@@ -210,23 +123,113 @@ function gradeWithFinalCategory(
   return weightedSum / totalWeight;
 }
 
+function finalAssignment(finalPercent: number, maxPoints = 100): Assignment {
+  return {
+    due: new Date(),
+    maxPoints,
+    name: "What-if final exam",
+    points: finalPercent * maxPoints,
+    status: "valid",
+  };
+}
+
+function cloneClassWithFinalAssignment(
+  cls: Class,
+  sectionIndex: number,
+  finalPercent: number,
+  replaceLowest: boolean,
+): Class | null {
+  const section = cls.sections[sectionIndex];
+
+  if (!section) {
+    return null;
+  }
+
+  const sections = cls.sections.map((currentSection, index) => {
+    if (index !== sectionIndex) {
+      return currentSection;
+    }
+
+    let assignments = [...currentSection.assignments];
+
+    if (replaceLowest) {
+      const lowest = assignments.reduce<{
+        index: number;
+        percent: number;
+        maxPoints: number;
+      } | null>((currentLowest, assignment, assignmentIndex) => {
+        const percent = assignmentPercent(assignment);
+
+        if (percent === null) {
+          return currentLowest;
+        }
+
+        const maxPoints =
+          assignment.status === "valid" || assignment.status === "missing"
+            ? assignment.maxPoints
+            : 100;
+
+        if (!currentLowest || percent < currentLowest.percent) {
+          return { index: assignmentIndex, maxPoints, percent };
+        }
+
+        return currentLowest;
+      }, null);
+
+      if (lowest) {
+        assignments[lowest.index] = finalAssignment(
+          finalPercent,
+          lowest.maxPoints,
+        );
+      } else {
+        assignments = [...assignments, finalAssignment(finalPercent)];
+      }
+    } else {
+      assignments = [...assignments, finalAssignment(finalPercent)];
+    }
+
+    return { ...currentSection, assignments };
+  });
+
+  return { ...cls, sections };
+}
+
+function gradeWithFinal(
+  cls: Class,
+  sectionIndex: number,
+  placement: FinalPlacement,
+  finalPercent: number,
+): number | null {
+  if (placement === "category") {
+    return gradeWithCategoryOverride(cls, sectionIndex, finalPercent);
+  }
+
+  const classWithFinal = cloneClassWithFinalAssignment(
+    cls,
+    sectionIndex,
+    finalPercent,
+    placement === "replace-lowest",
+  );
+
+  if (!classWithFinal) {
+    return null;
+  }
+
+  return classGrade(classWithFinal);
+}
+
 function requiredFinalScore(
   cls: Class,
-  finalSectionIndex: number,
+  sectionIndex: number,
+  placement: FinalPlacement,
   targetPercent: number,
-  dropSectionIndex: number | null,
 ): { score: number | null; minGrade: number | null; maxGrade: number | null } {
-  const minGrade = gradeWithFinalCategory(
+  const minGrade = gradeWithFinal(cls, sectionIndex, placement, 0);
+  const maxGrade = gradeWithFinal(
     cls,
-    finalSectionIndex,
-    0,
-    dropSectionIndex,
-  );
-  const maxGrade = gradeWithFinalCategory(
-    cls,
-    finalSectionIndex,
+    sectionIndex,
+    placement,
     FINAL_SEARCH_MAX / 100,
-    dropSectionIndex,
   );
 
   if (minGrade === null || maxGrade === null) {
@@ -246,35 +249,16 @@ function requiredFinalScore(
 
   for (let i = 0; i < 40; i++) {
     const mid = (low + high) / 2;
-    const grade = gradeWithFinalCategory(
-      cls,
-      finalSectionIndex,
-      mid / 100,
-      dropSectionIndex,
-    );
+    const grade = gradeWithFinal(cls, sectionIndex, placement, mid / 100);
 
     if (grade !== null && grade >= targetPercent) {
       high = mid;
     } else {
       low = mid;
     }
-  }
 
-  return { maxGrade, minGrade, score: high };
-}
-
-function findFinalSectionIndex(cls: Class | undefined): string | undefined {
-  if (!cls) {
-    return undefined;
-  }
-
-  const index = cls.sections.findIndex((section) =>
-    [section.name, section.description].some((value) =>
-      value?.toLowerCase().includes("final"),
-    ),
-  );
-
-  return index === -1 ? undefined : index.toString();
+    return reportClasses[Number(classIndex)];
+  }, [classIndex, reportClasses]);
 }
 
 export default function FinalCalculator() {
@@ -294,8 +278,7 @@ export default function FinalCalculator() {
   const [finalScore, setFinalScore] = useState<string>("85");
   const [showWhatIfRange, setShowWhatIfRange] = useState(true);
 
-  const selectedClass =
-    classIndex === undefined ? undefined : classes[Number(classIndex)];
+  const selectedClass = useSelectedClass(classes, classIndex);
   const selectedFinalSection =
     selectedClass && finalSectionIndex !== undefined
       ? selectedClass.sections[Number(finalSectionIndex)]
@@ -362,44 +345,138 @@ export default function FinalCalculator() {
     );
   }
 
+  return { maxGrade, minGrade, score: high };
+}
+
+function useSelectedClass(
+  reportClasses: Class[],
+  classIndex: string | undefined,
+) {
+  return useMemo(() => {
+    if (classIndex === undefined) {
+      return undefined;
+    }
+
+    return reportClasses[Number(classIndex)];
+  }, [classIndex, reportClasses]);
+}
+
+export default function FinalCalculator() {
+  const report = useReport((x) => x.report);
+  const [classIndex, setClassIndex] = useState<string | undefined>(undefined);
+  const [sectionIndex, setSectionIndex] = useState<string | undefined>(
+    undefined,
+  );
+  const [mode, setMode] = useState<CalculatorMode>("required");
+  const [placement, setPlacement] = useState<FinalPlacement>("category");
+  const [goal, setGoal] = useState<string>("90");
+  const [finalScore, setFinalScore] = useState<string>("85");
+  const [showWhatIfRange, setShowWhatIfRange] = useState(true);
+
+  const selectedClass = useSelectedClass(report?.classes ?? [], classIndex);
+  const selectedSection =
+    selectedClass && sectionIndex !== undefined
+      ? selectedClass.sections[Number(sectionIndex)]
+      : undefined;
+  const currentGrade = selectedClass ? classGrade(selectedClass) : null;
+  const currentSectionGrade =
+    selectedClass && sectionIndex !== undefined
+      ? selectedSectionGrade(selectedClass, Number(sectionIndex))
+      : false;
+
+  const targetPercent = parsePercent(goal);
+  const finalPercent = parsePercent(finalScore);
+  const projectedGrade =
+    selectedClass && sectionIndex !== undefined && finalPercent !== null
+      ? gradeWithFinal(
+          selectedClass,
+          Number(sectionIndex),
+          placement,
+          finalPercent,
+        )
+      : null;
+  const requiredResult =
+    selectedClass && sectionIndex !== undefined && targetPercent !== null
+      ? requiredFinalScore(
+          selectedClass,
+          Number(sectionIndex),
+          placement,
+          targetPercent,
+        )
+      : null;
+
+  const noReport = !report;
+
+  if (noReport) {
+    return (
+      <main className="min-h-[calc(100vh-4rem)] bg-linear-to-br from-background via-background to-primary/10 px-4 py-10">
+        <Card className="mx-auto max-w-xl border-dashed text-center">
+          <CardHeader>
+            <CardTitle className="text-2xl">Load a report first</CardTitle>
+            <CardDescription>
+              The final calculator uses your imported categories, weights, and
+              assignments to run what-if projections.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </main>
+    );
+  }
+
   return (
     <main className="min-h-[calc(100vh-4rem)] bg-linear-to-br from-background via-background to-primary/10 px-4 py-8">
-      <div className="mx-auto flex max-w-5xl flex-col gap-5">
-        <section className="rounded-3xl border bg-card p-6 shadow-sm md:p-8">
-          <div className="grid gap-5 md:grid-cols-[1.4fr_0.6fr] md:items-end">
-            <div className="space-y-3">
-              <h1 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
-                Final grade calculator
-              </h1>
-              <p className="max-w-2xl text-muted-foreground text-lg">
-                Pick the final category, enter either your goal or final score,
-                and optionally use that same final score to replace the lowest
-                score in another category.
-              </p>
+      <div className="mx-auto flex max-w-6xl flex-col gap-6">
+        <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
+          <div className="grid gap-6 p-6 md:grid-cols-[1.25fr_0.75fr] md:p-8">
+            <div className="space-y-5">
+              <Badge
+                variant="secondary"
+                className="gap-2 rounded-full px-3 py-1"
+              >
+                <Sparkles className="size-3.5" /> Redesigned what-if planner
+              </Badge>
+              <div className="space-y-3">
+                <h1 className="text-balance text-4xl font-bold tracking-tight md:text-5xl">
+                  Final grade calculator
+                </h1>
+                <p className="max-w-2xl text-muted-foreground text-lg">
+                  Choose a class, pick how the final should count, then either
+                  solve for the score you need or enter a final score to preview
+                  the grade you would earn.
+                </p>
+              </div>
             </div>
-            <div className="rounded-2xl border bg-background/70 p-4">
+
+            <div className="grid gap-3 rounded-2xl border bg-background/60 p-4">
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                <GraduationCap className="size-4" /> Current grade
+                <GraduationCap className="size-4" /> Current class snapshot
               </div>
-              <div className="mt-2 text-3xl font-bold">
-                {currentGrade === null ? "—" : formatPercent(currentGrade)}
-              </div>
-              <div className="mt-1 line-clamp-1 text-muted-foreground text-sm">
-                {selectedClass?.displayName ?? "Select a class"}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="rounded-xl bg-secondary p-4">
+                  <div className="text-muted-foreground text-xs">Class</div>
+                  <div className="mt-1 line-clamp-2 font-semibold">
+                    {selectedClass?.displayName ?? "Pick a class"}
+                  </div>
+                </div>
+                <div className="rounded-xl bg-primary p-4 text-primary-foreground">
+                  <div className="text-xs opacity-80">Current grade</div>
+                  <div className="mt-1 text-2xl font-bold">
+                    {currentGrade === null ? "—" : formatPercent(currentGrade)}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-          <Card className="gap-4">
+        <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+          <Card className="gap-5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl">
-                <Calculator className="size-6" /> Setup
+                <Calculator className="size-6" /> Set up the final
               </CardTitle>
               <CardDescription>
-                Finals are calculated as their own weighted category. The drop
-                option only replaces an existing score in another category.
+                These options control the scenario used by both calculators.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -408,12 +485,8 @@ export default function FinalCalculator() {
                 <Select
                   value={classIndex}
                   onValueChange={(value) => {
-                    const nextClass = classes[Number(value)];
-
                     setClassIndex(value);
-                    setFinalSectionIndex(findFinalSectionIndex(nextClass));
-                    setDropLowest(false);
-                    setDropSectionIndex(undefined);
+                    setSectionIndex(undefined);
                   }}
                 >
                   <SelectTrigger className="w-full">
@@ -421,10 +494,8 @@ export default function FinalCalculator() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel>
-                        Classes with weighted categories
-                      </SelectLabel>
-                      {classes.map((cls, index) => (
+                      <SelectLabel>Classes</SelectLabel>
+                      {report.classes.map((cls, index) => (
                         <SelectItem key={cls.fullName} value={index.toString()}>
                           <GraduationCap className="size-4" />
                           {cls.displayName}
@@ -436,24 +507,18 @@ export default function FinalCalculator() {
               </div>
 
               <div className="grid gap-2">
-                <Label>Final category</Label>
+                <Label>Category / section</Label>
                 <Select
-                  key={classIndex ?? "no-class"}
                   disabled={!selectedClass}
-                  value={finalSectionIndex}
-                  onValueChange={(value) => {
-                    setFinalSectionIndex(value);
-                    if (dropSectionIndex === value) {
-                      setDropSectionIndex(undefined);
-                    }
-                  }}
+                  value={sectionIndex}
+                  onValueChange={setSectionIndex}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select the final category" />
+                    <SelectValue placeholder="Select where the final counts" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectLabel>Categories</SelectLabel>
+                      <SelectLabel>Sections</SelectLabel>
                       {selectedClass?.sections.map((section, index) => (
                         <SelectItem key={section.name} value={index.toString()}>
                           <BookOpenCheck className="size-4" />
@@ -470,79 +535,90 @@ export default function FinalCalculator() {
                 </Select>
               </div>
 
-              <div className="rounded-2xl border p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 font-medium">
-                      <ArrowRightLeft className="size-4" /> Replace lowest score
-                    </div>
-                    <p className="text-muted-foreground text-sm">
-                      Use the final score in the final category and also swap it
-                      into the lowest score from a different category only if
-                      the final is higher.
-                    </p>
-                  </div>
-                  <Switch
-                    checked={dropLowest}
-                    onCheckedChange={setDropLowest}
-                  />
+              <div className="grid gap-2">
+                <Label>How should the final count?</Label>
+                <div className="grid gap-2">
+                  {(
+                    [
+                      {
+                        description:
+                          "Treat the selected category itself as the final exam score.",
+                        icon: Target,
+                        label: "Final is its own weighted category",
+                        value: "category",
+                      },
+                      {
+                        description:
+                          "Add a new 100-point final assignment to the selected category.",
+                        icon: TrendingUp,
+                        label: "Add final into a category",
+                        value: "add-assignment",
+                      },
+                      {
+                        description:
+                          "Drop the lowest score in the selected category and use the final score there.",
+                        icon: ArrowRightLeft,
+                        label: "Replace lowest score with final",
+                        value: "replace-lowest",
+                      },
+                    ] as const
+                  ).map((option) => {
+                    const Icon = option.icon;
+                    const selected = placement === option.value;
+
+                    return (
+                      <button
+                        type="button"
+                        key={option.value}
+                        onClick={() => setPlacement(option.value)}
+                        className={`rounded-2xl border p-4 text-left transition hover:border-primary/60 hover:bg-primary/5 ${
+                          selected
+                            ? "border-primary bg-primary/10"
+                            : "bg-background"
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <span className="rounded-xl bg-secondary p-2">
+                            <Icon className="size-4" />
+                          </span>
+                          <span className="space-y-1">
+                            <span className="block font-medium">
+                              {option.label}
+                            </span>
+                            <span className="block text-muted-foreground text-sm">
+                              {option.description}
+                            </span>
+                          </span>
+                          {selected && (
+                            <CheckCircle2 className="ml-auto size-5 text-primary" />
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
+              </div>
 
-                {dropLowest && (
-                  <div className="mt-4 grid gap-2">
-                    <Label>Category to drop from</Label>
-                    <Select
-                      key={`${classIndex ?? "no-class"}-${finalSectionIndex ?? "no-final"}`}
-                      disabled={!selectedClass || !finalSectionIndex}
-                      value={dropSectionIndex}
-                      onValueChange={setDropSectionIndex}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select category to improve" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectGroup>
-                          <SelectLabel>Eligible categories</SelectLabel>
-                          {selectedClass?.sections.map((section, index) => {
-                            if (index.toString() === finalSectionIndex) {
-                              return null;
-                            }
-
-                            return (
-                              <SelectItem
-                                key={section.name}
-                                value={index.toString()}
-                              >
-                                <BookOpenCheck className="size-4" />
-                                {section.name}
-                              </SelectItem>
-                            );
-                          })}
-                        </SelectGroup>
-                      </SelectContent>
-                    </Select>
-                    <p className="text-muted-foreground text-sm">
-                      {lowestAssignment && selectedDropSection
-                        ? `Lowest score: ${lowestAssignment.assignment.name} (${formatPercent(
-                            lowestAssignment.percent,
-                          )}) in ${selectedDropSection.name}. It will only be replaced by a higher final score.`
-                        : "Choose a category with graded assignments to replace its lowest score."}
-                    </p>
+              {placement === "category" &&
+                selectedClass?.gradingMethod === "points" && (
+                  <div className="rounded-2xl border border-destructive/30 bg-destructive/10 p-4 text-sm">
+                    Category-final mode requires weighted categories, but this
+                    class uses points. Use one of the assignment options
+                    instead.
                   </div>
                 )}
-              </div>
             </CardContent>
           </Card>
 
-          <div className="space-y-5">
+          <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-2xl">
-                  <Target className="size-6" /> Calculate
+                <CardTitle className="text-2xl">
+                  Choose calculator direction
                 </CardTitle>
                 <CardDescription>
-                  Switch directions depending on whether you know your target
-                  class grade or your final exam score.
+                  Toggle between solving for a required final score and
+                  projecting your grade from a final score you already know.
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-5">
@@ -624,63 +700,56 @@ export default function FinalCalculator() {
                             requiredResult.maxGrade,
                           )}.`
                         : requiredResult
-                          ? `Score needed in the final category to reach ${goal || "your goal"}%.`
-                          : dropLowest && !dropSelectionReady
-                            ? "Select the category whose lowest score should be replaced."
-                            : "Select a class, final category, and goal to calculate."
+                          ? `Score needed on the final to reach ${goal || "your goal"}%.`
+                          : "Select a class, category, and goal to calculate."
                       : projectedGrade !== null
-                        ? `Projected overall grade with a ${finalScore || "0"}% in the final category.`
-                        : dropLowest && !dropSelectionReady
-                          ? "Select the category whose lowest score should be replaced."
-                          : "Select a class, final category, and final score to preview your grade."}
+                        ? `Projected overall grade with a ${finalScore || "0"}% final.`
+                        : "Select a class, category, and final score to preview your grade."}
                   </p>
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="rounded-2xl bg-secondary p-4 text-sm">
-                    <div className="text-muted-foreground">Final category</div>
-                    <div className="mt-1 font-semibold">
-                      {selectedFinalSection?.name ?? "None"}
-                    </div>
-                  </div>
-                  <div className="rounded-2xl bg-secondary p-4 text-sm">
-                    <div className="text-muted-foreground">
-                      Current category
-                    </div>
-                    <div className="mt-1 font-semibold">
-                      {finalSectionGrade === false
-                        ? "No graded work"
-                        : formatPercent(finalSectionGrade)}
-                    </div>
-                  </div>
-                  <div className="rounded-2xl bg-secondary p-4 text-sm">
-                    <div className="text-muted-foreground">Weight</div>
-                    <div className="mt-1 font-semibold">
-                      {selectedFinalSection?.weight === undefined
-                        ? "—"
-                        : formatPercent(selectedFinalSection.weight, 0)}
-                    </div>
-                  </div>
                 </div>
               </CardContent>
             </Card>
 
-            <Card className="gap-3">
+            <Card>
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Info className="size-5" /> Range
+                <CardTitle className="flex items-center gap-2 text-xl">
+                  <Info className="size-5" /> Scenario details
                 </CardTitle>
-                <CardDescription>
-                  Optional check for the grade range this setup can produce.
-                </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4 text-sm">
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl bg-secondary p-4">
+                    <div className="text-muted-foreground">
+                      Selected category
+                    </div>
+                    <div className="mt-1 font-semibold">
+                      {selectedSection?.name ?? "None selected"}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl bg-secondary p-4">
+                    <div className="text-muted-foreground">Category grade</div>
+                    <div className="mt-1 font-semibold">
+                      {currentSectionGrade === false
+                        ? "No graded work"
+                        : formatPercent(currentSectionGrade)}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl bg-secondary p-4">
+                    <div className="text-muted-foreground">Category weight</div>
+                    <div className="mt-1 font-semibold">
+                      {selectedSection?.weight === undefined
+                        ? "Points based"
+                        : formatPercent(selectedSection.weight, 0)}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="flex items-center justify-between gap-4 rounded-2xl border p-4">
                   <div>
-                    <div className="font-medium">Show range</div>
+                    <div className="font-medium">Show possible range</div>
                     <div className="text-muted-foreground">
-                      Compare projected grades at 0% and {FINAL_SEARCH_MAX}% in
-                      the final category.
+                      Estimate the class grade at 0% and {FINAL_SEARCH_MAX}% on
+                      the final for this setup.
                     </div>
                   </div>
                   <Switch
