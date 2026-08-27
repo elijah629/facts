@@ -39,6 +39,10 @@ function parseClassHeader(table: HTMLTableElement): ClassHeader {
 export function parseClass(tables: HTMLTableElement[]): Class {
   const header = parseClassHeader(tables[0]);
 
+  if (tables.length === 1) {
+    return { ...header, sections: [], roundingPrecision: 0 };
+  }
+
   const sections = [];
 
   for (let i = 1; i < tables.length; i += 2) {
