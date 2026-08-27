@@ -1,14 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { serverFetch } from "@/app/actions";
+import { serverFetchAll } from "@/app/actions";
+import { parseReportsFromHtml } from "@/lib/report/parser";
 import { useReport } from "@/lib/report/store";
-import { parseReportFromHtml } from "../lib/report/parser";
+import { parseReportUrls, refreshReportUrls } from "@/lib/report/urls";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 
 export function ReportInput() {
-  const { reportUrl, setReport, setReportUrl } = useReport();
+  const {
+    report,
+    reportUrl,
+    reportUrls,
+    setReport,
+    setReportUrl,
+    setReportUrls,
+  } = useReport();
   const [fetching, setFetching] = useState(false);
   const [text, setText] = useState("Fetch");
   const [buttonVariant, setButtonVariant] = useState<
@@ -34,10 +42,19 @@ export function ReportInput() {
         setButtonVariant(undefined);
 
         try {
-          const html = await serverFetch(reportUrl);
-          const report = parseReportFromHtml(html);
+          const pastedUrls = parseReportUrls(reportUrl);
+          if (pastedUrls.length === 0) throw new Error("Paste a report link.");
 
-          setReport(report);
+          const urls =
+            reportUrls.length > 0 && pastedUrls.length === 1
+              ? refreshReportUrls(reportUrls, pastedUrls[0])
+              : pastedUrls;
+          const html = await serverFetchAll(urls);
+          const nextReport = parseReportsFromHtml(html);
+
+          setReport(nextReport);
+          setReportUrls(urls);
+          setReportUrl("");
 
           setText("Fetched");
           setButtonVariant(undefined);
@@ -50,8 +67,13 @@ export function ReportInput() {
       }}
     >
       <Input
-        placeholder="Report URL"
-        type="url"
+        aria-label="FACTS class report links"
+        placeholder={
+          report
+            ? "Paste one fresh class link to refresh every class"
+            : "Paste all FACTS class report links, separated by spaces"
+        }
+        type="text"
         value={reportUrl}
         onChange={(event) => {
           setReportUrl(event.target.value);

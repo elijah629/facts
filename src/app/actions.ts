@@ -1,51 +1,11 @@
 "use server";
 
+import { assertFactsProgressReportUrl } from "@/lib/report/urls";
+
 const MAX_REPORT_BYTES = 2_000_000;
 
-function isPrivateIpv4(hostname: string): boolean {
-  const parts = hostname.split(".").map(Number);
-
-  if (
-    parts.length !== 4 ||
-    parts.some((part) => !Number.isInteger(part) || part < 0 || part > 255)
-  ) {
-    return false;
-  }
-
-  const [a, b] = parts;
-
-  return (
-    a === 10 ||
-    a === 127 ||
-    (a === 172 && b >= 16 && b <= 31) ||
-    (a === 192 && b === 168) ||
-    (a === 169 && b === 254) ||
-    a === 0
-  );
-}
-
-function assertAllowedReportUrl(value: string): URL {
-  const url = new URL(value);
-  const hostname = url.hostname.toLowerCase();
-
-  if (url.protocol !== "https:" && url.protocol !== "http:") {
-    throw new Error("Report URL must use HTTP or HTTPS.");
-  }
-
-  if (
-    hostname === "localhost" ||
-    hostname === "::1" ||
-    hostname.endsWith(".localhost") ||
-    isPrivateIpv4(hostname)
-  ) {
-    throw new Error("Report URL host is not allowed.");
-  }
-
-  return url;
-}
-
 export async function serverFetch(url: string): Promise<string> {
-  const reportUrl = assertAllowedReportUrl(url);
+  const reportUrl = assertFactsProgressReportUrl(url);
   const response = await fetch(reportUrl, {
     cache: "no-store",
     redirect: "follow",
@@ -67,5 +27,17 @@ export async function serverFetch(url: string): Promise<string> {
     throw new Error("Report response is too large.");
   }
 
+  if (/back-to-login-link|name=["']password["']/i.test(text)) {
+    throw new Error("This FACTS session has expired. Export a new class link.");
+  }
+
   return text;
+}
+
+export async function serverFetchAll(urls: string[]): Promise<string[]> {
+  if (urls.length === 0 || urls.length > 20) {
+    throw new Error("Provide between 1 and 20 class report links.");
+  }
+
+  return Promise.all(urls.map(serverFetch));
 }
