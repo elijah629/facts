@@ -13,7 +13,7 @@ export function parseReportHeader(table: HTMLTableElement): ReportHeader {
   const $for = formatName(
     (firstRow.firstElementChild as HTMLTableCellElement).innerText,
   );
-  const term = (secondRow.children[1] as HTMLTableCellElement).innerText;
+  const term = (secondRow.children[1] as HTMLTableCellElement).innerText.trim();
 
   const yearRange = (
     firstRow.children[1] as HTMLTableCellElement

@@ -46,7 +46,9 @@ export function parseSection(
 
   const assignments = Array.from(tBody.children)
     .slice(1, last ? -3 : -1)
-    .map((tr) => parseAssignment(tr as HTMLTableRowElement));
+    .map((tr, sourceIndex) =>
+      parseAssignment(tr as HTMLTableRowElement, sourceIndex),
+    );
 
   return { ...header, assignments };
 }

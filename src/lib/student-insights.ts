@@ -6,6 +6,7 @@ export type AssignmentInsight = {
   cls: Class;
   classIndex: number;
   section: Section;
+  sectionIndex: number;
 };
 
 export type ClassInsight = {
@@ -40,12 +41,13 @@ function hasGradableAssignments(cls: Class): boolean {
 
 function allAssignments(report: Report): AssignmentInsight[] {
   return report.classes.flatMap((cls, classIndex) =>
-    cls.sections.flatMap((section) =>
+    cls.sections.flatMap((section, sectionIndex) =>
       section.assignments.map((assignment) => ({
         assignment,
         cls,
         classIndex,
         section,
+        sectionIndex,
       })),
     ),
   );

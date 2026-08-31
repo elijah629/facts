@@ -16,6 +16,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Switch } from "@/components/ui/switch";
 import { classGrade, gpa, letterGrade } from "@/lib/grades";
@@ -27,6 +28,12 @@ import { Label } from "./ui/label";
 
 export function ReportSidebar() {
   const { lastUpdated, report, clear, weighted, setWeighted } = useReport();
+  const { isMobile, setOpenMobile } = useSidebar();
+  const closeMobileMenu = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
 
   return (
     <Sidebar>
@@ -34,9 +41,9 @@ export function ReportSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
+              <Link href="/" onClick={closeMobileMenu}>
                 <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <GraduationCap size={24} />
+                  <GraduationCap />
                 </div>
                 <div className="flex flex-col gap-2 leading-none">
                   <span className="font-semibold">🔥 facts 🔥</span>
@@ -54,9 +61,9 @@ export function ReportSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/gpa-guide">
+              <Link href="/gpa-guide" onClick={closeMobileMenu}>
                 <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <ChartAreaIcon size={24} />
+                  <ChartAreaIcon />
                 </div>
                 <div className="flex flex-col gap-2 leading-none">
                   GPA Guide
@@ -66,9 +73,9 @@ export function ReportSidebar() {
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/final-calculator">
+              <Link href="/final-calculator" onClick={closeMobileMenu}>
                 <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Calculator size={24} />
+                  <Calculator />
                 </div>
                 <div className="flex flex-col gap-2 leading-none">
                   Final Calculator
@@ -80,7 +87,7 @@ export function ReportSidebar() {
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center gap-2">
                 <Switch
                   checked={weighted}
                   onCheckedChange={setWeighted}
@@ -103,10 +110,10 @@ export function ReportSidebar() {
                 return (
                   <SidebarMenuItem key={cls.fullName}>
                     <SidebarMenuButton asChild>
-                      <Link href={`/class/${i}`}>
-                        <div className="flex items-center gap-2">
-                          <GraduationCap size={16} />
-                          <span>{cls.displayName}</span>
+                      <Link href={`/class/${i}`} onClick={closeMobileMenu}>
+                        <div className="flex min-w-0 items-center gap-2">
+                          <GraduationCap />
+                          <span className="truncate">{cls.displayName}</span>
                         </div>
                         <Badge variant="default" className="ml-auto">
                           {letter}
@@ -134,7 +141,7 @@ export function ReportSidebar() {
         <span>
           made with ❤ by{" "}
           <Link href="https://eli.best" className="underline">
-            eli
+            Eli Özcan
           </Link>
         </span>
 

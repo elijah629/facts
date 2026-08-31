@@ -1,8 +1,9 @@
 "use client";
 
-import { Dot, User } from "lucide-react";
+import { User } from "lucide-react";
 import { classGrade, letterGrade } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
+import { GradingMethodHelp } from "./grading-method-help";
 import { SectionDisplay } from "./section-display";
 import { Badge } from "./ui/badge";
 
@@ -20,34 +21,43 @@ export function ClassReport({ index }: { index: number }) {
   }
 
   const percentage = classGrade(cls);
-  const letter = letterGrade(percentage);
+  const hasGrade = Number.isFinite(percentage);
+  const letter = hasGrade ? letterGrade(percentage) : null;
 
   return (
     <>
       <div className="mb-8">
-        <div className="flex items-center gap-2">
-          <h1 className="sm:text-3xl text-xl font-bold">{cls.displayName}</h1>
-          <Badge variant="outline" className="font-mono">
-            {(percentage * 100).toFixed(cls.roundingPrecision)}%
-          </Badge>
-          <Badge variant="default">{letter}</Badge>
+        <div className="flex flex-wrap items-center gap-2">
+          <h1 className="min-w-0 wrap-break-word text-xl font-bold sm:text-3xl">
+            {cls.displayName}
+          </h1>
+          {hasGrade && (
+            <>
+              <Badge variant="outline" className="font-mono">
+                {(percentage * 100).toFixed(cls.roundingPrecision)}%
+              </Badge>
+              <Badge variant="default">{letter}</Badge>
+            </>
+          )}
         </div>
-        <div className="flex items-center gap-1 text-muted-foreground">
-          <h2 className="text-sm text-muted-foreground font-mono">
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-muted-foreground">
+          <h2 className="wrap-break-word text-sm font-mono text-muted-foreground">
             {cls.fullName}
           </h2>
-          <Dot size={16} />
           <div className="flex items-center gap-2">
-            <User className="h-4 w-4" />
+            <User />
             <span>{cls.instructor}</span>
           </div>
-          <Dot size={16} />
-          <span>{cls.gradingMethod.toUpperCase()}</span>
+          <GradingMethodHelp method={cls.gradingMethod} />
         </div>
       </div>
       <div className="flex flex-col gap-4">
         {cls.sections.map((x) => (
-          <SectionDisplay key={x.name} section={x} cls={cls} />
+          <SectionDisplay
+            key={`${x.name}-${x.description ?? ""}-${x.weight ?? "points"}`}
+            section={x}
+            cls={cls}
+          />
         ))}
       </div>
     </>

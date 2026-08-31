@@ -1,14 +1,11 @@
 # facts
 
-A local-first grade viewer for FACTS SIS per-class Gradebook Progress Report
-links. On first use, export and paste the link for every class. The links and
-parsed report remain in browser storage. When a FACTS session expires, paste
-one newly exported link; facts applies that session ID to the saved class links
-and refreshes the complete report.
+A local-first grade viewer for FACTS SIS emailed Gradebook Progress Reports.
+Paste the report link from the RenWeb email to import every class at once.
 
-Only `https://*.client.factsmgt.com/pwr/NAScopy/Gradebook/GradeBookProgressReport-PW.cfm`
-links are accepted. Report links contain private, temporary credentials and
-should not be shared or committed.
+Only `https://*.client.factsmgt.com/renweb/email/getreport.cfm` links are
+accepted. Report links contain private, temporary credentials and should not be
+shared or committed.
 
 ## Development
 

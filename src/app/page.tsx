@@ -17,14 +17,8 @@ export default function Home() {
           Setup guide
         </h2>
         <p className="leading-7 not-first:mt-6">
-          In FACTS, open each class and export its Gradebook Progress Report.
-          Copy every class report link, paste them together into the box above,
-          and click Fetch. You only need to collect every link once.
-        </p>
-        <p className="leading-7 not-first:mt-6">
-          When the session expires, export just one new class link and paste it
-          above. The app will reuse its new session ID with all of your saved
-          class links. Classes with no grades are still imported.
+          Visit your school email and open the progress report message from
+          RenWeb. Copy its report link, paste it above, then click Fetch.
         </p>
       </>
     );

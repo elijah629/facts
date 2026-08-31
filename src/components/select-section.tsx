@@ -20,7 +20,7 @@ export function SelectSection({
   onValueChange: (value: string) => void;
 }) {
   return (
-    <Select value={value} onValueChange={onValueChange}>
+    <Select value={value ?? ""} onValueChange={onValueChange}>
       <SelectTrigger className="w-[180px]">
         <SelectValue placeholder="Select a section" />
       </SelectTrigger>

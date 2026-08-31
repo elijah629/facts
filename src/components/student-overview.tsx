@@ -84,27 +84,27 @@ export function StudentOverview({ report }: { report: Report }) {
           {upcomingAssignments.length === 0 ? (
             <EmptyState>No upcoming assignments found.</EmptyState>
           ) : (
-            upcomingAssignments.map(({ assignment, cls, classIndex }) => (
-              <Link
-                className="block rounded-md border p-3 transition-colors hover:bg-muted/50"
-                href={`/class/${classIndex}`}
-                key={`${cls.fullName}-${assignment.name}-${new Date(
-                  assignment.due,
-                ).getTime()}`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="truncate text-sm font-medium">
-                    {assignment.name}
-                  </span>
-                  <Badge variant="secondary">
-                    {formatDate(assignment.due)}
-                  </Badge>
-                </div>
-                <p className="mt-1 truncate text-xs text-muted-foreground">
-                  {cls.displayName}
-                </p>
-              </Link>
-            ))
+            upcomingAssignments.map(
+              ({ assignment, cls, classIndex, sectionIndex }) => (
+                <Link
+                  className="block rounded-md border p-3 transition-colors hover:bg-muted/50"
+                  href={`/class/${classIndex}`}
+                  key={`${classIndex}-${sectionIndex}-${assignment.sourceIndex}`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate text-sm font-medium">
+                      {assignment.name}
+                    </span>
+                    <Badge variant="secondary">
+                      {formatDate(assignment.due)}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 truncate text-xs text-muted-foreground">
+                    {cls.displayName}
+                  </p>
+                </Link>
+              ),
+            )
           )}
         </CardContent>
       </Card>
@@ -121,27 +121,27 @@ export function StudentOverview({ report }: { report: Report }) {
           {missingAssignments.length === 0 ? (
             <EmptyState>No missing assignments.</EmptyState>
           ) : (
-            missingAssignments.map(({ assignment, cls, classIndex }) => (
-              <Link
-                className="block rounded-md border p-3 transition-colors hover:bg-muted/50"
-                href={`/class/${classIndex}`}
-                key={`${cls.fullName}-${assignment.name}-${new Date(
-                  assignment.due,
-                ).getTime()}`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="truncate text-sm font-medium">
-                    {assignment.name}
-                  </span>
-                  <Badge variant="destructive">
-                    {formatDate(assignment.due)}
-                  </Badge>
-                </div>
-                <p className="mt-1 truncate text-xs text-muted-foreground">
-                  {cls.displayName}
-                </p>
-              </Link>
-            ))
+            missingAssignments.map(
+              ({ assignment, cls, classIndex, sectionIndex }) => (
+                <Link
+                  className="block rounded-md border p-3 transition-colors hover:bg-muted/50"
+                  href={`/class/${classIndex}`}
+                  key={`${classIndex}-${sectionIndex}-${assignment.sourceIndex}`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate text-sm font-medium">
+                      {assignment.name}
+                    </span>
+                    <Badge variant="destructive">
+                      {formatDate(assignment.due)}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 truncate text-xs text-muted-foreground">
+                    {cls.displayName}
+                  </p>
+                </Link>
+              ),
+            )
           )}
         </CardContent>
       </Card>
@@ -158,25 +158,25 @@ export function StudentOverview({ report }: { report: Report }) {
           {weakAssignments.length === 0 ? (
             <EmptyState>No below-average assignments found.</EmptyState>
           ) : (
-            weakAssignments.map(({ assignment, cls, classIndex, grade }) => (
-              <Link
-                className="block rounded-md border p-3 transition-colors hover:bg-muted/50"
-                href={`/class/${classIndex}`}
-                key={`${cls.fullName}-${assignment.name}-${new Date(
-                  assignment.due,
-                ).getTime()}`}
-              >
-                <div className="flex items-center justify-between gap-2">
-                  <span className="truncate text-sm font-medium">
-                    {assignment.name}
-                  </span>
-                  <Badge variant="outline">{(grade * 100).toFixed(1)}%</Badge>
-                </div>
-                <p className="mt-1 truncate text-xs text-muted-foreground">
-                  {cls.displayName}
-                </p>
-              </Link>
-            ))
+            weakAssignments.map(
+              ({ assignment, cls, classIndex, grade, sectionIndex }) => (
+                <Link
+                  className="block rounded-md border p-3 transition-colors hover:bg-muted/50"
+                  href={`/class/${classIndex}`}
+                  key={`${classIndex}-${sectionIndex}-${assignment.sourceIndex}`}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="truncate text-sm font-medium">
+                      {assignment.name}
+                    </span>
+                    <Badge variant="outline">{(grade * 100).toFixed(1)}%</Badge>
+                  </div>
+                  <p className="mt-1 truncate text-xs text-muted-foreground">
+                    {cls.displayName}
+                  </p>
+                </Link>
+              ),
+            )
           )}
         </CardContent>
       </Card>

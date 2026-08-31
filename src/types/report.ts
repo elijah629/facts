@@ -66,9 +66,16 @@ export type Assignment = (
       status: "missing";
     }
 ) & {
+  /// Stable row position in the source section. FACTS does not expose an
+  /// assignment ID, so this is the only identity independent of mutable data.
+  sourceIndex: number;
+
   name: string;
   description?: string;
 
   due: Date;
   note?: string;
+
+  /// Within-category assignment weight used by FACTS PERCENT classes.
+  weight?: number;
 };

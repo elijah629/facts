@@ -1,27 +1,27 @@
 import { describe, expect, test } from "bun:test";
-import { parseReportUrls, refreshReportUrls } from "./urls";
+import { assertFactsProgressReportUrl } from "./urls";
 
-const report = (classId: string, session = "old") =>
-  `https://school.client.factsmgt.com/pwr/NAScopy/Gradebook/GradeBookProgressReport-PW.cfm?StudentID=42&ClassID=${classId}&Sessionid=${session}&ReportHash=keep-me`;
+const report =
+  "https://school.client.factsmgt.com/renweb/email/getreport.cfm?district=school&sessionid=temporary&redirect=1";
 
-describe("per-class report URLs", () => {
-  test("extracts and deduplicates pasted links", () => {
-    expect(
-      parseReportUrls(`${report("1")}\n${report("2")}, ${report("1")}`),
-    ).toEqual([report("1"), report("2")]);
+describe("email progress report URLs", () => {
+  test("accepts a FACTS email progress report", () => {
+    expect(assertFactsProgressReportUrl(report).toString()).toBe(report);
   });
 
-  test("reuses a fresh session without changing class hashes", () => {
-    const refreshed = refreshReportUrls(
-      [report("1"), report("2")],
-      report("2", "new-session"),
-    );
+  test("rejects the retired per-class progress report", () => {
+    expect(() =>
+      assertFactsProgressReportUrl(
+        "https://school.client.factsmgt.com/pwr/NAScopy/Gradebook/GradeBookProgressReport-PW.cfm?StudentID=42&ClassID=1&Sessionid=temporary",
+      ),
+    ).toThrow("Only FACTS GradeBook progress-report links are supported.");
+  });
 
-    expect(refreshed).toHaveLength(2);
-    expect(
-      refreshed.every((url) => url.includes("Sessionid=new-session")),
-    ).toBe(true);
-    expect(refreshed[0]).toContain("ClassID=1");
-    expect(refreshed[0]).toContain("ReportHash=keep-me");
+  test("requires district and session", () => {
+    expect(() =>
+      assertFactsProgressReportUrl(
+        "https://school.client.factsmgt.com/renweb/email/getreport.cfm?district=school",
+      ),
+    ).toThrow("FACTS report link is missing sessionid.");
   });
 });

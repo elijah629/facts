@@ -1,22 +1,16 @@
 "use client";
 
+import { ClipboardPaste } from "lucide-react";
 import { useState } from "react";
-import { serverFetchAll } from "@/app/actions";
-import { parseReportsFromHtml } from "@/lib/report/parser";
+import { serverFetch } from "@/app/actions";
+import { parseReportFromHtml } from "@/lib/report/parser";
 import { useReport } from "@/lib/report/store";
-import { parseReportUrls, refreshReportUrls } from "@/lib/report/urls";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 
 export function ReportInput() {
-  const {
-    report,
-    reportUrl,
-    reportUrls,
-    setReport,
-    setReportUrl,
-    setReportUrls,
-  } = useReport();
+  const { reportUrl, setReport, setReportUrl } = useReport();
   const [fetching, setFetching] = useState(false);
   const [text, setText] = useState("Fetch");
   const [buttonVariant, setButtonVariant] = useState<
@@ -33,7 +27,7 @@ export function ReportInput() {
 
   return (
     <form
-      className="flex w-full gap-2"
+      className="flex min-w-0 flex-1 gap-2"
       onSubmit={async (e) => {
         e.preventDefault();
 
@@ -42,19 +36,10 @@ export function ReportInput() {
         setButtonVariant(undefined);
 
         try {
-          const pastedUrls = parseReportUrls(reportUrl);
-          if (pastedUrls.length === 0) throw new Error("Paste a report link.");
+          const html = await serverFetch(reportUrl);
+          const report = parseReportFromHtml(html);
 
-          const urls =
-            reportUrls.length > 0 && pastedUrls.length === 1
-              ? refreshReportUrls(reportUrls, pastedUrls[0])
-              : pastedUrls;
-          const html = await serverFetchAll(urls);
-          const nextReport = parseReportsFromHtml(html);
-
-          setReport(nextReport);
-          setReportUrls(urls);
-          setReportUrl("");
+          setReport(report);
 
           setText("Fetched");
           setButtonVariant(undefined);
@@ -67,13 +52,10 @@ export function ReportInput() {
       }}
     >
       <Input
-        aria-label="FACTS class report links"
-        placeholder={
-          report
-            ? "Paste one fresh class link to refresh every class"
-            : "Paste all FACTS class report links, separated by spaces"
-        }
-        type="text"
+        className="min-w-0"
+        aria-label="FACTS report link"
+        placeholder="Report URL"
+        type="url"
         value={reportUrl}
         onChange={(event) => {
           setReportUrl(event.target.value);
@@ -81,14 +63,20 @@ export function ReportInput() {
           setText("Fetch");
         }}
       />
-      <Button
-        onClick={(e) => {
-          e.preventDefault();
-          paste();
-        }}
-      >
-        Paste
-      </Button>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            size="icon"
+            aria-label="Paste report URL"
+            onClick={paste}
+          >
+            <ClipboardPaste />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>Paste report URL</TooltipContent>
+      </Tooltip>
       <Button
         type="submit"
         disabled={fetching}

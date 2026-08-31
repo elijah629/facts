@@ -33,11 +33,3 @@ export async function serverFetch(url: string): Promise<string> {
 
   return text;
 }
-
-export async function serverFetchAll(urls: string[]): Promise<string[]> {
-  if (urls.length === 0 || urls.length > 20) {
-    throw new Error("Provide between 1 and 20 class report links.");
-  }
-
-  return Promise.all(urls.map(serverFetch));
-}

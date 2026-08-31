@@ -39,12 +39,15 @@ export default function RootLayout({
         <SidebarProvider>
           <ReportSidebar />
           <SidebarInset>
-            <header className="flex h-16 items-center gap-2 border-b px-4">
-              <SidebarTrigger className="-ml-2" />
-              <Separator className="mr-3" orientation="vertical" />
+            <header className="flex min-h-16 items-center gap-2 border-b px-3 py-2 sm:px-4">
+              <SidebarTrigger className="shrink-0" />
+              <Separator
+                className="hidden h-6 sm:block"
+                orientation="vertical"
+              />
               <ReportInput />
             </header>
-            <main className="p-5">{children}</main>
+            <main className="p-3 sm:p-5">{children}</main>
           </SidebarInset>
         </SidebarProvider>
       </body>
