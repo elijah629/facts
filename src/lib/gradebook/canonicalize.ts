@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { compareClassesByPeriod } from "@/lib/report/class-order";
 import type { Assignment, Report } from "@/types/report";
 import type {
   CanonicalAssignment,
@@ -172,9 +173,9 @@ export function reportFromCanonical(state: GradebookState): Report {
     for: state.studentName,
     term: state.term,
     yearRange: state.yearRange,
-    classes: Object.entries(state.classes)
-      .sort(([left], [right]) => left.localeCompare(right))
-      .map(([, cls]) => ({
+    classes: Object.values(state.classes)
+      .sort(compareClassesByPeriod)
+      .map((cls) => ({
         fullName: cls.name,
         displayName: cls.displayName,
         instructor: cls.teacher,

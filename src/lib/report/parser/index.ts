@@ -1,6 +1,7 @@
 import { parseHTML } from "linkedom";
 import { parse, serialize } from "parse5";
 import type { Report } from "@/types/report";
+import { compareClassesByPeriod } from "../class-order";
 import { parseClass } from "./class";
 import { parseReportHeader } from "./report-header";
 import { fullyDateReport } from "./utils";
@@ -12,7 +13,7 @@ export function parseReportFromHtml(html: string): Report {
   const reportHeader = parseReportHeader(tableGroups[0][0]);
   const classes = tableGroups.map(parseClass);
 
-  classes.sort((a, b) => Number(a.fullName.at(-1)) - Number(b.fullName.at(-1)));
+  classes.sort(compareClassesByPeriod);
 
   return fullyDateReport({ ...reportHeader, classes });
 }
