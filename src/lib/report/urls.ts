@@ -7,6 +7,10 @@ export function assertFactsProgressReportUrl(value: string): URL {
     throw new Error("FACTS report links must use HTTPS.");
   }
 
+  if (url.username || url.password || url.port || url.hash) {
+    throw new Error("FACTS report link contains unsupported URL components.");
+  }
+
   if (
     !url.hostname.toLowerCase().endsWith(".client.factsmgt.com") ||
     url.pathname.toLowerCase() !== REPORT_PATH.toLowerCase()
@@ -16,8 +20,12 @@ export function assertFactsProgressReportUrl(value: string): URL {
     );
   }
 
+  const parameters = new Map(
+    Array.from(url.searchParams, ([key, value]) => [key.toLowerCase(), value]),
+  );
   for (const parameter of ["district", "sessionid"]) {
-    if (!url.searchParams.get(parameter)) {
+    const value = parameters.get(parameter);
+    if (!value) {
       throw new Error(`FACTS report link is missing ${parameter}.`);
     }
   }

@@ -1,10 +1,12 @@
+import { parseHTML } from "linkedom";
 import type { Report } from "@/types/report";
 import { parseClass } from "./class";
 import { parseReportHeader } from "./report-header";
 import { fullyDateReport } from "./utils";
 
 export function parseReportFromHtml(html: string): Report {
-  const doc = Document.parseHTMLUnsafe(html);
+  const { document } = parseHTML(html);
+  const doc = document as unknown as Document;
   const tableGroups = extractTableGroups(doc);
 
   const reportHeader = parseReportHeader(tableGroups[0][0]);

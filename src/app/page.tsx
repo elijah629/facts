@@ -1,31 +1,41 @@
 "use client";
 
 import { CalendarIcon, Dot } from "lucide-react";
-import { GpaChart } from "@/components/gpa-chart";
+import Link from "next/link";
 import { StudentOverview } from "@/components/student-overview";
-import { generateGpaChartData } from "@/lib/dated-gpa";
+import { gpa } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
 
 export default function Home() {
   const report = useReport((x) => x.report);
   const weighted = useReport((x) => x.weighted);
+  const loading = useReport((x) => x.loading);
+  const authenticated = useReport((x) => x.authenticated);
 
   if (!report) {
     return (
       <>
         <h2 className="scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-          Setup guide
+          {loading ? "Refreshing FACTS…" : "Sign in to view grades"}
         </h2>
-        <p className="leading-7 not-first:mt-6">
-          Visit your school email and open the progress report message from
-          RenWeb. Copy its report link, paste it above, then click Fetch.
-        </p>
+        {!loading && !authenticated && (
+          <p className="leading-7 not-first:mt-6">
+            <Link className="underline" href="/sign-in">
+              Continue with Google
+            </Link>
+            . No FACTS URL needed.
+          </p>
+        )}
+        {!loading && authenticated && (
+          <p className="leading-7 not-first:mt-6">
+            No usable FACTS Gradebook Progress Report found in Gmail.
+          </p>
+        )}
       </>
     );
   }
 
-  const chartData = generateGpaChartData(report, weighted);
-  const currentGPA = chartData.at(-1)?.gpa ?? 0;
+  const currentGPA = gpa(report.classes, weighted);
 
   return (
     <>
@@ -46,9 +56,6 @@ export default function Home() {
       </p>
       <div className="mt-6">
         <StudentOverview report={report} />
-      </div>
-      <div className="mt-6">
-        <GpaChart chartData={chartData} />
       </div>
     </>
   );

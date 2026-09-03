@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Calculator,
-  ChartAreaIcon,
-  GraduationCap,
-  TrashIcon,
-} from "lucide-react";
+import { Calculator, ChartAreaIcon, GraduationCap } from "lucide-react";
 import Link from "next/link";
 import {
   Sidebar,
@@ -23,11 +18,10 @@ import { classGrade, gpa, letterGrade } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
 import { timeAgo } from "@/lib/utils";
 import { Badge } from "./ui/badge";
-import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 
 export function ReportSidebar() {
-  const { lastUpdated, report, clear, weighted, setWeighted } = useReport();
+  const { lastUpdated, report, weighted, setWeighted } = useReport();
   const { isMobile, setOpenMobile } = useSidebar();
   const closeMobileMenu = () => {
     if (isMobile) {
@@ -150,17 +144,6 @@ export function ReportSidebar() {
             source code
           </Link>
         </span>
-
-        {report && (
-          <Button
-            variant="destructive"
-            onClick={() => {
-              clear();
-            }}
-          >
-            <TrashIcon /> Clear report
-          </Button>
-        )}
       </SidebarFooter>
     </Sidebar>
   );
