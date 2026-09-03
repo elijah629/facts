@@ -1,10 +1,10 @@
 # facts
 
 facts is a persistent grade service for FACTS SIS Gradebook Progress Reports.
-Users sign in with a verified `@mygarces.org` Google account. The server uses
-read-only Gmail access to discover temporary FACTS report links, fetches the
-live report before current-grade reads, and stores each distinct observed state
-as an immutable initial snapshot or semantic delta in Neon Postgres.
+Users sign in with the Google account that receives their FACTS report links.
+The server uses read-only Gmail access to find those links, fetches the live
+report before current-grade reads, and stores each distinct observed state as
+an immutable initial snapshot or semantic delta in Neon Postgres.
 
 FACTS HTML remains the source of truth. Canonical raw assignment and grading
 configuration is stored; calculated percentages are not. Historical states are
@@ -42,9 +42,9 @@ run it merely to build or test the app.
 Google Cloud configuration:
 
 1. Use a Google Cloud project owned by the Garces Workspace organization.
-2. Set Google Auth Platform audience to **Internal**. This prevents accounts
-   outside `mygarces.org` from authorizing; the server also checks Google's
-   verified email and hosted-domain claim.
+2. Choose the Google Auth Platform audience appropriate for the deployment.
+   Set optional `GOOGLE_WORKSPACE_DOMAIN` to restrict sign-in to one Workspace
+   domain; omit it to allow any verified Google account.
 3. Add `https://facts.eli.best/api/auth/callback/google` as an authorized
    redirect URI. Add `http://localhost:3000/api/auth/callback/google` for local
    development.

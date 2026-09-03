@@ -15,10 +15,9 @@ export default async function SignInPage({
 
   return (
     <div className="mx-auto max-w-md space-y-4 py-16 text-center">
-      <h1 className="text-3xl font-semibold">Sign in to facts</h1>
+      <h1 className="text-3xl font-semibold">Sign in</h1>
       <p className="text-muted-foreground">
-        Use your verified @mygarces.org Google account. facts reads only FACTS
-        progress-report email needed to discover your live report link.
+        Sign in with the Google account that receives your FACTS report links.
       </p>
       <SignInButton oauthQuery={oauthQuery.toString() || undefined} />
     </div>

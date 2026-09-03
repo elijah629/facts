@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db/client";
 import { account } from "@/lib/db/schema";
+import { gmailErrorCode } from "./errors";
 
 export interface GmailPart {
   mimeType?: string;
@@ -40,7 +41,7 @@ export async function gmailFetch<T>(
     cache: "no-store",
     signal: AbortSignal.timeout(15_000),
   });
-  if (!response.ok) throw new Error(`GMAIL_API_${response.status}`);
+  if (!response.ok) throw new Error(await gmailErrorCode(response));
   return (await response.json()) as T;
 }
 

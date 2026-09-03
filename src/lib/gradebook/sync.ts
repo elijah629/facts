@@ -45,6 +45,11 @@ function safeError(error: unknown): { code: string; message: string } {
   const messages: Record<string, string> = {
     GOOGLE_ACCOUNT_NOT_CONNECTED: "Google account is not connected.",
     GOOGLE_AUTHORIZATION_UNAVAILABLE: "Google authorization is unavailable.",
+    GMAIL_API_DISABLED: "Gmail API is disabled for this Google Cloud project.",
+    GMAIL_SCOPE_MISSING: "Gmail permission is missing. Sign in again.",
+    GMAIL_DOMAIN_BLOCKED: "Google Workspace blocked Gmail access.",
+    GMAIL_RATE_LIMITED: "Gmail temporarily rate-limited synchronization.",
+    GMAIL_API_FORBIDDEN: "Google denied Gmail access.",
     FACTS_REPORT_EXPIRED_OR_INVALID: "FACTS report link expired or is invalid.",
     FACTS_REPORT_STRUCTURE_INVALID: "FACTS returned an invalid report.",
   };

@@ -39,7 +39,7 @@ export function SignInButton({ oauthQuery }: { oauthQuery?: string }) {
   return (
     <div className="space-y-3">
       <Button disabled={pending} onClick={signIn}>
-        {pending ? "Opening Google…" : "Continue with Google"}
+        {pending ? "Signing in…" : "Sign in"}
       </Button>
       {error ? <p className="text-sm text-destructive">{error}</p> : null}
     </div>
