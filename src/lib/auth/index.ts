@@ -1,19 +1,20 @@
 import { cimd } from "@better-auth/cimd";
 import { fetchClientMetadataResource } from "@better-auth/cimd/node";
-import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { mcp } from "@better-auth/mcp";
-import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { betterAuth } from "better-auth/minimal";
 import { jwt } from "better-auth/plugins";
 import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
+import { requiredEnv } from "@/lib/env";
 
-const baseUrl = process.env.BETTER_AUTH_URL ?? "http://localhost:3000";
+const baseUrl = requiredEnv("BETTER_AUTH_URL");
 export const mcpResource = `${new URL(baseUrl).origin}/mcp`;
 
 export const auth = betterAuth({
   appName: "facts",
   baseURL: baseUrl,
-  secret: process.env.BETTER_AUTH_SECRET,
+  secret: requiredEnv("BETTER_AUTH_SECRET"),
   database: drizzleAdapter(db, {
     provider: "pg",
     schema,
@@ -21,6 +22,7 @@ export const auth = betterAuth({
   trustedOrigins: [new URL(baseUrl).origin],
   account: {
     accountLinking: { enabled: false },
+    encryptOAuthTokens: true,
   },
   user: {
     validateUserInfo: ({ user, source }) => {
@@ -39,9 +41,8 @@ export const auth = betterAuth({
   },
   socialProviders: {
     google: {
-      clientId: process.env.GOOGLE_CLIENT_ID ?? "missing-google-client-id",
-      clientSecret:
-        process.env.GOOGLE_CLIENT_SECRET ?? "missing-google-client-secret",
+      clientId: requiredEnv("GOOGLE_CLIENT_ID"),
+      clientSecret: requiredEnv("GOOGLE_CLIENT_SECRET"),
       scope: [
         "openid",
         "email",
@@ -50,6 +51,7 @@ export const auth = betterAuth({
       ],
       accessType: "offline",
       prompt: "select_account consent",
+      includeGrantedScopes: false,
       hd: "mygarces.org",
     },
   },

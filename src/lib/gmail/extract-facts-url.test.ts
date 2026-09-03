@@ -11,6 +11,10 @@ describe("FACTS email link extraction", () => {
   });
 
   test("ignores unrelated links", () => {
-    expect(extractFactsUrls("https://example.com/report")).toEqual([]);
+    expect(
+      extractFactsUrls(
+        "https://school.client.factsmgt.com.evil.test/renweb/email/getreport.cfm?district=x&sessionid=y",
+      ),
+    ).toEqual([]);
   });
 });

@@ -1,4 +1,4 @@
-import { asc, eq, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import {
   gradebookHeads,
@@ -19,7 +19,7 @@ import { decryptSource, encryptSource } from "@/lib/security/source-encryption";
 import { canonicalizeReport } from "./canonicalize";
 import { diffGradebooks } from "./diff";
 import { hashGradebook } from "./hash";
-import { type RevisionRow, reconstructRows } from "./reconstruct";
+import type { GradebookState } from "./types";
 
 export interface SyncResult {
   streamId: string;
@@ -27,6 +27,7 @@ export interface SyncResult {
   stateHash: string | null;
   changed: boolean;
   stale: boolean;
+  state: GradebookState | null;
   lastSuccessfulFactsFetch: Date | null;
   errorCode?: string;
 }
@@ -171,32 +172,20 @@ export async function syncGradebook(
         .from(gradebookHeads)
         .where(eq(gradebookHeads.streamId, streamId))
         .limit(1);
-      const rows = (await tx
-        .select({
-          id: gradebookRevisions.id,
-          sequence: gradebookRevisions.sequence,
-          kind: gradebookRevisions.kind,
-          data: gradebookRevisions.data,
-          observedAt: gradebookRevisions.observedAt,
-          stateHash: gradebookRevisions.stateHash,
-          sourceEmailReceivedAt: gradebookRevisions.sourceEmailReceivedAt,
-        })
-        .from(gradebookRevisions)
-        .where(eq(gradebookRevisions.streamId, streamId))
-        .orderBy(asc(gradebookRevisions.sequence))) as RevisionRow[];
-      const previous = rows.length ? reconstructRows(rows) : undefined;
+      const previous = lockedHead.currentState ?? undefined;
       const next = canonicalizeReport(report, previous);
       const stateHash = hashGradebook(next);
       let revisionId = lockedHead.headRevisionId;
       let changed = false;
+      let headSequence = lockedHead.headSequence;
 
       if (stateHash !== lockedHead.headStateHash) {
+        headSequence += 1;
         const [revision] = await tx
           .insert(gradebookRevisions)
           .values({
             streamId,
-            sequence: rows.length,
-            parentRevisionId: lockedHead.headRevisionId,
+            sequence: headSequence,
             kind: previous ? "delta" : "initial",
             data: previous ? diffGradebooks(previous, next) : next,
             stateHash,
@@ -204,7 +193,8 @@ export async function syncGradebook(
             sourceMessageId:
               resolved.source.messageId ?? lockedHead.activeSourceMessageId,
             sourceEmailReceivedAt:
-              resolved.source.receivedAt ?? rows.at(-1)?.sourceEmailReceivedAt,
+              resolved.source.receivedAt ??
+              lockedHead.activeSourceEmailReceivedAt,
           })
           .returning({ id: gradebookRevisions.id });
         revisionId = revision.id;
@@ -216,6 +206,8 @@ export async function syncGradebook(
         .set({
           headRevisionId: revisionId,
           headStateHash: stateHash,
+          headSequence,
+          currentState: next,
           lastSuccessfulFetchAt: observedAt,
           lastErrorCode: null,
           lastErrorMessage: null,
@@ -224,6 +216,7 @@ export async function syncGradebook(
             ? {
                 encryptedActiveFactsUrl: encryptSource(resolved.source.url),
                 activeSourceMessageId: resolved.source.messageId,
+                activeSourceEmailReceivedAt: resolved.source.receivedAt,
                 activeSourceDiscoveredAt: observedAt,
               }
             : {}),
@@ -237,6 +230,7 @@ export async function syncGradebook(
         stateHash,
         changed,
         stale: false,
+        state: next,
         lastSuccessfulFactsFetch: observedAt,
       };
     });
@@ -256,6 +250,7 @@ export async function syncGradebook(
       stateHash: currentHead?.headStateHash ?? null,
       changed: false,
       stale: true,
+      state: currentHead?.currentState ?? null,
       lastSuccessfulFactsFetch: currentHead?.lastSuccessfulFetchAt ?? null,
       errorCode: safe.code,
     };

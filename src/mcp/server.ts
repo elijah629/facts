@@ -96,8 +96,8 @@ export function createFactsMcpServer(userId: string): McpServer {
         "Reconstruct gradebook observed at a revision or timestamp, then calculate it with current src/lib/grades code.",
       inputSchema: z
         .object({
-          revision: z.string().uuid().optional(),
-          timestamp: z.string().datetime().optional(),
+          revision: z.uuid().optional(),
+          timestamp: z.iso.datetime().optional(),
         })
         .refine((input) => Boolean(input.revision || input.timestamp), {
           message: "revision or timestamp is required",

@@ -17,27 +17,29 @@ export function encryptSource(value: string): string {
     cipher.update(value, "utf8"),
     cipher.final(),
   ]);
-  return [
-    "v1",
-    iv.toString("base64url"),
-    cipher.getAuthTag().toString("base64url"),
-    ciphertext.toString("base64url"),
-  ].join(".");
+  const payload = Buffer.concat([iv, cipher.getAuthTag(), ciphertext]);
+  return `v1.${payload.toString("base64url")}`;
 }
 
 export function decryptSource(value: string): string {
-  const [version, iv, tag, ciphertext] = value.split(".");
-  if (version !== "v1" || !iv || !tag || !ciphertext) {
+  const [version, encoded, extra] = value.split(".");
+  if (
+    version !== "v1" ||
+    !encoded ||
+    extra !== undefined ||
+    !/^[A-Za-z0-9_-]+$/.test(encoded)
+  ) {
     throw new Error("ENCRYPTED_SOURCE_INVALID");
   }
-  const decipher = createDecipheriv(
-    "aes-256-gcm",
-    key(),
-    Buffer.from(iv, "base64url"),
-  );
-  decipher.setAuthTag(Buffer.from(tag, "base64url"));
+  const payload = Buffer.from(encoded, "base64url");
+  if (payload.length <= 28) throw new Error("ENCRYPTED_SOURCE_INVALID");
+  const iv = payload.subarray(0, 12);
+  const tag = payload.subarray(12, 28);
+  const ciphertext = payload.subarray(28);
+  const decipher = createDecipheriv("aes-256-gcm", key(), iv);
+  decipher.setAuthTag(tag);
   return Buffer.concat([
-    decipher.update(Buffer.from(ciphertext, "base64url")),
+    decipher.update(ciphertext),
     decipher.final(),
   ]).toString("utf8");
 }

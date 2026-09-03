@@ -24,4 +24,17 @@ describe("email progress report URLs", () => {
       ),
     ).toThrow("FACTS report link is missing sessionid.");
   });
+
+  test("rejects deceptive hosts and URL credentials", () => {
+    expect(() =>
+      assertFactsProgressReportUrl(
+        "https://school.client.factsmgt.com.evil.test/renweb/email/getreport.cfm?district=x&sessionid=y",
+      ),
+    ).toThrow("Only FACTS GradeBook progress-report links are supported.");
+    expect(() =>
+      assertFactsProgressReportUrl(
+        "https://user@school.client.factsmgt.com/renweb/email/getreport.cfm?district=x&sessionid=y",
+      ),
+    ).toThrow("unsupported URL components");
+  });
 });

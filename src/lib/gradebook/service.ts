@@ -1,4 +1,4 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import {
   gradebookHeads,
@@ -8,17 +8,18 @@ import {
 import { calculateGradebook, reportProjection } from "./projection";
 import {
   reconstructAt,
-  reconstructLatest,
+  reconstructHistoryRows,
   reconstructRevision,
+  revisionRowsThrough,
 } from "./reconstruct";
 import { syncGradebook } from "./sync";
 
 export async function currentGradebook(userId: string) {
   const sync = await syncGradebook(userId);
-  if (!sync.revisionId) {
+  if (!sync.revisionId || !sync.state) {
     return { sync, state: null, report: null, calculated: null };
   }
-  const state = await reconstructLatest(sync.streamId);
+  const state = sync.state;
   return {
     sync,
     state,
@@ -63,24 +64,10 @@ export async function gradeHistory(userId: string) {
     .where(eq(gradebookStreams.userId, userId))
     .limit(1);
   if (!stream) return [];
-  const revisions = await db
-    .select({
-      id: gradebookRevisions.id,
-      sequence: gradebookRevisions.sequence,
-      observedAt: gradebookRevisions.observedAt,
-      stateHash: gradebookRevisions.stateHash,
-    })
-    .from(gradebookRevisions)
-    .where(eq(gradebookRevisions.streamId, stream.id))
-    .orderBy(asc(gradebookRevisions.sequence));
-  return Promise.all(
-    revisions.map(async (revision) => {
-      const state = await reconstructRevision(revision.id);
-      return {
-        ...revision,
-        state,
-        calculated: calculateGradebook(state),
-      };
+  return reconstructHistoryRows(await revisionRowsThrough(stream.id)).map(
+    (revision) => ({
+      ...revision,
+      calculated: calculateGradebook(revision.state),
     }),
   );
 }

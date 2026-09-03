@@ -1,21 +1,14 @@
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { attachDatabasePool } from "@vercel/functions";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
+import { neonDatabaseUrl } from "@/lib/env";
 import * as schema from "./schema";
 
-const databaseUrl =
-  process.env.DATABASE_URL ??
-  "postgresql://build:build@127.0.0.1:5432/facts_build_placeholder";
-
-export const sqlClient = postgres(databaseUrl, {
+export const databasePool = new Pool({
+  connectionString: neonDatabaseUrl("DATABASE_URL"),
   max: 5,
-  prepare: false,
-  idle_timeout: 20,
+  idleTimeoutMillis: 5_000,
 });
+attachDatabasePool(databasePool);
 
-export const db = drizzle(sqlClient, { schema });
-
-export function requireDatabaseUrl(): void {
-  if (!process.env.DATABASE_URL) {
-    throw new Error("DATABASE_URL is not configured.");
-  }
-}
+export const db = drizzle(databasePool, { schema });

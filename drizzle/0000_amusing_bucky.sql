@@ -1,15 +1,12 @@
 CREATE TYPE "public"."gradebook_revision_kind" AS ENUM('initial', 'delta');--> statement-breakpoint
-CREATE TABLE "gradebook_checkpoints" (
-	"revision_id" uuid PRIMARY KEY NOT NULL,
-	"state" jsonb NOT NULL,
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
-);
---> statement-breakpoint
 CREATE TABLE "gradebook_heads" (
 	"stream_id" uuid PRIMARY KEY NOT NULL,
 	"head_revision_id" uuid,
 	"head_state_hash" text,
+	"head_sequence" integer DEFAULT -1 NOT NULL,
+	"current_state" jsonb,
 	"active_source_message_id" text,
+	"active_source_email_received_at" timestamp with time zone,
 	"encrypted_active_facts_url" text,
 	"active_source_discovered_at" timestamp with time zone,
 	"last_gmail_scan_at" timestamp with time zone,
@@ -24,7 +21,6 @@ CREATE TABLE "gradebook_revisions" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"stream_id" uuid NOT NULL,
 	"sequence" integer NOT NULL,
-	"parent_revision_id" uuid,
 	"kind" "gradebook_revision_kind" NOT NULL,
 	"data" jsonb NOT NULL,
 	"state_hash" text NOT NULL,
@@ -224,8 +220,8 @@ CREATE TABLE "verification" (
 	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "gradebook_checkpoints" ADD CONSTRAINT "gradebook_checkpoints_revision_id_gradebook_revisions_id_fk" FOREIGN KEY ("revision_id") REFERENCES "public"."gradebook_revisions"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "gradebook_heads" ADD CONSTRAINT "gradebook_heads_stream_id_gradebook_streams_id_fk" FOREIGN KEY ("stream_id") REFERENCES "public"."gradebook_streams"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "gradebook_heads" ADD CONSTRAINT "gradebook_heads_head_revision_id_gradebook_revisions_id_fk" FOREIGN KEY ("head_revision_id") REFERENCES "public"."gradebook_revisions"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "gradebook_revisions" ADD CONSTRAINT "gradebook_revisions_stream_id_gradebook_streams_id_fk" FOREIGN KEY ("stream_id") REFERENCES "public"."gradebook_streams"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "gradebook_streams" ADD CONSTRAINT "gradebook_streams_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

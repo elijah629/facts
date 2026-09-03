@@ -20,18 +20,16 @@ export interface FactsSourceCandidate {
 export async function findFactsReportCandidates(
   userId: string,
 ): Promise<FactsSourceCandidate[]> {
-  const query = encodeURIComponent(
-    'newer_than:30d ("Gradebook Progress Report" OR "Progress Report")',
-  );
-  const list = await gmailFetch<MessageList>(
-    userId,
-    `users/me/messages?q=${query}&maxResults=20`,
-  );
+  const list = await gmailFetch<MessageList>(userId, "users/me/messages", {
+    q: 'newer_than:30d ("Gradebook Progress Report" OR "Progress Report")',
+    maxResults: "20",
+  });
   const candidates: FactsSourceCandidate[] = [];
   for (const item of list.messages ?? []) {
     const message = await gmailFetch<Message>(
       userId,
-      `users/me/messages/${encodeURIComponent(item.id)}?format=full`,
+      `users/me/messages/${encodeURIComponent(item.id)}`,
+      { format: "full" },
     );
     for (const url of extractFactsUrls(flattenGmailBody(message.payload))) {
       candidates.push({

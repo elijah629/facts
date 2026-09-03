@@ -1,6 +1,7 @@
 import { assertFactsProgressReportUrl } from "@/lib/report/urls";
 
-const URL_PATTERN = /https:\/\/[^\s"'<>]+getreport\.cfm\?[^\s"'<>]+/gi;
+const URL_PATTERN =
+  /https:\/\/[a-z0-9.-]+\.client\.factsmgt\.com\/renweb\/email\/getreport\.cfm\?[^\s"'<>]+/gi;
 
 export function extractFactsUrls(body: string): string[] {
   const decoded = body

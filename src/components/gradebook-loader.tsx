@@ -1,5 +1,6 @@
 "use client";
 
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import { useReport } from "@/lib/report/store";
 import type { Report } from "@/types/report";
@@ -21,11 +22,13 @@ function reviveDates(report: Report): Report {
 }
 
 export function GradebookLoader() {
+  const pathname = usePathname();
+  const isAuthPage = pathname === "/sign-in" || pathname === "/consent";
   const setSyncResult = useReport((state) => state.setSyncResult);
 
   useEffect(() => {
+    if (isAuthPage) return;
     let active = true;
-    localStorage.removeItem("report-storage");
     fetch("/api/grades", { cache: "no-store" })
       .then(async (response) => {
         if (response.status === 401) {
@@ -62,7 +65,7 @@ export function GradebookLoader() {
     return () => {
       active = false;
     };
-  }, [setSyncResult]);
+  }, [isAuthPage, setSyncResult]);
 
   return null;
 }

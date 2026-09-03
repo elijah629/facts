@@ -9,6 +9,8 @@ export interface GmailPart {
   parts?: GmailPart[];
 }
 
+const GMAIL_API = new URL("https://gmail.googleapis.com/gmail/v1/");
+
 export async function googleAccessToken(userId: string): Promise<string> {
   const [google] = await db
     .select({ id: account.id })
@@ -23,26 +25,28 @@ export async function googleAccessToken(userId: string): Promise<string> {
   return token.accessToken;
 }
 
-export async function gmailFetch<T>(userId: string, path: string): Promise<T> {
+export async function gmailFetch<T>(
+  userId: string,
+  path: string,
+  searchParams: Record<string, string> = {},
+): Promise<T> {
   const token = await googleAccessToken(userId);
-  const response = await fetch(
-    `https://gmail.googleapis.com/gmail/v1/${path}`,
-    {
-      headers: { authorization: `Bearer ${token}` },
-      cache: "no-store",
-      signal: AbortSignal.timeout(15_000),
-    },
-  );
+  const url = new URL(path, GMAIL_API);
+  for (const [key, value] of Object.entries(searchParams)) {
+    url.searchParams.set(key, value);
+  }
+  const response = await fetch(url, {
+    headers: { authorization: `Bearer ${token}` },
+    cache: "no-store",
+    signal: AbortSignal.timeout(15_000),
+  });
   if (!response.ok) throw new Error(`GMAIL_API_${response.status}`);
   return (await response.json()) as T;
 }
 
 export function decodeGmailBody(value: string | undefined): string {
   if (!value) return "";
-  return Buffer.from(
-    value.replace(/-/g, "+").replace(/_/g, "/"),
-    "base64",
-  ).toString("utf8");
+  return Buffer.from(value, "base64url").toString("utf8");
 }
 
 export function flattenGmailBody(part: GmailPart): string {

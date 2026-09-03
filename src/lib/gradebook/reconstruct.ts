@@ -1,4 +1,4 @@
-import { and, asc, eq, lte } from "drizzle-orm";
+import { and, asc, desc, eq, lte } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { gradebookRevisions } from "@/lib/db/schema";
 import { applyGradebookDelta } from "./apply-delta";
@@ -28,6 +28,21 @@ export function reconstructRows(rows: RevisionRow[]): GradebookState {
   return state;
 }
 
+export function reconstructHistoryRows(
+  rows: RevisionRow[],
+): Array<RevisionRow & { state: GradebookState }> {
+  let state: GradebookState | undefined;
+  return rows.map((revision) => {
+    if (revision.kind === "initial") {
+      state = structuredClone(revision.data as GradebookState);
+    } else {
+      if (!state) throw new Error("REVISION_CHAIN_MISSING_INITIAL_STATE");
+      state = applyGradebookDelta(state, revision.data as GradebookDelta);
+    }
+    return { ...revision, state: structuredClone(state) };
+  });
+}
+
 export async function revisionRowsThrough(
   streamId: string,
   sequence?: number,
@@ -40,6 +55,7 @@ export async function revisionRowsThrough(
       data: gradebookRevisions.data,
       observedAt: gradebookRevisions.observedAt,
       stateHash: gradebookRevisions.stateHash,
+      sourceEmailReceivedAt: gradebookRevisions.sourceEmailReceivedAt,
     })
     .from(gradebookRevisions)
     .where(
@@ -89,8 +105,11 @@ export async function reconstructAt(
         lte(gradebookRevisions.observedAt, timestamp),
       ),
     )
-    .orderBy(asc(gradebookRevisions.observedAt))
-    .then((rows) => rows.slice(-1));
+    .orderBy(
+      desc(gradebookRevisions.observedAt),
+      desc(gradebookRevisions.sequence),
+    )
+    .limit(1);
   if (!revision) throw new Error("REVISION_NOT_FOUND_AT_TIMESTAMP");
   return reconstructRows(
     await revisionRowsThrough(streamId, revision.sequence),

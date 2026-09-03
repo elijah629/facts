@@ -43,7 +43,12 @@ export const gradebookHeads = pgTable("gradebook_heads", {
     { onDelete: "set null" },
   ),
   headStateHash: text("head_state_hash"),
+  headSequence: integer("head_sequence").default(-1).notNull(),
+  currentState: jsonb("current_state").$type<GradebookState>(),
   activeSourceMessageId: text("active_source_message_id"),
+  activeSourceEmailReceivedAt: timestamp("active_source_email_received_at", {
+    withTimezone: true,
+  }),
   encryptedActiveFactsUrl: text("encrypted_active_facts_url"),
   activeSourceDiscoveredAt: timestamp("active_source_discovered_at", {
     withTimezone: true,
@@ -68,10 +73,6 @@ export const gradebookRevisions = pgTable(
       .notNull()
       .references(() => gradebookStreams.id, { onDelete: "cascade" }),
     sequence: integer("sequence").notNull(),
-    parentRevisionId: uuid("parent_revision_id").references(
-      (): AnyPgColumn => gradebookRevisions.id,
-      { onDelete: "cascade" },
-    ),
     kind: revisionKind("kind").notNull(),
     data: jsonb("data").$type<GradebookState | GradebookDelta>().notNull(),
     stateHash: text("state_hash").notNull(),
@@ -95,13 +96,3 @@ export const gradebookRevisions = pgTable(
     ),
   ],
 );
-
-export const gradebookCheckpoints = pgTable("gradebook_checkpoints", {
-  revisionId: uuid("revision_id")
-    .primaryKey()
-    .references(() => gradebookRevisions.id, { onDelete: "cascade" }),
-  state: jsonb("state").$type<GradebookState>().notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true })
-    .defaultNow()
-    .notNull(),
-});
