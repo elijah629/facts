@@ -1,5 +1,4 @@
 import { cimd } from "@better-auth/cimd";
-import { fetchClientMetadataResource } from "@better-auth/cimd/node";
 import { mcp } from "@better-auth/mcp";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth/minimal";
@@ -7,6 +6,7 @@ import { jwt } from "better-auth/plugins";
 import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
 import { requiredEnv } from "@/lib/env";
+import { fetchClientMetadataResource } from "./cimd-fetch";
 
 const baseUrl = requiredEnv("BETTER_AUTH_URL");
 const googleWorkspaceDomain = process.env.GOOGLE_WORKSPACE_DOMAIN?.trim()
