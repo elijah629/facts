@@ -9,6 +9,9 @@ import * as schema from "@/lib/db/schema";
 import { requiredEnv } from "@/lib/env";
 
 const baseUrl = requiredEnv("BETTER_AUTH_URL");
+const googleWorkspaceDomain = process.env.GOOGLE_WORKSPACE_DOMAIN?.trim()
+  .toLowerCase()
+  .replace(/^@/, "");
 export const mcpResource = `${new URL(baseUrl).origin}/mcp`;
 
 export const auth = betterAuth({
@@ -29,13 +32,14 @@ export const auth = betterAuth({
       const allowed =
         source.oauth?.providerId === "google" &&
         user.emailVerified === true &&
-        user.email?.toLowerCase().endsWith("@mygarces.org");
+        (!googleWorkspaceDomain ||
+          user.email?.toLowerCase().endsWith(`@${googleWorkspaceDomain}`));
       return allowed
         ? undefined
         : {
             error: "email_not_allowed",
             errorDescription:
-              "Use a verified @mygarces.org Google account that receives FACTS progress reports.",
+              "Sign in with the verified Google account that receives your FACTS report links.",
           };
     },
   },
@@ -52,7 +56,7 @@ export const auth = betterAuth({
       accessType: "offline",
       prompt: "select_account consent",
       includeGrantedScopes: false,
-      hd: "mygarces.org",
+      ...(googleWorkspaceDomain ? { hd: googleWorkspaceDomain } : {}),
     },
   },
   plugins: [

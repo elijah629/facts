@@ -11,6 +11,7 @@ export default function Home() {
   const weighted = useReport((x) => x.weighted);
   const loading = useReport((x) => x.loading);
   const authenticated = useReport((x) => x.authenticated);
+  const syncError = useReport((x) => x.syncError);
 
   if (!report) {
     return (
@@ -21,14 +22,14 @@ export default function Home() {
         {!loading && !authenticated && (
           <p className="leading-7 not-first:mt-6">
             <Link className="underline" href="/sign-in">
-              Continue with Google
-            </Link>
-            . No FACTS URL needed.
+              Sign in
+            </Link>{" "}
+            with the account that receives your FACTS report links.
           </p>
         )}
         {!loading && authenticated && (
           <p className="leading-7 not-first:mt-6">
-            No usable FACTS Gradebook Progress Report found in Gmail.
+            {gmailErrorMessage(syncError)}
           </p>
         )}
       </>
@@ -59,4 +60,21 @@ export default function Home() {
       </div>
     </>
   );
+}
+
+function gmailErrorMessage(error: string | undefined): string {
+  switch (error) {
+    case "GMAIL_API_DISABLED":
+      return "Gmail API is not enabled for this app.";
+    case "GMAIL_SCOPE_MISSING":
+      return "Gmail access is missing. Sign out, then sign in again.";
+    case "GMAIL_DOMAIN_BLOCKED":
+      return "Your Google Workspace administrator blocked Gmail access.";
+    case "GMAIL_RATE_LIMITED":
+      return "Gmail is temporarily rate limited. Try again later.";
+    case "GMAIL_API_FORBIDDEN":
+      return "Google denied Gmail access for this app.";
+    default:
+      return "No usable FACTS Gradebook Progress Report found in Gmail.";
+  }
 }

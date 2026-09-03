@@ -16,14 +16,16 @@ export function AccountStatus() {
   if (!authenticated)
     return (
       <Button asChild>
-        <Link href="/sign-in">Continue with Google</Link>
+        <Link href="/sign-in">Sign in</Link>
       </Button>
     );
   return (
     <div className="flex items-center gap-3 text-sm">
       <span className={stale ? "text-amber-500" : "text-emerald-500"}>
         {stale
-          ? `Last known gradebook${syncError ? ` (${syncError})` : ""}`
+          ? syncError
+            ? "Couldn’t refresh gradebook"
+            : "Last updated gradebook"
           : "Live FACTS refreshed"}
       </span>
       <Button
