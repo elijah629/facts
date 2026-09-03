@@ -174,7 +174,12 @@ export function reportFromCanonical(state: GradebookState): Report {
     term: state.term,
     yearRange: state.yearRange,
     classes: Object.values(state.classes)
-      .sort(compareClassesByPeriod)
+      .sort((left, right) =>
+        compareClassesByPeriod(
+          { fullName: left.name },
+          { fullName: right.name },
+        ),
+      )
       .map((cls) => ({
         fullName: cls.name,
         displayName: cls.displayName,
