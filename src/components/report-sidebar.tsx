@@ -5,6 +5,7 @@ import {
   ChartAreaIcon,
   FileText,
   GraduationCap,
+  Plug,
 } from "lucide-react";
 import Link from "next/link";
 import {
@@ -94,6 +95,16 @@ export function ReportSidebar() {
                 <div className="flex flex-col gap-2 leading-none">
                   Final Calculator
                 </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/connected-apps" onClick={closeMobileMenu}>
+                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <Plug />
+                </div>
+                <span>Connected apps</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
