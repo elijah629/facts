@@ -17,6 +17,7 @@
     "lint": "biome check",
     "format": "biome format --write",
     "db:generate": "drizzle-kit generate",
+    "db:inspect": "bun scripts/inspect-storage.ts",
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {

@@ -5,6 +5,7 @@ import {
   ChartAreaIcon,
   FileText,
   GraduationCap,
+  History,
   Plug,
 } from "lucide-react";
 import Link from "next/link";
@@ -95,6 +96,16 @@ export function ReportSidebar() {
                 <div className="flex flex-col gap-2 leading-none">
                   Final Calculator
                 </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
+              <Link href="/history" onClick={closeMobileMenu}>
+                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <History />
+                </div>
+                <span>Grade history</span>
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>

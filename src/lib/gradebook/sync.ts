@@ -212,7 +212,9 @@ export async function syncGradebook(
           headRevisionId: revisionId,
           headStateHash: stateHash,
           headSequence,
-          currentState: next,
+          // Preserve the existing TOAST value when only sync timestamps change.
+          // Re-sending identical JSONB can create needless large-value/WAL churn.
+          ...(changed ? { currentState: next } : {}),
           lastSuccessfulFetchAt: observedAt,
           lastErrorCode: null,
           lastErrorMessage: null,

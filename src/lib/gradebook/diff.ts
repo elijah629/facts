@@ -1,3 +1,4 @@
+import { isDeepStrictEqual } from "node:util";
 import type {
   CanonicalAssignment,
   CanonicalCategory,
@@ -10,7 +11,7 @@ import type {
 function changedFields<T extends object>(previous: T, next: T): Partial<T> {
   const changed: Partial<T> = {};
   for (const key of Object.keys(next) as (keyof T)[]) {
-    if (JSON.stringify(previous[key]) !== JSON.stringify(next[key])) {
+    if (!isDeepStrictEqual(previous[key], next[key])) {
       changed[key] = next[key];
     }
   }
