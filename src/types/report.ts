@@ -66,8 +66,8 @@ export type Assignment = (
       status: "missing";
     }
 ) & {
-  /// Stable row position in the source section. FACTS does not expose an
-  /// assignment ID, so this is the only identity independent of mutable data.
+  /// Row position in this parsed source section. Persistence derives semantic
+  /// identity and does not use this position as an entity ID.
   sourceIndex: number;
 
   name: string;
@@ -75,6 +75,9 @@ export type Assignment = (
 
   due: Date;
   note?: string;
+  curve?: number;
+  bonus?: number;
+  penalty?: number;
 
   /// Within-category assignment weight used by FACTS PERCENT classes.
   weight?: number;

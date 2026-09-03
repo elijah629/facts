@@ -119,9 +119,9 @@ export function parseAssignment(
     _average,
     status,
     rawDue,
-    _curve,
-    _bonus,
-    _penalty,
+    rawCurve,
+    rawBonus,
+    rawPenalty,
     ...rest
   ] = Array.from(row.children).map((cell) =>
     (cell as HTMLTableCellElement).innerText.trim(),
@@ -133,9 +133,17 @@ export function parseAssignment(
     rawWeight !== undefined && Number.isFinite(rawWeight)
       ? rawWeight
       : undefined;
+  const adjustment = (value: string): number | undefined => {
+    if (!value.trim()) return undefined;
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
+  };
+  const curve = adjustment(rawCurve);
+  const bonus = adjustment(rawBonus);
+  const penalty = adjustment(rawPenalty);
 
   const [month, day] = rawDue.split("/").map(Number);
-  const due = new Date(0, month - 1, day);
+  const due = new Date(Date.UTC(0, month - 1, day));
 
   const { name, description } = parseAssignmentLabel(rawName);
 
@@ -155,6 +163,9 @@ export function parseAssignment(
 
       note: note || undefined,
       weight,
+      curve,
+      bonus,
+      penalty,
     };
   }
 
@@ -168,6 +179,9 @@ export function parseAssignment(
       due,
       note: note || undefined,
       weight,
+      curve,
+      bonus,
+      penalty,
     };
   }
 
@@ -183,6 +197,9 @@ export function parseAssignment(
       due,
       note: note || undefined,
       weight,
+      curve,
+      bonus,
+      penalty,
     };
   }
 
@@ -195,5 +212,8 @@ export function parseAssignment(
     due,
     note: note || undefined,
     weight,
+    curve,
+    bonus,
+    penalty,
   };
 }

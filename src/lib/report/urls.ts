@@ -17,7 +17,10 @@ export function assertFactsProgressReportUrl(value: string): URL {
   }
 
   for (const parameter of ["district", "sessionid"]) {
-    if (!url.searchParams.get(parameter)) {
+    const value = Array.from(url.searchParams.entries()).find(
+      ([key]) => key.toLowerCase() === parameter,
+    )?.[1];
+    if (!value) {
       throw new Error(`FACTS report link is missing ${parameter}.`);
     }
   }

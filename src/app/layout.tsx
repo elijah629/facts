@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ReportInput } from "@/components/report-input";
+import { AccountStatus } from "@/components/account-status";
+import { GradebookLoader } from "@/components/gradebook-loader";
 import { ReportSidebar } from "@/components/report-sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -36,6 +37,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased dark`}
       >
+        <GradebookLoader />
         <SidebarProvider>
           <ReportSidebar />
           <SidebarInset>
@@ -45,7 +47,7 @@ export default function RootLayout({
                 className="hidden h-6 sm:block"
                 orientation="vertical"
               />
-              <ReportInput />
+              <AccountStatus />
             </header>
             <main className="p-3 sm:p-5">{children}</main>
           </SidebarInset>

@@ -28,8 +28,8 @@ export function yearDates(
   return dates.map((orig) => {
     const d = new Date(orig.getTime());
 
-    const monthIndex = d.getMonth();
-    const dayOfMonth = d.getDate();
+    const monthIndex = d.getUTCMonth();
+    const dayOfMonth = d.getUTCDate();
 
     const ordinal = (monthIndex + 1) * 100 + dayOfMonth;
 
@@ -38,7 +38,7 @@ export function yearDates(
     }
     prevOrdinal = ordinal;
 
-    d.setFullYear(year);
+    d.setUTCFullYear(year);
 
     return d;
   });
