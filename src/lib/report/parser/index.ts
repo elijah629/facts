@@ -1,4 +1,5 @@
 import { parseHTML } from "linkedom";
+import { parse, serialize } from "parse5";
 import type { Report } from "@/types/report";
 import { parseClass } from "./class";
 import { parseReportHeader } from "./report-header";
@@ -17,21 +18,8 @@ export function parseReportFromHtml(html: string): Report {
 }
 
 export function parseReportDocument(html: string): Document {
-  const source = /<body(?:\s|>)/i.test(html)
-    ? html
-    : `<html><body>${html}</body></html>`;
-  const { document } = parseHTML(source);
-
-  for (const table of document.querySelectorAll("table")) {
-    const directRows = Array.from(table.children).filter(
-      (child) => child.tagName === "TR",
-    );
-    if (directRows.length === 0) continue;
-    const body = document.createElement("tbody");
-    table.insertBefore(body, directRows[0]);
-    for (const row of directRows) body.append(row);
-  }
-
+  const browserNormalizedHtml = serialize(parse(html));
+  const { document } = parseHTML(browserNormalizedHtml);
   return document as unknown as Document;
 }
 

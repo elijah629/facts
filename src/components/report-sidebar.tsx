@@ -1,6 +1,11 @@
 "use client";
 
-import { Calculator, ChartAreaIcon, GraduationCap } from "lucide-react";
+import {
+  Calculator,
+  ChartAreaIcon,
+  FileText,
+  GraduationCap,
+} from "lucide-react";
 import Link from "next/link";
 import {
   Sidebar,
@@ -53,6 +58,20 @@ export function ReportSidebar() {
               </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
+          {report ? (
+            <SidebarMenuItem>
+              <SidebarMenuButton size="lg" asChild>
+                <Link href="/raw-report" onClick={closeMobileMenu}>
+                  <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                    <FileText />
+                  </div>
+                  <div className="flex flex-col gap-2 leading-none">
+                    Raw report
+                  </div>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ) : null}
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
               <Link href="/gpa-guide" onClick={closeMobileMenu}>
