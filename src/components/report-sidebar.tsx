@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Switch } from "@/components/ui/switch";
 import { classGrade, gpa, letterGrade } from "@/lib/grades";
+import { sidebarClassName } from "@/lib/report/sidebar-class-name";
 import { useReport } from "@/lib/report/store";
 import { timeAgo } from "@/lib/utils";
 import { Badge } from "./ui/badge";
@@ -124,9 +125,11 @@ export function ReportSidebar() {
                   <SidebarMenuItem key={cls.fullName}>
                     <SidebarMenuButton asChild>
                       <Link href={`/class/${i}`} onClick={closeMobileMenu}>
-                        <div className="flex min-w-0 items-center gap-2">
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
                           <GraduationCap />
-                          <span className="truncate">{cls.displayName}</span>
+                          <span className="truncate">
+                            {sidebarClassName(cls.displayName)}
+                          </span>
                         </div>
                         <Badge variant="default" className="ml-auto">
                           {letter}

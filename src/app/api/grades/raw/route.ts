@@ -1,8 +1,6 @@
 import { currentSession } from "@/lib/auth/session";
 import { rawGradebookReport } from "@/lib/gradebook/raw-report";
 
-export const dynamic = "force-dynamic";
-
 const RAW_REPORT_HEADERS = {
   "cache-control": "private, no-store, max-age=0",
   "content-security-policy":

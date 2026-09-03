@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { authClient } from "@/lib/auth/client";
 import { useReport } from "@/lib/report/store";
 
 export function AccountStatus() {
-  const pathname = usePathname();
+  const router = useRouter();
   const { authenticated, loading, stale, syncError } = useReport();
-  if (pathname === "/sign-in" || pathname === "/consent") return null;
   if (loading)
     return (
       <span className="text-sm text-muted-foreground">Refreshing FACTS…</span>
@@ -31,8 +31,11 @@ export function AccountStatus() {
       <Button
         variant="outline"
         onClick={async () => {
-          await fetch("/api/auth/sign-out", { method: "POST" });
-          window.location.assign("/sign-in");
+          const { error } = await authClient.signOut();
+          if (!error) {
+            router.replace("/sign-in");
+            router.refresh();
+          }
         }}
       >
         Sign out

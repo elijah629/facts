@@ -3,8 +3,6 @@ import { createMcpHandler } from "@modelcontextprotocol/server";
 import { auth, mcpResource } from "@/lib/auth";
 import { createFactsMcpServer } from "@/mcp/server";
 
-export const dynamic = "force-dynamic";
-
 const protectedHandler = requireMcpAuth(
   auth,
   async (request, claims) => {
@@ -15,13 +13,13 @@ const protectedHandler = requireMcpAuth(
           ? claims.sub
           : null;
     if (!userId) {
-      return new Response(
-        JSON.stringify({
+      return Response.json(
+        {
           jsonrpc: "2.0",
           error: { code: -32001, message: "Authenticated user missing." },
           id: null,
-        }),
-        { status: 401, headers: { "content-type": "application/json" } },
+        },
+        { status: 401 },
       );
     }
     const handler = createMcpHandler(() => createFactsMcpServer(userId), {

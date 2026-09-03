@@ -1,20 +1,17 @@
-import { type NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db/client";
 import { gradebookStreams } from "@/lib/db/schema";
 import { syncGradebook } from "@/lib/gradebook/sync";
 
-export const dynamic = "force-dynamic";
-
-function authorized(request: NextRequest): boolean {
+function authorized(request: Request): boolean {
   const secret = process.env.CRON_SECRET;
   return Boolean(
     secret && request.headers.get("authorization") === `Bearer ${secret}`,
   );
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   if (!authorized(request)) {
-    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+    return Response.json({ error: "unauthorized" }, { status: 401 });
   }
   const streams = await db
     .select({ userId: gradebookStreams.userId })
@@ -36,5 +33,5 @@ export async function GET(request: NextRequest) {
     },
   );
   await Promise.all(workers);
-  return NextResponse.json({ checked: streams.length, changed, stale });
+  return Response.json({ checked: streams.length, changed, stale });
 }
