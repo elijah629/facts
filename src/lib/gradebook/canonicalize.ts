@@ -77,6 +77,7 @@ function reconcileAssignmentId(
   next: CanonicalAssignment,
   previous: CanonicalClass | undefined,
   claimed: Set<string>,
+  uniqueNameInReport: boolean,
 ): string {
   if (previous) {
     const exact = Object.entries(previous.assignments).filter(
@@ -97,6 +98,22 @@ function reconcileAssignmentId(
         item.possible === next.possible,
     );
     if (semantic.length === 1) return semantic[0][0];
+
+    // A due-date edit should remain one assignment update when its identity is
+    // unambiguous. Never guess between recurring assignments with the same name.
+    const sameName = Object.entries(previous.assignments).filter(
+      ([, item]) =>
+        item.categoryId === next.categoryId &&
+        item.name.localeCompare(next.name, undefined, {
+          sensitivity: "base",
+        }) === 0,
+    );
+    if (
+      uniqueNameInReport &&
+      sameName.length === 1 &&
+      !claimed.has(sameName[0][0])
+    )
+      return sameName[0][0];
   }
 
   const base = `${slug(next.name)}-${digest(assignmentFingerprint(classId, next))}`;
@@ -140,6 +157,12 @@ export function canonicalizeReport(
           item,
           previousClass,
           claimed,
+          section.assignments.filter(
+            (candidate) =>
+              normalize(candidate.name).localeCompare(item.name, undefined, {
+                sensitivity: "base",
+              }) === 0,
+          ).length === 1,
         );
         claimed.add(assignmentId);
         assignments[assignmentId] = item;

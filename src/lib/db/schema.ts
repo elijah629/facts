@@ -10,6 +10,7 @@ import {
   uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
+import type { HistoryFormat } from "@/lib/gradebook/history-chain";
 import type { GradebookDelta, GradebookState } from "@/lib/gradebook/types";
 import { user } from "./auth-schema";
 
@@ -24,6 +25,10 @@ export const gradebookStreams = pgTable(
   "gradebook_streams",
   {
     id: uuid("id").defaultRandom().primaryKey(),
+    storageFormat: text("storage_format")
+      .$type<HistoryFormat>()
+      .default("forward-v1")
+      .notNull(),
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
@@ -74,7 +79,7 @@ export const gradebookRevisions = pgTable(
       .references(() => gradebookStreams.id, { onDelete: "cascade" }),
     sequence: integer("sequence").notNull(),
     kind: revisionKind("kind").notNull(),
-    data: jsonb("data").$type<GradebookState | GradebookDelta>().notNull(),
+    data: jsonb("data").$type<GradebookState | GradebookDelta>(),
     stateHash: text("state_hash").notNull(),
     observedAt: timestamp("observed_at", { withTimezone: true }).notNull(),
     sourceMessageId: text("source_message_id"),

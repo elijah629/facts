@@ -1,85 +1,130 @@
 import { and, desc, eq, lt } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { gradebookRevisions, gradebookStreams } from "@/lib/db/schema";
-import { applyGradebookDelta } from "./apply-delta";
-import { hashGradebook } from "./hash";
 import { historyChanges } from "./history-changes";
 import { calculateGradebook } from "./projection";
-import { reconstructRows, revisionRowsThrough } from "./reconstruct";
-import type { GradebookDelta, GradebookState } from "./types";
+import { type HistoryTransaction, readHistoryRange } from "./reconstruct";
+import type { TimelineGrades, TimelinePage } from "./timeline-types";
+import type { GradebookState } from "./types";
+
+export function timelineGrades(state: GradebookState): TimelineGrades {
+  const weighted = calculateGradebook(state);
+  const hasGrades = weighted.classes.some((cls) => cls.percentage !== null);
+  return {
+    gpa: hasGrades ? weighted.gpa : null,
+    unweightedGpa: hasGrades ? calculateGradebook(state, false).gpa : null,
+    classes: weighted.classes.map(({ id, name, percentage, letter }) => ({
+      id,
+      name,
+      percentage,
+      letter,
+    })),
+  };
+}
 
 export async function revisionHistoryPage(
   userId: string,
-  options: { before?: number; revision?: string },
-) {
-  const [stream] = await db
+  options: { before?: number; revision?: string } = {},
+): Promise<TimelinePage> {
+  return db.transaction((tx) => historyPageInTransaction(tx, userId, options), {
+    isolationLevel: "repeatable read",
+    accessMode: "read only",
+  });
+}
+
+export async function historyPageInTransaction(
+  tx: HistoryTransaction,
+  userId: string,
+  options: { before?: number; revision?: string } = {},
+): Promise<TimelinePage> {
+  const empty: TimelinePage = {
+    points: [],
+    selectedId: null,
+    before: null,
+    hasNewer: false,
+    unavailable: Boolean(options.revision),
+  };
+  const [stream] = await tx
     .select({ id: gradebookStreams.id })
     .from(gradebookStreams)
     .where(eq(gradebookStreams.userId, userId))
     .limit(1);
-  if (!stream) return { revisions: [], hasOlder: false, selected: null };
-  const rows = await db
+  if (!stream) return empty;
+  let before = options.before;
+  if (options.revision) {
+    // Check ownership before reading payloads, even for direct links.
+    const [selected] = await tx
+      .select({ sequence: gradebookRevisions.sequence })
+      .from(gradebookRevisions)
+      .where(
+        and(
+          eq(gradebookRevisions.streamId, stream.id),
+          eq(gradebookRevisions.id, options.revision),
+        ),
+      )
+      .limit(1);
+    if (!selected) return empty;
+    before = selected.sequence + 1;
+  }
+  const metadata = await tx
     .select({
       id: gradebookRevisions.id,
       sequence: gradebookRevisions.sequence,
-      kind: gradebookRevisions.kind,
-      observedAt: gradebookRevisions.observedAt,
     })
     .from(gradebookRevisions)
     .where(
       and(
         eq(gradebookRevisions.streamId, stream.id),
-        options.before === undefined
+        before === undefined
           ? undefined
-          : lt(gradebookRevisions.sequence, options.before),
+          : lt(gradebookRevisions.sequence, before),
       ),
     )
     .orderBy(desc(gradebookRevisions.sequence))
     .limit(21);
-  const revisions = rows.slice(0, 20);
-  const selectedId = options.revision ?? revisions[0]?.id;
-  if (!selectedId)
-    return { revisions, hasOlder: rows.length > 20, selected: null };
-  // Ownership is checked before reading any revision payload, including direct links.
-  const [selected] = await db
-    .select({
-      id: gradebookRevisions.id,
-      sequence: gradebookRevisions.sequence,
-      kind: gradebookRevisions.kind,
-      observedAt: gradebookRevisions.observedAt,
-    })
+  const selectedRows = metadata.slice(0, 20);
+  if (!selectedRows.length) return empty;
+  const newest = selectedRows[0].sequence;
+  const oldest = selectedRows[selectedRows.length - 1].sequence;
+  const rows = await readHistoryRange(
+    tx,
+    stream.id,
+    Math.max(0, oldest - 1),
+    newest,
+  );
+  const grades = new Map(
+    rows.map((row) => [row.sequence, timelineGrades(row.state)]),
+  );
+  const states = new Map(rows.map((row) => [row.sequence, row.state]));
+  const points = rows
+    .filter((row) => row.sequence >= oldest)
+    .map((row) => {
+      const currentGrades = grades.get(row.sequence);
+      const previousState = states.get(row.sequence - 1);
+      if (!currentGrades || (row.sequence > 0 && !previousState))
+        throw new Error("REVISION_CHAIN_INCOMPLETE");
+      return {
+        id: row.id,
+        sequence: row.sequence,
+        observedAt: row.observedAt.toISOString(),
+        term: row.state.term,
+        schoolYear: `${row.state.yearRange.min}–${row.state.yearRange.max}`,
+        grades: currentGrades,
+        previousGrades: grades.get(row.sequence - 1) ?? null,
+        changes: previousState ? historyChanges(previousState, row.state) : [],
+      };
+    });
+  const [latest] = await tx
+    .select({ sequence: gradebookRevisions.sequence })
     .from(gradebookRevisions)
-    .where(
-      and(
-        eq(gradebookRevisions.streamId, stream.id),
-        eq(gradebookRevisions.id, selectedId),
-      ),
-    )
+    .where(eq(gradebookRevisions.streamId, stream.id))
+    .orderBy(desc(gradebookRevisions.sequence))
     .limit(1);
-  if (!selected)
-    return { revisions, hasOlder: rows.length > 20, selected: null };
-  const chain = await revisionRowsThrough(stream.id, selected.sequence);
-  const last = chain.at(-1);
-  if (!last || last.id !== selected.id)
-    throw new Error("REVISION_CHAIN_INCOMPLETE");
-  const previous =
-    chain.length > 1 ? reconstructRows(chain.slice(0, -1)) : null;
-  const state =
-    last.kind === "initial"
-      ? (last.data as GradebookState)
-      : previous
-        ? applyGradebookDelta(previous, last.data as GradebookDelta)
-        : null;
-  if (!state || hashGradebook(state) !== last.stateHash)
-    throw new Error("REVISION_INTEGRITY_CHECK_FAILED");
   return {
-    revisions,
-    hasOlder: rows.length > 20,
-    selected: {
-      ...selected,
-      changes: previous ? historyChanges(previous, state) : [],
-      calculated: calculateGradebook(state),
-      previousCalculated: previous ? calculateGradebook(previous) : null,
-    },
+    points,
+    selectedId: options.revision ?? selectedRows[0].id,
+    before: metadata.length > 20 ? oldest : null,
+    hasNewer: latest.sequence > newest,
+    unavailable: false,
   };
 }

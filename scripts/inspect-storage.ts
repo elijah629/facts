@@ -41,7 +41,11 @@ async function inspectStorage() {
         `SELECT kind, count(*) AS revisions, pg_size_pretty(coalesce(sum(pg_column_size(data)),0)::bigint) AS stored_payload, pg_size_pretty(coalesce(sum(octet_length(data::text)),0)::bigint) AS uncompressed_text, max(pg_column_size(data)) AS largest_payload_bytes FROM gradebook_revisions GROUP BY kind ORDER BY kind`,
       ],
       [
-        "Current-state cache",
+        "History storage formats",
+        `SELECT storage_format, count(*) AS streams FROM gradebook_streams GROUP BY storage_format`,
+      ],
+      [
+        "Latest full reports",
         `SELECT count(*) AS heads, pg_size_pretty(coalesce(sum(pg_column_size(current_state)),0)::bigint) AS stored_payload FROM gradebook_heads`,
       ],
       [

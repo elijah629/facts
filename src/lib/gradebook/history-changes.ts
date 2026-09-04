@@ -1,73 +1,23 @@
-import type { GradebookState } from "./types";
+import type { CanonicalAssignment, GradebookState } from "./types";
 
+export interface HistoryDetail {
+  label: string;
+  before: string;
+  after: string;
+}
 export interface HistoryChange {
   id: string;
   className: string;
   item: string;
-  field: string;
-  before: string;
-  after: string;
   kind: "added" | "removed" | "changed";
+  summary: string;
+  details: HistoryDetail[];
 }
 
-type Value = string | number | boolean | null;
-type Entry = { className: string; item: string; fields: Record<string, Value> };
-
-// Flatten only for display, in memory. No duplicated diff/snapshot is stored.
-function entries(state: GradebookState): Map<string, Entry> {
-  const result = new Map<string, Entry>();
-  result.set("report", {
-    className: "Gradebook",
-    item: "Report",
-    fields: {
-      studentName: state.studentName,
-      term: state.term,
-      yearStart: state.yearRange.min,
-      yearEnd: state.yearRange.max,
-    },
-  });
-  for (const [classId, cls] of Object.entries(state.classes)) {
-    const className = cls.displayName;
-    const prefix = `class:${classId}`;
-    result.set(prefix, {
-      className,
-      item: "Class",
-      fields: {
-        name: cls.name,
-        displayName: cls.displayName,
-        teacher: cls.teacher,
-        term: cls.term,
-        mode: cls.grading.mode,
-        roundingPrecision: cls.grading.roundingPrecision,
-      },
-    });
-    for (const [id, category] of Object.entries(cls.grading.categories)) {
-      result.set(`${prefix}/category:${id}`, {
-        className,
-        item: `Category: ${category.name}`,
-        fields: { ...category },
-      });
-    }
-    for (const [id, assignment] of Object.entries(cls.assignments)) {
-      const { categoryId, ...fields } = assignment;
-      result.set(`${prefix}/assignment:${id}`, {
-        className,
-        item: assignment.name,
-        fields: {
-          ...fields,
-          category: cls.grading.categories[categoryId]?.name ?? categoryId,
-        },
-      });
-    }
-  }
-  return result;
-}
-
+type Value = string | number | boolean | null | undefined;
 const labels: Record<string, string> = {
-  studentName: "Student",
+  studentName: "Student name",
   term: "Term",
-  yearStart: "School year starts",
-  yearEnd: "School year ends",
   name: "Name",
   displayName: "Display name",
   teacher: "Teacher",
@@ -86,59 +36,210 @@ const labels: Record<string, string> = {
   curve: "Curve",
   bonus: "Bonus",
   penalty: "Penalty",
+  schoolYear: "School year",
 };
-
-function display(value: Value | undefined): string {
+const statusLabels: Record<string, string> = {
+  valid: "Graded",
+  missing: "Missing",
+  excuse: "Excused",
+};
+function display(value: Value, field: string): string {
   if (value === null || value === undefined || value === "") return "—";
   if (typeof value === "boolean") return value ? "Yes" : "No";
+  if (field === "status") return statusLabels[String(value)] ?? String(value);
+  if (field === "dueDate") {
+    const date = new Date(String(value));
+    if (Number.isFinite(date.getTime()))
+      return new Intl.DateTimeFormat("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        timeZone: "UTC",
+      }).format(date);
+  }
   return String(value);
 }
+function details(before: Record<string, Value>, after: Record<string, Value>) {
+  return [...new Set([...Object.keys(before), ...Object.keys(after)])]
+    .filter(
+      (key) =>
+        before[key] !== after[key] &&
+        !(before[key] == null && after[key] == null),
+    )
+    .map((key) => ({
+      label: labels[key] ?? key,
+      before: display(before[key], key),
+      after: display(after[key], key),
+    }));
+}
+function score(assignment: CanonicalAssignment) {
+  if (assignment.earned === null) return "not graded";
+  return assignment.possible === null
+    ? `${assignment.earned} points`
+    : `${assignment.earned}/${assignment.possible}`;
+}
+function assignmentFields(
+  state: GradebookState,
+  classId: string,
+  assignment?: CanonicalAssignment,
+): Record<string, Value> {
+  if (!assignment) return {};
+  const { categoryId, ...fields } = assignment;
+  return {
+    ...fields,
+    category:
+      state.classes[classId]?.grading.categories[categoryId]?.name ??
+      categoryId,
+  };
+}
 
+// Presentation is derived in memory; neither sentences nor calculated grades enter storage.
 export function historyChanges(
   previous: GradebookState,
   next: GradebookState,
 ): HistoryChange[] {
-  const before = entries(previous);
-  const after = entries(next);
   const changes: HistoryChange[] = [];
-  for (const id of new Set([...before.keys(), ...after.keys()])) {
-    const oldEntry = before.get(id);
-    const newEntry = after.get(id);
-    const entry = newEntry ?? oldEntry;
-    if (!entry) continue;
-    if (!oldEntry || !newEntry) {
-      changes.push({
-        id,
-        className: entry.className,
-        item: entry.item,
-        field: "Record",
-        before: oldEntry ? "Present" : "Not present",
-        after: newEntry ? "Added" : "Removed",
-        kind: newEntry ? "added" : "removed",
-      });
+  function add(
+    id: string,
+    className: string,
+    item: string,
+    before: Record<string, Value>,
+    after: Record<string, Value>,
+    summary: string,
+    kind: HistoryChange["kind"] = "changed",
+  ) {
+    const changed = details(before, after);
+    if (changed.length || kind !== "changed")
+      changes.push({ id, className, item, summary, kind, details: changed });
+  }
+  add(
+    "report",
+    "Gradebook",
+    "Gradebook details",
+    {
+      studentName: previous.studentName,
+      term: previous.term,
+      schoolYear: `${previous.yearRange.min}–${previous.yearRange.max}`,
+    },
+    {
+      studentName: next.studentName,
+      term: next.term,
+      schoolYear: `${next.yearRange.min}–${next.yearRange.max}`,
+    },
+    previous.term !== next.term ||
+      previous.yearRange.min !== next.yearRange.min ||
+      previous.yearRange.max !== next.yearRange.max
+      ? "Your gradebook moved to a new term or school year"
+      : "Your gradebook details changed",
+  );
+  for (const classId of new Set([
+    ...Object.keys(previous.classes),
+    ...Object.keys(next.classes),
+  ])) {
+    const before = previous.classes[classId];
+    const after = next.classes[classId];
+    const cls = after ?? before;
+    if (!before || !after) {
+      add(
+        `class:${classId}`,
+        cls.displayName,
+        cls.displayName,
+        before ? { teacher: before.teacher, term: before.term } : {},
+        after ? { teacher: after.teacher, term: after.term } : {},
+        `${cls.displayName} was ${after ? "added" : "removed"}`,
+        after ? "added" : "removed",
+      );
+      continue;
     }
-    // Show added/removed records' values too, not just a count or raw JSON.
-    for (const field of new Set([
-      ...Object.keys(oldEntry?.fields ?? {}),
-      ...Object.keys(newEntry?.fields ?? {}),
+    const {
+      assignments: _oldAssignments,
+      grading: oldGrading,
+      ...oldMeta
+    } = before;
+    const {
+      assignments: _newAssignments,
+      grading: newGrading,
+      ...newMeta
+    } = after;
+    add(
+      `class:${classId}`,
+      cls.displayName,
+      "Class details",
+      oldMeta,
+      newMeta,
+      `${cls.displayName} details changed`,
+    );
+    const { categories: oldCategories, ...oldRules } = oldGrading;
+    const { categories: newCategories, ...newRules } = newGrading;
+    add(
+      `rules:${classId}`,
+      cls.displayName,
+      "Grading rules",
+      oldRules,
+      newRules,
+      `${cls.displayName} grading rules changed`,
+    );
+    for (const id of new Set([
+      ...Object.keys(oldCategories),
+      ...Object.keys(newCategories),
     ])) {
-      const oldValue = oldEntry?.fields[field];
-      const newValue = newEntry?.fields[field];
-      if (
-        oldValue === newValue ||
-        (!oldEntry && newValue === null) ||
-        (!newEntry && oldValue === null)
-      )
-        continue;
-      changes.push({
-        id: `${id}/${field}`,
-        className: entry.className,
-        item: entry.item,
-        field: labels[field] ?? field,
-        before: display(oldValue),
-        after: display(newValue),
-        kind: !oldEntry ? "added" : !newEntry ? "removed" : "changed",
-      });
+      const oldCategory = oldCategories[id];
+      const newCategory = newCategories[id];
+      const name = (newCategory ?? oldCategory).name;
+      add(
+        `category:${classId}:${id}`,
+        cls.displayName,
+        name,
+        oldCategory ? { ...oldCategory } : {},
+        newCategory ? { ...newCategory } : {},
+        `${name} category was ${!oldCategory ? "added" : !newCategory ? "removed" : "updated"}`,
+        !oldCategory ? "added" : !newCategory ? "removed" : "changed",
+      );
+    }
+    for (const id of new Set([
+      ...Object.keys(before.assignments),
+      ...Object.keys(after.assignments),
+    ])) {
+      const oldAssignment = before.assignments[id];
+      const newAssignment = after.assignments[id];
+      const assignment = newAssignment ?? oldAssignment;
+      let summary: string;
+      if (!oldAssignment || !newAssignment) {
+        summary = `${assignment.name} was ${newAssignment ? "added" : "removed"}`;
+        if (assignment.status !== "valid")
+          summary += ` · ${statusLabels[assignment.status]}`;
+        else if (assignment.earned !== null)
+          summary += ` · ${score(assignment)}`;
+      } else {
+        const parts: string[] = [];
+        if (
+          oldAssignment.earned !== newAssignment.earned ||
+          oldAssignment.possible !== newAssignment.possible
+        )
+          parts.push(
+            `changed from ${score(oldAssignment)} to ${score(newAssignment)}`,
+          );
+        if (oldAssignment.status !== newAssignment.status)
+          parts.push(
+            `was marked ${statusLabels[newAssignment.status].toLowerCase()}`,
+          );
+        if (oldAssignment.excluded !== newAssignment.excluded)
+          parts.push(
+            newAssignment.excluded
+              ? "no longer counts toward your grade"
+              : "now counts toward your grade",
+          );
+        summary = `${assignment.name} ${parts.length ? parts.join("; ") : "was updated"}`;
+      }
+      add(
+        `assignment:${classId}:${id}`,
+        cls.displayName,
+        assignment.name,
+        assignmentFields(previous, classId, oldAssignment),
+        assignmentFields(next, classId, newAssignment),
+        summary,
+        !oldAssignment ? "added" : !newAssignment ? "removed" : "changed",
+      );
     }
   }
   return changes;

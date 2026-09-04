@@ -62,7 +62,7 @@ function safeError(error: unknown): { code: string; message: string } {
 async function ensureStream(userId: string) {
   await db
     .insert(gradebookStreams)
-    .values({ userId })
+    .values({ userId, storageFormat: "reverse-v1" })
     .onConflictDoNothing({ target: gradebookStreams.userId });
   const [stream] = await db
     .select({ id: gradebookStreams.id })
@@ -177,6 +177,11 @@ export async function syncGradebook(
         .from(gradebookHeads)
         .where(eq(gradebookHeads.streamId, streamId))
         .limit(1);
+      const [stream] = await tx
+        .select({ storageFormat: gradebookStreams.storageFormat })
+        .from(gradebookStreams)
+        .where(eq(gradebookStreams.id, streamId));
+      const reverse = stream.storageFormat === "reverse-v1";
       const previous = lockedHead.currentState ?? undefined;
       const next = canonicalizeReport(report, previous);
       const stateHash = hashGradebook(next);
@@ -192,7 +197,13 @@ export async function syncGradebook(
             streamId,
             sequence: headSequence,
             kind: previous ? "delta" : "initial",
-            data: previous ? diffGradebooks(previous, next) : next,
+            data: previous
+              ? reverse
+                ? diffGradebooks(next, previous)
+                : diffGradebooks(previous, next)
+              : reverse
+                ? null
+                : next,
             stateHash,
             observedAt,
             sourceMessageId:

@@ -3,48 +3,7 @@ import { applyGradebookDelta } from "./apply-delta";
 import { diffGradebooks } from "./diff";
 import { hashGradebook } from "./hash";
 import { historyChanges } from "./history-changes";
-import type { GradebookState } from "./types";
-
-function state(): GradebookState {
-  return {
-    studentName: "Student",
-    term: "1",
-    yearRange: { min: 2026, max: 2027 },
-    classes: {
-      chemistry: {
-        name: "Chemistry",
-        displayName: "Chemistry",
-        teacher: "Teacher",
-        term: "1",
-        grading: {
-          mode: "mixed",
-          roundingPrecision: 2,
-          categories: {
-            tests: { name: "Tests", description: null, weight: "0.7" },
-          },
-        },
-        assignments: {
-          a1: {
-            name: "Test 1",
-            description: null,
-            categoryId: "tests",
-            earned: "44",
-            possible: "50",
-            status: "valid",
-            excluded: false,
-            extraCredit: false,
-            dueDate: "2026-09-04T00:00:00.000Z",
-            note: null,
-            weight: null,
-            curve: null,
-            bonus: null,
-            penalty: null,
-          },
-        },
-      },
-    },
-  };
-}
+import { state } from "./history-fixture";
 
 describe("semantic gradebook history", () => {
   test("unchanged reports produce no delta or display changes", () => {
@@ -53,29 +12,30 @@ describe("semantic gradebook history", () => {
     expect(historyChanges(previous, structuredClone(previous))).toEqual([]);
   });
 
-  test("history shows score and status before and after, including null", () => {
+  test("one assignment groups score and status changes, including null", () => {
     const previous = state();
     const next = structuredClone(previous);
     next.classes.chemistry.assignments.a1.earned = null;
     next.classes.chemistry.assignments.a1.status = "missing";
     const changes = historyChanges(previous, next);
-    expect(changes).toHaveLength(2);
-    expect(
-      changes.find((change) => change.field === "Points earned"),
-    ).toMatchObject({
-      item: "Test 1",
+    expect(changes).toHaveLength(1);
+    expect(changes[0].summary).toBe(
+      "Test 1 changed from 44/50 to not graded; was marked missing",
+    );
+    expect(changes[0].details).toContainEqual({
+      label: "Points earned",
       before: "44",
       after: "—",
-      kind: "changed",
     });
-    expect(changes.find((change) => change.field === "Status")).toMatchObject({
-      before: "valid",
-      after: "missing",
+    expect(changes[0].details).toContainEqual({
+      label: "Status",
+      before: "Graded",
+      after: "Missing",
     });
     expect(previous.classes.chemistry.assignments.a1.earned).toBe("44");
   });
 
-  test("history includes additions, removals and grading configuration", () => {
+  test("additions and removals are one entry each, with optional details", () => {
     const previous = state();
     const next = structuredClone(previous);
     delete next.classes.chemistry.assignments.a1;
@@ -87,40 +47,52 @@ describe("semantic gradebook history", () => {
     next.classes.chemistry.grading.categories.tests.weight = "0.8";
     next.classes.chemistry.grading.roundingPrecision = 3;
     const changes = historyChanges(previous, next);
-    expect(
-      changes.find(
-        (change) => change.item === "Test 1" && change.field === "Record",
-      ),
-    ).toMatchObject({ kind: "removed", after: "Removed" });
-    expect(
-      changes.find(
-        (change) =>
-          change.item === "Test 2" && change.field === "Points earned",
-      ),
-    ).toMatchObject({ kind: "added", after: "0" });
-    expect(changes.find((change) => change.field === "Weight")).toMatchObject({
+    expect(changes).toHaveLength(4);
+    expect(changes.find((change) => change.item === "Test 1")).toMatchObject({
+      kind: "removed",
+      summary: "Test 1 was removed · 44/50",
+    });
+    expect(changes.find((change) => change.item === "Test 2")).toMatchObject({
+      kind: "added",
+      summary: "Test 2 was added · 0/50",
+    });
+    expect(changes.flatMap((change) => change.details)).toContainEqual({
+      label: "Weight",
       before: "0.7",
       after: "0.8",
     });
-    expect(
-      changes.find((change) => change.field === "Rounding precision"),
-    ).toMatchObject({ before: "2", after: "3" });
   });
 
-  test("history retains removed class details and school-year changes", () => {
+  test("whole class removal suppresses assignment noise", () => {
     const previous = state();
     const next = structuredClone(previous);
     delete next.classes.chemistry;
     next.yearRange.max = 2028;
     const changes = historyChanges(previous, next);
+    expect(changes).toHaveLength(2);
+    expect(changes.find((change) => change.item === "Chemistry")).toMatchObject(
+      { kind: "removed", summary: "Chemistry was removed" },
+    );
+    expect(changes.some((change) => change.item === "Test 1")).toBe(false);
+    expect(changes.flatMap((change) => change.details)).toContainEqual({
+      label: "School year",
+      before: "2026–2027",
+      after: "2026–2028",
+    });
+  });
+
+  test("notes and due dates stay in details, not separate feed entries", () => {
+    const previous = state();
+    const next = structuredClone(previous);
+    next.classes.chemistry.assignments.a1.note = "Retake available";
+    next.classes.chemistry.assignments.a1.dueDate = "2026-09-05T00:00:00.000Z";
+    const changes = historyChanges(previous, next);
+    expect(changes).toHaveLength(1);
+    expect(changes[0].summary).toBe("Test 1 was updated");
+    expect(changes[0].details).toHaveLength(2);
     expect(
-      changes.find(
-        (change) => change.item === "Class" && change.field === "Record",
-      ),
-    ).toMatchObject({ className: "Chemistry", kind: "removed" });
-    expect(
-      changes.find((change) => change.field === "School year ends"),
-    ).toMatchObject({ before: "2027", after: "2028" });
+      changes[0].details.find((detail) => detail.label === "Due date")?.after,
+    ).toBe("Sep 5, 2026");
   });
 
   test("diff and apply round-trip all semantic changes", () => {

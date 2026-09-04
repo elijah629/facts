@@ -5,12 +5,12 @@ import {
   gradebookRevisions,
   gradebookStreams,
 } from "@/lib/db/schema";
+import { diffGradebooks } from "./diff";
 import { calculateGradebook, reportProjection } from "./projection";
 import {
+  readHistoryRange,
   reconstructAt,
-  reconstructHistoryRows,
   reconstructRevision,
-  revisionRowsThrough,
 } from "./reconstruct";
 import { syncGradebook } from "./sync";
 
@@ -64,11 +64,19 @@ export async function gradeHistory(userId: string) {
     .where(eq(gradebookStreams.userId, userId))
     .limit(1);
   if (!stream) return [];
-  return reconstructHistoryRows(await revisionRowsThrough(stream.id)).map(
-    (revision) => ({
-      ...revision,
-      calculated: calculateGradebook(revision.state),
-    }),
+  return db.transaction(
+    async (tx) => {
+      const rows = await readHistoryRange(tx, stream.id);
+      return rows.map((revision, index) => ({
+        ...revision,
+        data:
+          index === 0
+            ? revision.state
+            : diffGradebooks(rows[index - 1].state, revision.state),
+        calculated: calculateGradebook(revision.state),
+      }));
+    },
+    { isolationLevel: "repeatable read", accessMode: "read only" },
   );
 }
 
