@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
+import { databaseRead } from "@/lib/db/read";
 import {
   gradebookHeads,
   gradebookRevisions,
@@ -8,27 +9,70 @@ import {
 import { diffGradebooks } from "./diff";
 import { calculateGradebook, reportProjection } from "./projection";
 import {
+  readHistoryHead,
   readHistoryRange,
   reconstructAt,
   reconstructRevision,
 } from "./reconstruct";
-import { syncGradebook } from "./sync";
+import { type SyncResult, savedGradebookHead, syncGradebook } from "./sync";
+
+function projectGradebook<T extends SyncResult | null>(
+  sync: T,
+  includeCalculated: boolean,
+) {
+  if (!sync?.revisionId || !sync.state) {
+    return { sync, state: null, report: null, calculated: null };
+  }
+  const state = sync.state;
+  const report = reportProjection(state);
+  return {
+    sync,
+    state,
+    report,
+    calculated: includeCalculated
+      ? calculateGradebook(state, true, report)
+      : null,
+  };
+}
 
 export async function currentGradebook(
   userId: string,
   includeCalculated = true,
 ) {
-  const sync = await syncGradebook(userId);
-  if (!sync.revisionId || !sync.state) {
-    return { sync, state: null, report: null, calculated: null };
-  }
-  const state = sync.state;
-  return {
-    sync,
-    state,
-    report: reportProjection(state),
-    calculated: includeCalculated ? calculateGradebook(state) : null,
-  };
+  return projectGradebook(await syncGradebook(userId), includeCalculated);
+}
+
+export async function savedGradebook(userId: string, includeCalculated = true) {
+  return projectGradebook(await savedGradebookHead(userId), includeCalculated);
+}
+
+export async function gradeHistoryWindow(
+  userId: string,
+  options: { before?: number; limit: number },
+) {
+  return databaseRead(() =>
+    db.transaction(
+      async (tx) => {
+        const head = await readHistoryHead(tx, { userId });
+        if (!head) return { rows: [], nextBefore: null };
+        const last = Math.min(
+          head.headSequence,
+          (options.before ?? head.headSequence + 1) - 1,
+        );
+        if (last < 0) return { rows: [], nextBefore: null };
+        const first = Math.max(0, last - options.limit + 1);
+        const rows = await readHistoryRange(
+          tx,
+          head.streamId,
+          first,
+          last,
+          head,
+        );
+        return { rows, nextBefore: first > 0 ? first : null };
+      },
+      { isolationLevel: "repeatable read", accessMode: "read only" },
+    ),
+  );
 }
 
 export async function historicalGradebook(

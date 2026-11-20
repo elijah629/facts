@@ -31,7 +31,7 @@ export function timelineGrades(state: GradebookState): TimelineGrades {
 
 export async function revisionHistoryPage(
   userId: string,
-  options: { before?: number; revision?: string } = {},
+  options: { before?: number; revision?: string; limit?: number } = {},
 ): Promise<TimelinePage> {
   return databaseRead(() =>
     db.transaction((tx) => historyPageInTransaction(tx, userId, options), {
@@ -44,7 +44,7 @@ export async function revisionHistoryPage(
 export async function historyPageInTransaction(
   tx: HistoryTransaction,
   userId: string,
-  options: { before?: number; revision?: string } = {},
+  options: { before?: number; revision?: string; limit?: number } = {},
 ): Promise<TimelinePage> {
   const empty: TimelinePage = {
     points: [],
@@ -76,7 +76,7 @@ export async function historyPageInTransaction(
     head.headSequence,
   );
   if (newest < 0) return empty;
-  const oldest = Math.max(0, newest - 19);
+  const oldest = Math.max(0, newest - (options.limit ?? 20) + 1);
   const rows = await readHistoryRange(
     tx,
     head.streamId,

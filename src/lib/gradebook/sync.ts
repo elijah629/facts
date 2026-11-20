@@ -130,7 +130,7 @@ function headResult(
   };
 }
 
-async function savedGradebookHead(userId: string) {
+export async function savedGradebookHead(userId: string) {
   const head = await readHead(userId);
   return head ? headResult(head) : null;
 }

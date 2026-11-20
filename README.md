@@ -17,6 +17,26 @@ OAuth, PKCE, CIMD, resource-bound tokens, and `grades:read` plus
 `grades:history` scopes. It returns normalized grade data only. Gmail tokens,
 email bodies, FACTS URLs, SessionIDs, and raw FACTS HTML never enter MCP output.
 
+### MCP tools
+
+- `get_grades` returns classes, both term GPAs, grade movement and sync status.
+- `get_class` returns category IDs, scores, weights and optional assignments.
+- `list_assignments` filters by class, status, title and due date. Use `nextOffset`
+  to page through matches. Set `includeDetails` for instructions and teacher notes.
+- `project_final_grade` uses category IDs from `get_class` to calculate a projected
+  course grade or the final score needed for a target.
+- `get_grade_history` starts with the latest 10 observations. Use `nextBefore` as
+  `before` for older pages. Pass `assignmentId` to track one assignment or
+  `includeAssignments: true` to retrieve all assignment records one revision at a time.
+- `get_recent_changes` gives readable changes from saved observations.
+- `get_gradebook_at` retrieves a snapshot by revision ID or timestamp.
+- `get_sync_status` checks the last sync without fetching a report.
+
+Current-grade tools refresh FACTS by default. For follow-up calls, set
+`refresh: false` to reuse the saved gradebook and compare its latest revision ID
+across pages. Percentages in grades and assignments are fractions; final-exam
+inputs and outputs use 0–100 units.
+
 ## Development
 
 Use Node 24 LTS (the repository pins `24.20.0`) and Bun 1.4.5. Vercel should
