@@ -1,4 +1,5 @@
 import type { Assignment, Class } from "@/types/report";
+import { courseLevel } from "../report/course-level";
 import { ceilTo } from "../utils";
 import {
   sectionGradePoints,
@@ -99,7 +100,7 @@ export function classGpa(cls: Class, classType: ClassType | undefined): number {
 
   const cT: ClassType = classType
     ? classType
-    : cls.displayName.endsWith("(H)") || cls.displayName.startsWith("AP")
+    : ["Honors", "AP"].includes(courseLevel(cls.displayName || cls.fullName))
       ? "weighted"
       : "regular";
 

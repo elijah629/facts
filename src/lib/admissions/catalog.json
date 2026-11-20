@@ -1,0 +1,2448 @@
+{
+  "KHY62D": {
+    "title": "AP European History",
+    "years": {
+      "2023": {
+        "area": "A",
+        "honors": true,
+        "discipline": "World History / Cultures / Historical Geography",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "A",
+        "honors": true,
+        "discipline": "World History / Cultures / Historical Geography",
+        "semesters": 2
+      }
+    }
+  },
+  "M85GRC": {
+    "title": "AP Government and Politics United States",
+    "years": {
+      "2023": {
+        "area": "A",
+        "honors": true,
+        "discipline": "Civics / American Government",
+        "semesters": 1
+      },
+      "2024": {
+        "area": "A",
+        "honors": true,
+        "discipline": "Civics / American Government",
+        "semesters": 1
+      },
+      "2025": {
+        "area": "A",
+        "honors": true,
+        "discipline": "Civics / American Government",
+        "semesters": 1
+      },
+      "2026": {
+        "area": "A",
+        "honors": true,
+        "discipline": "Civics / American Government",
+        "semesters": 1
+      }
+    }
+  },
+  "LQRN2D": {
+    "title": "AP United States History",
+    "years": {
+      "2023": {
+        "area": "A",
+        "honors": true,
+        "discipline": "U.S. History",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "A",
+        "honors": true,
+        "discipline": "U.S. History",
+        "semesters": 2
+      }
+    }
+  },
+  "AAJTYD": {
+    "title": "AP World History",
+    "years": {
+      "2023": {
+        "area": "A",
+        "honors": true,
+        "discipline": "World History / Cultures / Historical Geography",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "A",
+        "honors": true,
+        "discipline": "World History / Cultures / Historical Geography",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "A",
+        "honors": true,
+        "discipline": "World History / Cultures / Historical Geography",
+        "semesters": 2
+      }
+    }
+  },
+  "EPL35D": {
+    "title": "Government",
+    "years": {
+      "2023": {
+        "area": "A",
+        "honors": false,
+        "discipline": "Civics / American Government",
+        "semesters": 1
+      },
+      "2024": {
+        "area": "A",
+        "honors": false,
+        "discipline": "Civics / American Government",
+        "semesters": 1
+      },
+      "2025": {
+        "area": "A",
+        "honors": false,
+        "discipline": "Civics / American Government",
+        "semesters": 1
+      },
+      "2026": {
+        "area": "A",
+        "honors": false,
+        "discipline": "Civics / American Government",
+        "semesters": 1
+      }
+    }
+  },
+  "CEWRN2": {
+    "title": "U.S. History",
+    "years": {
+      "2023": {
+        "area": "A",
+        "honors": false,
+        "discipline": "U.S. History",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "A",
+        "honors": false,
+        "discipline": "U.S. History",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "A",
+        "honors": false,
+        "discipline": "U.S. History",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "A",
+        "honors": false,
+        "discipline": "U.S. History",
+        "semesters": 2
+      }
+    }
+  },
+  "GP8SD6": {
+    "title": "World History",
+    "years": {
+      "2023": {
+        "area": "A",
+        "honors": false,
+        "discipline": "World History / Cultures / Historical Geography",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "A",
+        "honors": false,
+        "discipline": "World History / Cultures / Historical Geography",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "A",
+        "honors": false,
+        "discipline": "World History / Cultures / Historical Geography",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "A",
+        "honors": false,
+        "discipline": "World History / Cultures / Historical Geography",
+        "semesters": 2
+      }
+    }
+  },
+  "GCBDJ7": {
+    "title": "AP English Language and Composition",
+    "years": {
+      "2023": {
+        "area": "B",
+        "honors": true,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "B",
+        "honors": true,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "B",
+        "honors": true,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "B",
+        "honors": true,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "AXRNGJ": {
+    "title": "AP English Literature and Composition",
+    "years": {
+      "2023": {
+        "area": "B",
+        "honors": true,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "K8AZHE": {
+    "title": "English 10",
+    "years": {
+      "2023": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "T2A4BZ": {
+    "title": "English 10 Honors",
+    "years": {
+      "2023": {
+        "area": "B",
+        "honors": true,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "B",
+        "honors": true,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "B",
+        "honors": true,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "B",
+        "honors": true,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "HJ4697": {
+    "title": "English 11",
+    "years": {
+      "2023": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "P4KNY2": {
+    "title": "English 11 (H)",
+    "years": {
+      "2023": {
+        "area": "B",
+        "honors": true,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "H8YKH4": {
+    "title": "English 12",
+    "years": {
+      "2023": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "GPZ4MA": {
+    "title": "English 9",
+    "years": {
+      "2023": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "MALDS4": {
+    "title": "Honors English 10",
+    "years": {
+      "2023": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "ERYMWS": {
+    "title": "Honors English 9",
+    "years": {
+      "2023": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "B",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "BF3SEA": {
+    "title": "Algebra I",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra I",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra I",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra I",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra I",
+        "semesters": 2
+      }
+    }
+  },
+  "HAXLKC": {
+    "title": "Algebra I (A)",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra I",
+        "semesters": 2
+      }
+    }
+  },
+  "AST97P": {
+    "title": "Algebra II",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra II",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra II",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra II",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra II",
+        "semesters": 2
+      }
+    }
+  },
+  "GLD8KN": {
+    "title": "Algebra II (H)",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra II",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra II",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra II",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Algebra II",
+        "semesters": 2
+      }
+    }
+  },
+  "ELNCTD": {
+    "title": "AP Calculus AB",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": true,
+        "discipline": "Calculus",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "C",
+        "honors": true,
+        "discipline": "Calculus",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "C",
+        "honors": true,
+        "discipline": "Calculus",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "C",
+        "honors": true,
+        "discipline": "Calculus",
+        "semesters": 2
+      }
+    }
+  },
+  "WQWCE8": {
+    "title": "AP Precalculus",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": true,
+        "discipline": "Pre-Calculus",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "C",
+        "honors": true,
+        "discipline": "Pre-Calculus",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "C",
+        "honors": true,
+        "discipline": "Pre-Calculus",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "C",
+        "honors": true,
+        "discipline": "Pre-Calculus",
+        "semesters": 2
+      }
+    }
+  },
+  "BK38RX": {
+    "title": "Calculus",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Calculus",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Calculus",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Calculus",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Calculus",
+        "semesters": 2
+      }
+    }
+  },
+  "EEQY82": {
+    "title": "Geometry",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Geometry",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Geometry",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Geometry",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Geometry",
+        "semesters": 2
+      }
+    }
+  },
+  "LDZEJK": {
+    "title": "Geometry (H)",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Geometry",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Geometry",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Geometry",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Geometry",
+        "semesters": 2
+      }
+    }
+  },
+  "GWMGKC": {
+    "title": "Math Analysis",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Other Advanced Mathematics",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Other Advanced Mathematics",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Other Advanced Mathematics",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Other Advanced Mathematics",
+        "semesters": 2
+      }
+    }
+  },
+  "AS6B2H": {
+    "title": "Math Analysis (H)",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": true,
+        "discipline": "Other Advanced Mathematics",
+        "semesters": 2
+      }
+    }
+  },
+  "HW79XM": {
+    "title": "Statistics with technology",
+    "years": {
+      "2023": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Statistics",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Statistics",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Statistics",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "C",
+        "honors": false,
+        "discipline": "Statistics",
+        "semesters": 2
+      }
+    }
+  },
+  "FF4ZNM": {
+    "title": "Anatomy Physiology",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      }
+    }
+  },
+  "AJMTEC": {
+    "title": "AP Biology",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      }
+    }
+  },
+  "K6YQLS": {
+    "title": "AP Chemistry",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Chemistry",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Chemistry",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Chemistry",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Chemistry",
+        "semesters": 2
+      }
+    }
+  },
+  "QJQMCB": {
+    "title": "AP Physics 2",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Physics",
+        "semesters": 2
+      }
+    }
+  },
+  "C85KRZ": {
+    "title": "Biology",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      }
+    }
+  },
+  "CMSK64": {
+    "title": "Biology 11(H)",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      }
+    }
+  },
+  "LQX5JD": {
+    "title": "Chemistry",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Chemistry",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Chemistry",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Chemistry",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Chemistry",
+        "semesters": 2
+      }
+    }
+  },
+  "JDACPK": {
+    "title": "Chemistry (H)",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Chemistry",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Chemistry",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Chemistry",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Chemistry",
+        "semesters": 2
+      }
+    }
+  },
+  "GHNQRX": {
+    "title": "Honors PLTW Civil Engineering and Architecture",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      }
+    }
+  },
+  "KNSHRB": {
+    "title": "Honors PLTW Principles of Engineering",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      }
+    }
+  },
+  "TEK2FB": {
+    "title": "Honors PLTW Introduction to Engineering Design",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      }
+    }
+  },
+  "PA2CZ7": {
+    "title": "Honors PLTW Digital Electronics",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Engineering",
+        "semesters": 2
+      }
+    }
+  },
+  "QQAW28": {
+    "title": "Introduction to Agriculture, Food & Natural Resources",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Interdisciplinary Sciences",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Interdisciplinary Sciences",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Interdisciplinary Sciences",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Interdisciplinary Sciences",
+        "semesters": 2
+      }
+    }
+  },
+  "KG92Y8": {
+    "title": "Physics 12",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Physics",
+        "semesters": 2
+      }
+    }
+  },
+  "DHJ28G": {
+    "title": "Physics 12 (H)",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Physics",
+        "semesters": 2
+      }
+    }
+  },
+  "KCYNMG": {
+    "title": "Physics 9",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Physics",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Physics",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Physics",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Physics",
+        "semesters": 2
+      }
+    }
+  },
+  "BZN59C": {
+    "title": "Physics 9(H)",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Physics",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Physics",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Physics",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Physics",
+        "semesters": 2
+      }
+    }
+  },
+  "Y87L5P": {
+    "title": "PLTW Civil Engineering and Architecture",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      }
+    }
+  },
+  "B5MQSC": {
+    "title": "PLTW Computer Science Essentials",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Computer Science",
+        "semesters": 2
+      }
+    }
+  },
+  "MX2CN3": {
+    "title": "PLTW Digital Electronics",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      }
+    }
+  },
+  "A8FPXL": {
+    "title": "PLTW Introduction to Engineering Design",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      }
+    }
+  },
+  "TRZL65": {
+    "title": "PLTW Principles of Engineering",
+    "years": {
+      "2023": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": false,
+        "discipline": "Engineering",
+        "semesters": 2
+      }
+    }
+  },
+  "JLR65H": {
+    "title": "AP Spanish Language and Culture",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": true,
+        "discipline": "LOTE Level 4+",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "E",
+        "honors": true,
+        "discipline": "LOTE Level 4+",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "E",
+        "honors": true,
+        "discipline": "LOTE Level 4+",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "E",
+        "honors": true,
+        "discipline": "LOTE Level 4+",
+        "semesters": 2
+      }
+    }
+  },
+  "F6QBJR": {
+    "title": "French I",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 1",
+        "semesters": 2
+      }
+    }
+  },
+  "EMZPLD": {
+    "title": "French II",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 2",
+        "semesters": 2
+      }
+    }
+  },
+  "PFJR2H": {
+    "title": "French II Honors",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 2",
+        "semesters": 2
+      }
+    }
+  },
+  "KPXM8A": {
+    "title": "French III",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 3",
+        "semesters": 2
+      }
+    }
+  },
+  "DPN85F": {
+    "title": "French III (H)",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": true,
+        "discipline": "LOTE Level 3",
+        "semesters": 2
+      }
+    }
+  },
+  "QCGQA3": {
+    "title": "French IV (P)",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 4+",
+        "semesters": 2
+      }
+    }
+  },
+  "GTREZN": {
+    "title": "Spanish I",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 1",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 1",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 1",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 1",
+        "semesters": 2
+      }
+    }
+  },
+  "HJNLZE": {
+    "title": "Spanish II",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 2",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 2",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 2",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 2",
+        "semesters": 2
+      }
+    }
+  },
+  "DR27EA": {
+    "title": "Spanish II (H)",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 2",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 2",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 2",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 2",
+        "semesters": 2
+      }
+    }
+  },
+  "NZ3YP5": {
+    "title": "Spanish III",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 3",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 3",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 3",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 3",
+        "semesters": 2
+      }
+    }
+  },
+  "DQ2KMF": {
+    "title": "Spanish III (H)",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": true,
+        "discipline": "LOTE Level 3",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "E",
+        "honors": true,
+        "discipline": "LOTE Level 3",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "E",
+        "honors": true,
+        "discipline": "LOTE Level 3",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "E",
+        "honors": true,
+        "discipline": "LOTE Level 3",
+        "semesters": 2
+      }
+    }
+  },
+  "G34HXQ": {
+    "title": "Spanish IV",
+    "years": {
+      "2023": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 4+",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 4+",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 4+",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "E",
+        "honors": false,
+        "discipline": "LOTE Level 4+",
+        "semesters": 2
+      }
+    }
+  },
+  "QY9CBR": {
+    "title": "Advanced Band 11",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      }
+    }
+  },
+  "JXA5S7": {
+    "title": "Advanced Band 12",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      }
+    }
+  },
+  "DZTYKQ": {
+    "title": "Advanced Band 9 / 10",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      }
+    }
+  },
+  "QD37CM": {
+    "title": "American Film",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Theater",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Theater",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Theater",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Theater",
+        "semesters": 2
+      }
+    }
+  },
+  "M2JLTN": {
+    "title": "AP Studio Art",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": true,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": true,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": true,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": true,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      }
+    }
+  },
+  "PLTQ52": {
+    "title": "Art I",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      }
+    }
+  },
+  "HLS8EF": {
+    "title": "Art II",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      }
+    }
+  },
+  "MTBYKP": {
+    "title": "Choir",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Music",
+        "semesters": 2
+      }
+    }
+  },
+  "CDKBQA": {
+    "title": "Dance 1",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      }
+    }
+  },
+  "EZNBQC": {
+    "title": "Dance 3",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      }
+    }
+  },
+  "F92L5W": {
+    "title": "Dance Choreography/Performance",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      }
+    }
+  },
+  "TR8746": {
+    "title": "Dance II",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Dance",
+        "semesters": 2
+      }
+    }
+  },
+  "LN4MY3": {
+    "title": "Floral Design",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      }
+    }
+  },
+  "RN9TS5": {
+    "title": "Introduction to Design 1, 2",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      }
+    }
+  },
+  "GKJDWM": {
+    "title": "Theatre Arts I",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      }
+    }
+  },
+  "A8ELWA": {
+    "title": "Theatre Arts II",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      }
+    }
+  },
+  "JRPDQL": {
+    "title": "Theatre Arts III",
+    "years": {
+      "2023": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      }
+    }
+  },
+  "Y84AD3": {
+    "title": "Ag Communications & Leadership",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 2
+      }
+    }
+  },
+  "QTRSFM": {
+    "title": "Agriculture Sales & Marketing",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 2
+      }
+    }
+  },
+  "HDGAJ2": {
+    "title": "AP Macroeconomics",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": true,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2024": {
+        "area": "G",
+        "honors": true,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2025": {
+        "area": "G",
+        "honors": true,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2026": {
+        "area": "G",
+        "honors": true,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      }
+    }
+  },
+  "H62DFE": {
+    "title": "AP Psychology",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": true,
+        "discipline": "History / Social Science",
+        "semesters": 2
+      }
+    }
+  },
+  "TL98YB": {
+    "title": "Business Math",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Mathematics",
+        "semesters": 2
+      }
+    }
+  },
+  "QWPADY": {
+    "title": "Creative Writing",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "PQ537L": {
+    "title": "Economics",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2024": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2025": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2026": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      }
+    }
+  },
+  "EQFKCJ": {
+    "title": "Environmental Science",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Science – Physical Sciences",
+        "semesters": 2
+      }
+    }
+  },
+  "JL4WPY": {
+    "title": "Health",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 1
+      },
+      "2024": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 1
+      },
+      "2025": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 1
+      },
+      "2026": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 1
+      }
+    }
+  },
+  "N72DKB": {
+    "title": "History of the Church",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2024": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2025": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2026": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      }
+    }
+  },
+  "J9G72L": {
+    "title": "Introduction to Agriculture",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 2
+      }
+    }
+  },
+  "DKC38G": {
+    "title": "Publications Journalism",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2024": {
+        "area": "G",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "G",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "G",
+        "honors": false,
+        "discipline": "English",
+        "semesters": 2
+      }
+    }
+  },
+  "DZ6Y3T": {
+    "title": "Religions of the World",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 2
+      }
+    }
+  },
+  "MTY67E": {
+    "title": "Robotics I",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Science – Physical Sciences",
+        "semesters": 2
+      }
+    }
+  },
+  "HLZNE8": {
+    "title": "The World of the New Testament",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2024": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2025": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2026": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      }
+    }
+  },
+  "A3KASB": {
+    "title": "The World of the Old Testament",
+    "years": {
+      "2023": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2024": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2025": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      },
+      "2026": {
+        "area": "G",
+        "honors": false,
+        "discipline": "History / Social Science",
+        "semesters": 1
+      }
+    }
+  },
+  "HG5H6W": {
+    "title": "Anatomy and Physiology Honors",
+    "years": {
+      "2024": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Biology / Life Sciences",
+        "semesters": 2
+      }
+    }
+  },
+  "AJNDF8": {
+    "title": "Ag Mechanics",
+    "years": {
+      "2024": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 2
+      },
+      "2025": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 2
+      }
+    }
+  },
+  "PPA8DE": {
+    "title": "Advanced Floral Design",
+    "years": {
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Visual Arts",
+        "semesters": 2
+      }
+    }
+  },
+  "FE3GSZ": {
+    "title": "Agri-Design: Agricultural Mechanics & Engineering Design",
+    "years": {
+      "2025": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Interdisciplinary Arts",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "F",
+        "honors": false,
+        "discipline": "Interdisciplinary Arts",
+        "semesters": 2
+      }
+    }
+  },
+  "QEX7WR": {
+    "title": "AP Psychology",
+    "years": {
+      "2025": {
+        "area": "G",
+        "honors": true,
+        "discipline": "History / Social Science",
+        "semesters": 2
+      },
+      "2026": {
+        "area": "G",
+        "honors": true,
+        "discipline": "History / Social Science",
+        "semesters": 2
+      }
+    }
+  },
+  "FHBXY4": {
+    "title": "Honors PLTW Computer Science Principles",
+    "years": {
+      "2026": {
+        "area": "D",
+        "honors": true,
+        "discipline": "Computer Science",
+        "semesters": 2
+      }
+    }
+  },
+  "MW54AY": {
+    "title": "Business Leadership, Marketing and Personal Finance",
+    "years": {
+      "2026": {
+        "area": "G",
+        "honors": false,
+        "discipline": "Interdisciplinary",
+        "semesters": 2
+      }
+    }
+  }
+}

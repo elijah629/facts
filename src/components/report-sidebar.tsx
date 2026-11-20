@@ -77,6 +77,16 @@ export function ReportSidebar() {
           ) : null}
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
+              <Link href="/college" onClick={closeMobileMenu}>
+                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <GraduationCap />
+                </div>
+                <span>College GPA &amp; A–G</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" asChild>
               <Link href="/gpa-guide" onClick={closeMobileMenu}>
                 <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                   <ChartAreaIcon />

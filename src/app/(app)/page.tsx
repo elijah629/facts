@@ -77,7 +77,7 @@ export default function Home() {
       <div className="mt-6 space-y-6">
         <GradeCalculatorToggle>
           <Button asChild variant="outline">
-            <Link href="/gpa-guide">GPA guide</Link>
+            <Link href="/college">College GPA &amp; A–G</Link>
           </Button>
         </GradeCalculatorToggle>
         <Card>

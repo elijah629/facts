@@ -23,7 +23,8 @@ export function AccountStatus() {
   if (!authenticated && loading && !lastUpdated) {
     return pathname !== "/" &&
       !pathname.startsWith("/class/") &&
-      pathname !== "/final-calculator" ? (
+      pathname !== "/final-calculator" &&
+      pathname !== "/college" ? (
       <Button asChild size="sm" variant="ghost">
         <Link href="/">Gradebook</Link>
       </Button>

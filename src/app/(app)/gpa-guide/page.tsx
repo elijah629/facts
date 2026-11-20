@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   Card,
   CardContent,
@@ -45,6 +46,11 @@ export default function GPA() {
       <h1 className="scroll-m-20 text-center text-4xl font-extrabold tracking-tight text-balance">
         GPA Guide
       </h1>
+      <p className="mt-3 text-center text-sm">
+        <Link className="underline" href="/college">
+          Compare college admissions GPAs and A–G courses
+        </Link>
+      </p>
       <p className="leading-7 not-first:mt-6 italic text-sm text-muted-foreground">
         For users who have used the app before version 9/17/2025, the GPA
         calculation system has recently changed. Extra credit no longer boosts
