@@ -1,3 +1,5 @@
+import { classGrade, schoolGpas } from "@/lib/grades";
+import { percentagePointChange } from "@/lib/grades/display";
 import type { Report } from "@/types/report";
 import type {
   CanonicalAssignment,
@@ -9,7 +11,7 @@ export interface GradebookChange {
   id: string;
   classIndex: number | null;
   title: string;
-  entries: { id: string; text: string }[];
+  entries: { id: string; text: string; change?: number }[];
 }
 
 function assignmentUpdate(
@@ -31,6 +33,7 @@ export function gradebookChanges(
   state: GradebookState,
   delta: GradebookDelta | null,
   report: Report,
+  baseline?: GradebookState | null,
 ): GradebookChange[] {
   if (!delta) return [];
   const indices = new Map(
@@ -89,6 +92,10 @@ export function gradebookChanges(
         entries.push({
           id: assignmentId,
           text: assignmentUpdate(assignment, fields),
+          change: assignmentScoreChange(
+            assignment,
+            baseline?.classes[id]?.assignments[assignmentId],
+          ),
         });
     }
     if (change.assignments?.removed?.length)
@@ -112,4 +119,59 @@ export function gradebookChanges(
       });
   }
   return changes;
+}
+
+function assignmentScoreChange(
+  current: CanonicalAssignment,
+  previous: CanonicalAssignment | undefined,
+) {
+  if (
+    current.status !== "valid" ||
+    previous?.status !== "valid" ||
+    current.earned === null ||
+    previous.earned === null ||
+    Number(current.possible) <= 0 ||
+    Number(previous.possible) <= 0
+  )
+    return undefined;
+  return percentagePointChange(
+    Number(current.earned) / Number(current.possible),
+    Number(previous.earned) / Number(previous.possible),
+  );
+}
+
+export function compareReportGrades(current: Report, previous: Report | null) {
+  const classChanges: Record<string, number> = {};
+  if (
+    !previous ||
+    previous.term !== current.term ||
+    previous.yearRange.min !== current.yearRange.min ||
+    previous.yearRange.max !== current.yearRange.max
+  )
+    return { classChanges };
+  const old = new Map(
+    previous.classes.map((course) => [course.fullName, classGrade(course)]),
+  );
+  for (const course of current.classes) {
+    const change = percentagePointChange(
+      classGrade(course),
+      old.get(course.fullName),
+    );
+    if (change !== undefined) classChanges[course.fullName] = change;
+  }
+  const now = schoolGpas(current.classes);
+  const then = schoolGpas(previous.classes);
+  return {
+    classChanges,
+    gpaChanges:
+      now.weighted !== null &&
+      then.weighted !== null &&
+      now.unweighted !== null &&
+      then.unweighted !== null
+        ? {
+            weighted: now.weighted - then.weighted,
+            unweighted: now.unweighted - then.unweighted,
+          }
+        : undefined,
+  };
 }

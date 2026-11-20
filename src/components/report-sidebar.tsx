@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { GradeChange, GradeMark } from "@/components/grade-mark";
 import {
   Sidebar,
   SidebarContent,
@@ -22,6 +23,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { classGrade } from "@/lib/grades";
 import { sidebarClassName } from "@/lib/report/sidebar-class-name";
 import { useReport } from "@/lib/report/store";
 
@@ -35,6 +37,7 @@ const pages = [
 export function ReportSidebar() {
   const pathname = usePathname();
   const report = useReport((state) => state.report);
+  const changes = useReport((state) => state.classChanges);
   const { isMobile, setOpenMobile } = useSidebar();
   function closeMobile() {
     if (isMobile) setOpenMobile(false);
@@ -80,10 +83,24 @@ export function ReportSidebar() {
                     <SidebarMenuButton
                       asChild
                       isActive={pathname === href}
-                      className="pl-3"
+                      className="h-auto min-h-11 py-1.5"
                     >
                       <Link href={href} onClick={closeMobile}>
-                        <span>{sidebarClassName(cls.displayName)}</span>
+                        <div className="min-w-0 flex-1 space-y-0.5">
+                          <div
+                            className="truncate font-medium"
+                            title={cls.displayName}
+                          >
+                            {sidebarClassName(cls.displayName)}
+                          </div>
+                          <div className="flex flex-wrap items-center gap-1.5">
+                            <GradeMark percentage={classGrade(cls)} compact />
+                            <GradeChange
+                              value={changes[cls.fullName]}
+                              compact
+                            />
+                          </div>
+                        </div>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

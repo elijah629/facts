@@ -17,6 +17,7 @@ export interface TimelinePoint {
   schoolYear: string;
   grades: TimelineGrades;
   previousGrades: TimelineGrades | null;
+  previousComparable?: boolean;
   changes: HistoryChange[];
 }
 export interface TimelinePage {

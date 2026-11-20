@@ -20,6 +20,8 @@
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
   --color-chart-2: var(--chart-2);
+  --color-grade-up: var(--grade-up);
+  --color-grade-down: var(--grade-down);
   --color-chart-1: var(--chart-1);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -44,6 +46,8 @@
 }
 
 :root {
+  --grade-up: #087844;
+  --grade-down: #b91c36;
   --radius: 0.625rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -79,6 +83,8 @@
 }
 
 .dark {
+  --grade-up: #6ee7a9;
+  --grade-down: #ff8298;
   /*--background: oklch(0.145 0 0);
   --foreground: oklch(0.985 0 0);
   --card: oklch(0.205 0 0);

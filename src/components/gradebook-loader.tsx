@@ -38,6 +38,8 @@ export function refreshGradebook() {
       const body = (await response.json()) as {
         report: Report | null;
         changes: GradebookChange[];
+        classChanges?: Record<string, number>;
+        gpaChanges?: { weighted: number; unweighted: number };
         changesObservedAt?: string;
         freshness: {
           stale: boolean;
@@ -52,6 +54,8 @@ export function refreshGradebook() {
         error: body.freshness.errorCode,
         lastSuccessfulFactsFetch: body.freshness.lastSuccessfulFactsFetch,
         changes: body.changes,
+        classChanges: body.classChanges,
+        gpaChanges: body.gpaChanges,
         changesObservedAt: body.changesObservedAt,
       });
     })

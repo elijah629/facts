@@ -35,6 +35,7 @@ export interface SyncResult {
   lastSuccessfulFactsFetch: Date | null;
   errorCode?: string;
   delta: GradebookDelta | null;
+  previousState: GradebookState | null;
   observedAt: Date | null;
 }
 
@@ -104,9 +105,13 @@ function headResult(
   const storedDelta = head.packedDelta
     ? unpackGradebook<GradebookDelta>(head.packedDelta)
     : head.delta;
-  const delta =
+  const previousState =
     storedDelta && head.state && head.storageFormat === "reverse-v1"
-      ? diffGradebooks(applyGradebookDelta(head.state, storedDelta), head.state)
+      ? applyGradebookDelta(head.state, storedDelta)
+      : null;
+  const delta =
+    previousState && head.state
+      ? diffGradebooks(previousState, head.state)
       : storedDelta;
   return {
     streamId: head.streamId,
@@ -118,6 +123,7 @@ function headResult(
     errorCode: head.errorCode ?? undefined,
     lastSuccessfulFactsFetch: head.lastSuccessfulFactsFetch,
     delta,
+    previousState,
     observedAt: head.observedAt,
   };
 }
@@ -398,6 +404,7 @@ async function performSync(
         state: lockedNext,
         lastSuccessfulFactsFetch: observedAt,
         delta,
+        previousState: base,
         observedAt,
       };
     });

@@ -11,6 +11,8 @@ interface Store {
   stale: boolean;
   syncError?: string;
   changes: GradebookChange[];
+  classChanges: Record<string, number>;
+  gpaChanges?: { weighted: number; unweighted: number };
   changesObservedAt?: string;
 
   setWeighted: (weighted: boolean) => void;
@@ -21,6 +23,8 @@ interface Store {
     error?: string;
     lastSuccessfulFactsFetch?: string | null;
     changes?: GradebookChange[];
+    classChanges?: Record<string, number>;
+    gpaChanges?: { weighted: number; unweighted: number };
     changesObservedAt?: string;
   }) => void;
 }
@@ -33,6 +37,7 @@ export const useReport = create<Store>((set) => ({
   authenticated: false,
   stale: false,
   changes: [],
+  classChanges: {},
 
   setWeighted: (weighted: boolean) => set({ weighted }),
   setSyncResult: ({
@@ -42,6 +47,8 @@ export const useReport = create<Store>((set) => ({
     error,
     lastSuccessfulFactsFetch,
     changes = [],
+    classChanges = {},
+    gpaChanges,
     changesObservedAt,
   }) =>
     set({
@@ -50,6 +57,8 @@ export const useReport = create<Store>((set) => ({
       stale,
       syncError: error,
       changes,
+      classChanges,
+      gpaChanges,
       changesObservedAt,
       loading: false,
       lastUpdated: lastSuccessfulFactsFetch

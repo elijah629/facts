@@ -1,7 +1,14 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Clock3, TrendingUp } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import {
   CartesianGrid,
   Line,
@@ -12,17 +19,17 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { GradeChange, GradeMark } from "@/components/grade-mark";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type {
   TimelinePage,
   TimelinePoint,
 } from "@/lib/gradebook/timeline-types";
+import { formatGrade, percentagePointChange } from "@/lib/grades/display";
+import { gradeTrend } from "@/lib/grades/trend";
 import { useReport } from "@/lib/report/store";
 
-function percentage(value: number | null | undefined) {
-  return value == null ? "—" : `${(value * 100).toFixed(2)}%`;
-}
 function gpa(value: number | null) {
   return value == null ? "—" : value.toFixed(3);
 }
@@ -40,6 +47,8 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [localTime, setLocalTime] = useState(false);
+  const [metric, setMetric] = useState("gpa");
+  const chartId = useId();
   const weighted = useReport((state) => state.weighted);
   const setWeighted = useReport((state) => state.setWeighted);
   const request = useRef<AbortController | null>(null);
@@ -174,24 +183,49 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
         : { dateStyle: "medium", timeStyle: "short" },
     ).format(new Date(value));
   }
-  const { chartData, segmentKeys } = useMemo(() => {
-    let segmentKey = "";
-    let lastTerm = "";
-    const keys: string[] = [];
-    const data = points.map((point) => {
-      const term = `${point.schoolYear}/${point.term}`;
-      if (term !== lastTerm) {
-        segmentKey = `gpa_${point.id}`;
-        keys.push(segmentKey);
-        lastTerm = term;
-      }
-      return {
-        sequence: point.sequence,
-        [segmentKey]: weighted ? point.grades.gpa : point.grades.unweightedGpa,
-      };
-    });
-    return { chartData: data, segmentKeys: keys };
-  }, [points, weighted]);
+  const courseOptions = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          points.flatMap((point) =>
+            point.grades.classes.map(
+              (course) => [course.id, course.name] as const,
+            ),
+          ),
+        ),
+      ),
+    [points],
+  );
+  const displayedMetric = courseOptions.some(([id]) => id === metric)
+    ? metric
+    : "gpa";
+  const isGpa = displayedMetric === "gpa";
+  const chartLabel = isGpa
+    ? "GPA"
+    : (courseOptions.find(([id]) => id === displayedMetric)?.[1] ??
+      "Class grade");
+  const {
+    data: chartData,
+    lines,
+    domain,
+  } = useMemo(
+    () =>
+      gradeTrend(
+        points.map((point) => ({
+          sequence: point.sequence,
+          period: `${point.schoolYear}/${point.term}`,
+          value: isGpa
+            ? weighted
+              ? point.grades.gpa
+              : point.grades.unweightedGpa
+            : (point.grades.classes.find(
+                (course) => course.id === displayedMetric,
+              )?.percentage ?? null),
+        })),
+        isGpa ? "gpa" : "percent",
+      ),
+    [points, isGpa, displayedMetric, weighted],
+  );
   const selected = points.find((point) => point.id === selectedId);
   const index = points.findIndex((point) => point.id === selectedId);
   if (!selected)
@@ -218,12 +252,27 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
         </CardContent>
       </Card>
     );
-  const value = weighted ? selected.grades.gpa : selected.grades.unweightedGpa;
-  const previousValue = selected.previousGrades
+  const currentClass = selected.grades.classes.find(
+    (course) => course.id === displayedMetric,
+  );
+  const previous =
+    selected.previousComparable === false ? null : selected.previousGrades;
+  const value = isGpa
     ? weighted
-      ? selected.previousGrades.gpa
-      : selected.previousGrades.unweightedGpa
-    : null;
+      ? selected.grades.gpa
+      : selected.grades.unweightedGpa
+    : (currentClass?.percentage ?? null);
+  const previousValue = isGpa
+    ? weighted
+      ? previous?.gpa
+      : previous?.unweightedGpa
+    : previous?.classes.find((course) => course.id === displayedMetric)
+        ?.percentage;
+  const summaryChange = isGpa
+    ? value !== null && previousValue != null
+      ? value - previousValue
+      : undefined
+    : percentagePointChange(value, previousValue);
   const groups = new Map<string, TimelinePoint["changes"]>();
   for (const change of selected.changes)
     groups.set(change.className, [
@@ -245,43 +294,71 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
           <div className="space-y-1">
             <CardTitle className="flex items-center gap-2">
               <TrendingUp className="size-5" aria-hidden="true" />
-              GPA over time
+              Grade trends
             </CardTitle>
             <p className="text-sm text-muted-foreground">
               See how your grades changed with each saved update.
             </p>
           </div>
-          <label className="flex shrink-0 items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={weighted}
-              onChange={(event) => setWeighted(event.target.checked)}
-              className="size-4 accent-primary"
-            />
-            AP/Honors Boost
-          </label>
+          <div className="grid min-w-0 gap-2 sm:max-w-64">
+            <label className="grid gap-1 text-sm">
+              Graph
+              <select
+                value={displayedMetric}
+                onChange={(event) => setMetric(event.target.value)}
+                className="w-full min-w-0 rounded-md border bg-background px-2 py-2"
+              >
+                <option value="gpa">GPA</option>
+                {courseOptions.map(([id, name]) => (
+                  <option key={id} value={id}>
+                    {name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            {isGpa && (
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={weighted}
+                  onChange={(event) => setWeighted(event.target.checked)}
+                  className="size-4 accent-primary"
+                />
+                AP/Honors Boost
+              </label>
+            )}
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="text-4xl font-semibold tracking-tight tabular-nums">
-              {gpa(value)}
-            </span>
-            <span className="text-sm text-muted-foreground">
-              {weighted ? "Weighted GPA" : "Unweighted GPA"}
-            </span>
-            {previousValue !== null &&
-            value !== null &&
-            value !== previousValue ? (
-              <span className="text-sm tabular-nums">
-                {value > previousValue ? "+" : ""}
-                {(value - previousValue).toFixed(3)} since previous update
+            {isGpa ? (
+              <span className="text-4xl font-semibold tracking-tight tabular-nums">
+                {gpa(value)}
               </span>
-            ) : null}
+            ) : (
+              <GradeMark percentage={value} />
+            )}
+            <span className="text-sm text-muted-foreground">
+              {isGpa
+                ? weighted
+                  ? "Weighted GPA"
+                  : "Unweighted GPA"
+                : chartLabel}
+            </span>
+            <GradeChange
+              value={summaryChange}
+              unit={isGpa ? "gpa" : "percent"}
+            />
+          </div>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium">
+            <span className="text-grade-up">+ Rising</span>
+            <span className="text-grade-down">− Falling</span>
+            <span className="text-muted-foreground">— Unchanged</span>
           </div>
           <div
             className="h-56 w-full min-w-0 sm:h-64"
             role="img"
-            aria-label={`GPA history across ${points.length} saved updates. Selected GPA ${gpa(value)}. Use the time slider below to explore.`}
+            aria-label={`${chartLabel} across ${points.length} saved updates. Selected value ${isGpa ? gpa(value) : formatGrade(value)}. Use the time slider below to explore.`}
           >
             <ResponsiveContainer width="100%" height="100%" minWidth={0}>
               <LineChart
@@ -294,6 +371,28 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
                     commit(points[chartIndex].id);
                 }}
               >
+                <defs>
+                  {lines
+                    .filter(({ stops }) => stops.length)
+                    .map(({ key, stops }) => (
+                      <linearGradient
+                        key={key}
+                        id={`${chartId}-${key}`}
+                        x1="0%"
+                        x2="100%"
+                        y1="0%"
+                        y2="0%"
+                      >
+                        {stops.map(({ offset, color, edge }) => (
+                          <stop
+                            key={`${offset}-${edge}`}
+                            offset={offset}
+                            stopColor={color}
+                          />
+                        ))}
+                      </linearGradient>
+                    ))}
+                </defs>
                 <CartesianGrid vertical={false} stroke="var(--border)" />
                 <XAxis
                   dataKey="sequence"
@@ -309,8 +408,13 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
                   fontSize={12}
                 />
                 <YAxis
-                  domain={[0, weighted ? 5.5 : 4.5]}
-                  ticks={weighted ? [0, 1, 2, 3, 4, 5] : [0, 1, 2, 3, 4]}
+                  domain={domain}
+                  tickCount={5}
+                  tickFormatter={(value) =>
+                    isGpa
+                      ? Number(value).toFixed(2)
+                      : formatGrade(Number(value))
+                  }
                   tickLine={false}
                   axisLine={false}
                   fontSize={12}
@@ -323,8 +427,12 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
                     return point ? observed(point.observedAt) : "";
                   }}
                   formatter={(number) => [
-                    typeof number === "number" ? number.toFixed(3) : "—",
-                    "GPA",
+                    typeof number === "number"
+                      ? isGpa
+                        ? number.toFixed(3)
+                        : formatGrade(number)
+                      : "—",
+                    chartLabel,
                   ]}
                   contentStyle={{
                     background: "var(--card)",
@@ -333,16 +441,29 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
                     borderRadius: 12,
                   }}
                 />
-                {segmentKeys.map((segmentKey) => (
+                {lines.map(({ key, stops }) => (
                   <Line
-                    key={segmentKey}
-                    dataKey={segmentKey}
-                    name="GPA"
-                    type="stepAfter"
-                    stroke="var(--chart-1)"
-                    strokeWidth={2.5}
-                    dot={{ r: 3 }}
-                    activeDot={{ r: 6 }}
+                    key={key}
+                    dataKey={key}
+                    name={chartLabel}
+                    type="linear"
+                    stroke={
+                      stops.length
+                        ? `url(#${chartId}-${key})`
+                        : "var(--muted-foreground)"
+                    }
+                    strokeWidth={3}
+                    dot={{
+                      r: 2.5,
+                      fill: "var(--foreground)",
+                      stroke: "var(--card)",
+                      strokeWidth: 1,
+                    }}
+                    activeDot={{
+                      r: 5,
+                      fill: "var(--foreground)",
+                      stroke: "var(--card)",
+                    }}
                     connectNulls={false}
                     isAnimationActive={false}
                   />
@@ -486,26 +607,23 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
             const old = selected.previousGrades?.classes.find(
               (item) => item.id === cls.id,
             );
-            const changed =
-              old && current && old.percentage !== current.percentage;
+            const movement =
+              selected.previousComparable === false
+                ? undefined
+                : percentagePointChange(current?.percentage, old?.percentage);
             return (
               <div key={cls.id} className="rounded-xl border bg-card p-4">
                 <h3 className="break-words text-sm font-medium">{cls.name}</h3>
-                <p className="mt-2 flex flex-wrap items-baseline gap-2 tabular-nums">
-                  {changed ? (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {current ? (
+                    <GradeMark percentage={current.percentage} />
+                  ) : (
                     <span className="text-sm text-muted-foreground">
-                      {percentage(old.percentage)} →
+                      Removed
                     </span>
-                  ) : null}
-                  <span className="text-xl font-semibold">
-                    {current ? percentage(current.percentage) : "Removed"}
-                  </span>
-                  {current?.letter ? (
-                    <span className="text-sm text-muted-foreground">
-                      {current.letter}
-                    </span>
-                  ) : null}
-                </p>
+                  )}
+                  <GradeChange value={movement} />
+                </div>
               </div>
             );
           })}

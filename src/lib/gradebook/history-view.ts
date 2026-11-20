@@ -103,6 +103,10 @@ export async function historyPageInTransaction(
         schoolYear: `${row.state.yearRange.min}–${row.state.yearRange.max}`,
         grades: currentGrades,
         previousGrades: grades.get(row.sequence - 1) ?? null,
+        previousComparable:
+          previousState?.term === row.state.term &&
+          previousState.yearRange.min === row.state.yearRange.min &&
+          previousState.yearRange.max === row.state.yearRange.max,
         changes: previousState ? historyChanges(previousState, row.state) : [],
       };
     });
