@@ -19,12 +19,10 @@ describe("semantic gradebook history", () => {
     next.classes.chemistry.assignments.a1.status = "missing";
     const changes = historyChanges(previous, next);
     expect(changes).toHaveLength(1);
-    expect(changes[0].summary).toBe(
-      "Test 1 changed from 44/50 to not graded; was marked missing",
-    );
+    expect(changes[0].summary).toBe("Test 1 was marked missing");
     expect(changes[0].details).toContainEqual({
-      label: "Points earned",
-      before: "44",
+      label: "Score",
+      before: "44/50",
       after: "—",
     });
     expect(changes[0].details).toContainEqual({
@@ -35,7 +33,7 @@ describe("semantic gradebook history", () => {
     expect(previous.classes.chemistry.assignments.a1.earned).toBe("44");
   });
 
-  test("additions and removals are one entry each, with optional details", () => {
+  test("assignment additions and removals are shown without grading metadata", () => {
     const previous = state();
     const next = structuredClone(previous);
     delete next.classes.chemistry.assignments.a1;
@@ -47,19 +45,14 @@ describe("semantic gradebook history", () => {
     next.classes.chemistry.grading.categories.tests.weight = "0.8";
     next.classes.chemistry.grading.roundingPrecision = 3;
     const changes = historyChanges(previous, next);
-    expect(changes).toHaveLength(4);
+    expect(changes).toHaveLength(2);
     expect(changes.find((change) => change.item === "Test 1")).toMatchObject({
       kind: "removed",
-      summary: "Test 1 was removed · 44/50",
+      summary: "Test 1 was removed",
     });
     expect(changes.find((change) => change.item === "Test 2")).toMatchObject({
       kind: "added",
-      summary: "Test 2 was added · 0/50",
-    });
-    expect(changes.flatMap((change) => change.details)).toContainEqual({
-      label: "Weight",
-      before: "0.7",
-      after: "0.8",
+      summary: "Test 2 was graded: 0/50",
     });
   });
 
@@ -74,21 +67,17 @@ describe("semantic gradebook history", () => {
       { kind: "removed", summary: "Chemistry was removed" },
     );
     expect(changes.some((change) => change.item === "Test 1")).toBe(false);
-    expect(changes.flatMap((change) => change.details)).toContainEqual({
-      label: "School year",
-      before: "2026–2027",
-      after: "2026–2028",
-    });
+    expect(changes[0].summary).toBe("A new term or school year began");
   });
 
-  test("notes and due dates stay in details, not separate feed entries", () => {
+  test("due date changes lead and teacher notes remain in details", () => {
     const previous = state();
     const next = structuredClone(previous);
     next.classes.chemistry.assignments.a1.note = "Retake available";
     next.classes.chemistry.assignments.a1.dueDate = "2026-09-05T00:00:00.000Z";
     const changes = historyChanges(previous, next);
     expect(changes).toHaveLength(1);
-    expect(changes[0].summary).toBe("Test 1 was updated");
+    expect(changes[0].summary).toBe("Test 1 is now due Sep 5, 2026");
     expect(changes[0].details).toHaveLength(2);
     expect(
       changes[0].details.find((detail) => detail.label === "Due date")?.after,

@@ -1,4 +1,9 @@
-import { createCipheriv, createDecipheriv, randomBytes } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHmac,
+  randomBytes,
+} from "node:crypto";
 
 function key(): Buffer {
   const value = process.env.FACTS_SOURCE_ENCRYPTION_KEY;
@@ -8,6 +13,12 @@ function key(): Buffer {
     throw new Error("FACTS_SOURCE_ENCRYPTION_KEY must be 32 bytes in base64.");
   }
   return decoded;
+}
+
+export function gradeRankStudentKey(cohort: string, name: string): string {
+  return createHmac("sha256", key())
+    .update(JSON.stringify(["grade-rank-v1", cohort, name]))
+    .digest("base64url");
 }
 
 export function encryptSource(value: string): string {

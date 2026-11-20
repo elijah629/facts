@@ -40,3 +40,23 @@ test("trend colors use direction and break when the term changes or grades are m
   expect(result.lines[1].stops).toEqual([]);
   expect(result.data[3].series_0).toBeNull();
 });
+
+test("GPA draws a single series across terms and skips missing values", () => {
+  const trend = gradeTrend(
+    [
+      { sequence: 3, period: "Q1", value: 3.8 },
+      { sequence: 4, period: "Q2", value: null },
+      { sequence: 5, period: "Q2", value: 3.9 },
+      { sequence: 6, period: "Q3", value: 3.7 },
+    ],
+    "gpa",
+  );
+  expect(trend.lines).toHaveLength(1);
+  expect(trend.data[1].series_3).toBeNull();
+  expect(trend.lines[0].stops).toEqual([
+    { offset: 0, color: "var(--grade-up)", edge: "start" },
+    { offset: 2 / 3, color: "var(--grade-up)", edge: "end" },
+    { offset: 2 / 3, color: "var(--grade-down)", edge: "start" },
+    { offset: 1, color: "var(--grade-down)", edge: "end" },
+  ]);
+});

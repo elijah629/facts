@@ -21,6 +21,7 @@ import { diffGradebooks } from "./diff";
 import { hashGradebook } from "./hash";
 import { packGradebook, unpackGradebook } from "./packed";
 import { readHistoryRange } from "./reconstruct";
+import { schoolRankProjection } from "./school-rank-projection";
 import type { GradebookDelta, GradebookState } from "./types";
 
 const DAY = 24 * 60 * 60 * 1_000;
@@ -42,6 +43,7 @@ export interface SyncResult {
 interface ResolvedReport {
   report: Report;
   scannedGmail: boolean;
+  reportUrl: string;
   source?: { url: string; messageId: string; receivedAt: Date };
 }
 
@@ -174,6 +176,7 @@ async function resolveReport(
       try {
         return {
           report: await fetchReport(source.url),
+          reportUrl: source.url,
           source,
           scannedGmail: true,
         };
@@ -194,7 +197,7 @@ async function resolveReport(
     }
     tried.add(url);
     try {
-      return { report: await fetchReport(url), scannedGmail };
+      return { report: await fetchReport(url), reportUrl: url, scannedGmail };
     } catch {
       // A replacement email may exist even when the saved link has expired.
     }
@@ -235,6 +238,7 @@ async function performSync(
         source.url !==
           (head.encryptedUrl ? decryptSource(head.encryptedUrl) : null));
     const status = {
+      ...schoolRankProjection(resolved.report, resolved.reportUrl),
       lastAttemptAt: attemptedAt,
       lastSuccessfulFetchAt: observedAt,
       lastErrorCode: null,

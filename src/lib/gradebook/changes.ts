@@ -1,6 +1,7 @@
 import { classGrade, schoolGpas } from "@/lib/grades";
 import { percentagePointChange } from "@/lib/grades/display";
 import type { Report } from "@/types/report";
+import { assignmentHeadline } from "./history-changes";
 import type {
   CanonicalAssignment,
   GradebookDelta,
@@ -12,21 +13,6 @@ export interface GradebookChange {
   classIndex: number | null;
   title: string;
   entries: { id: string; text: string; change?: number }[];
-}
-
-function assignmentUpdate(
-  assignment: CanonicalAssignment,
-  fields: Partial<CanonicalAssignment>,
-) {
-  if ("status" in fields || "earned" in fields || "possible" in fields) {
-    if (assignment.status === "missing")
-      return `${assignment.name} · marked missing`;
-    if (assignment.status === "excuse") return `${assignment.name} · excused`;
-    if (assignment.earned !== null && assignment.possible !== null) {
-      return `${assignment.name} · ${assignment.earned}/${assignment.possible} pts`;
-    }
-  }
-  return `${assignment.name} · updated`;
 }
 
 export function gradebookChanges(
@@ -45,7 +31,7 @@ export function gradebookChanges(
       id: "term",
       classIndex: null,
       title: "Gradebook",
-      entries: [{ id: "term", text: "Term or school year changed" }],
+      entries: [{ id: "term", text: "A new term or school year began" }],
     });
   }
   for (const [id, cls] of Object.entries(delta.classesAdded ?? {})) {
@@ -78,24 +64,25 @@ export function gradebookChanges(
     )) {
       entries.push({
         id: assignmentId,
-        text:
-          assignment.status === "valid" && assignment.earned !== null
-            ? assignmentUpdate(assignment, { earned: assignment.earned })
-            : `${assignment.name} · added`,
+        text: assignmentHeadline(assignment) ?? `${assignment.name} was added`,
       });
     }
     for (const [assignmentId, fields] of Object.entries(
       change.assignments?.changed ?? {},
     )) {
       const assignment = cls.assignments[assignmentId];
-      if (assignment)
+      if (!assignment) continue;
+      const previous = baseline?.classes[id]?.assignments[assignmentId];
+      const text = previous
+        ? assignmentHeadline(assignment, previous)
+        : "earned" in fields || "possible" in fields || "status" in fields
+          ? assignmentHeadline(assignment)
+          : undefined;
+      if (text)
         entries.push({
           id: assignmentId,
-          text: assignmentUpdate(assignment, fields),
-          change: assignmentScoreChange(
-            assignment,
-            baseline?.classes[id]?.assignments[assignmentId],
-          ),
+          text,
+          change: assignmentScoreChange(assignment, previous),
         });
     }
     if (change.assignments?.removed?.length)
@@ -103,13 +90,6 @@ export function gradebookChanges(
         id: "removed",
         text: `${change.assignments.removed.length} assignments removed`,
       });
-    if (change.grading)
-      entries.push({
-        id: "grading",
-        text: "Grading categories or rules updated",
-      });
-    if (change.set)
-      entries.push({ id: "details", text: "Class details updated" });
     if (entries.length)
       changes.push({
         id,

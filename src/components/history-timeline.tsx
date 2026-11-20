@@ -373,7 +373,7 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
               >
                 <defs>
                   {lines
-                    .filter(({ stops }) => stops.length)
+                    .filter(({ color }) => !color)
                     .map(({ key, stops }) => (
                       <linearGradient
                         key={key}
@@ -441,17 +441,13 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
                     borderRadius: 12,
                   }}
                 />
-                {lines.map(({ key, stops }) => (
+                {lines.map(({ key, color }) => (
                   <Line
                     key={key}
                     dataKey={key}
                     name={chartLabel}
                     type="linear"
-                    stroke={
-                      stops.length
-                        ? `url(#${chartId}-${key})`
-                        : "var(--muted-foreground)"
-                    }
+                    stroke={color ?? `url(#${chartId}-${key})`}
                     strokeWidth={3}
                     dot={{
                       r: 2.5,
@@ -464,7 +460,7 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
                       fill: "var(--foreground)",
                       stroke: "var(--card)",
                     }}
-                    connectNulls={false}
+                    connectNulls={isGpa}
                     isAnimationActive={false}
                   />
                 ))}
@@ -494,7 +490,7 @@ export function HistoryTimeline({ initial }: { initial: TimelinePage }) {
               step={1}
               value={index}
               disabled={points.length < 2}
-              aria-valuetext={`${observed(selected.observedAt)}, GPA ${gpa(value)}`}
+              aria-valuetext={`${observed(selected.observedAt)}, ${chartLabel} ${isGpa ? gpa(value) : formatGrade(value)}`}
               className="block h-7 w-full cursor-pointer accent-primary disabled:cursor-default"
               onChange={(event) => {
                 const id = points[Number(event.target.value)].id;

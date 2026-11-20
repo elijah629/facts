@@ -14,7 +14,10 @@ export function gradeTrend(
 ) {
   const segments: { key: string; start: number; end: number }[] = [];
   const data = observations.map((item, index) => {
-    if (observations[index - 1]?.period !== item.period) {
+    if (
+      index === 0 ||
+      (unit === "percent" && observations[index - 1].period !== item.period)
+    ) {
       segments.push({
         key: `series_${item.sequence}`,
         start: index,
@@ -32,9 +35,11 @@ export function gradeTrend(
     const last = values.findLastIndex((value) => value !== null);
     const stops: { offset: number; color: string; edge: "start" | "end" }[] =
       [];
+    let previousIndex = first;
     for (let index = first + 1; index <= last; index++) {
-      const previous = values[index - 1];
+      const previous = values[previousIndex];
       const current = values[index];
+      if (unit === "gpa" && current === null) continue;
       const difference =
         previous === null || current === null ? 0 : current - previous;
       const amount = unit === "percent" ? difference * 100 : difference;
@@ -44,11 +49,19 @@ export function gradeTrend(
           ? "var(--grade-up)"
           : "var(--grade-down)";
       stops.push(
-        { offset: (index - first - 1) / (last - first), color, edge: "start" },
+        {
+          offset: (previousIndex - first) / (last - first),
+          color,
+          edge: "start",
+        },
         { offset: (index - first) / (last - first), color, edge: "end" },
       );
+      previousIndex = index;
     }
-    return { key, stops };
+    const color = stops.every((stop) => stop.color === stops[0]?.color)
+      ? (stops[0]?.color ?? neutral)
+      : undefined;
+    return { key, stops, color };
   });
   const values = observations.flatMap(({ value }) =>
     value === null ? [] : [value],

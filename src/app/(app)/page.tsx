@@ -5,6 +5,7 @@ import Link from "next/link";
 
 import { GradeChange, GradeMark } from "@/components/grade-mark";
 import { refreshGradebook } from "@/components/gradebook-loader";
+import { SchoolStanding } from "@/components/school-standing";
 import { StudentOverview } from "@/components/student-overview";
 import { Button } from "@/components/ui/button";
 import {
@@ -151,12 +152,13 @@ export default function Home() {
         </div>
       </section>
       <div className="space-y-6">
+        <SchoolStanding />
         <Card>
           <CardHeader>
-            <CardTitle>Latest changes</CardTitle>
+            <CardTitle>What changed</CardTitle>
             {changes.length > 0 && changesObservedAt && (
               <CardDescription>
-                Observed{" "}
+                Last update{" "}
                 {new Date(changesObservedAt).toLocaleString(undefined, {
                   dateStyle: "medium",
                   timeStyle: "short",
@@ -167,7 +169,7 @@ export default function Home() {
           <CardContent>
             {changes.length === 0 ? (
               <p className="text-sm text-muted-foreground">
-                No changes in the latest saved comparison.
+                No new scores or assignment changes to show.
               </p>
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

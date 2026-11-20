@@ -1,23 +1,14 @@
-import { Check } from "lucide-react";
+import { ChevronDown } from "lucide-react";
+import { formatGrade } from "@/lib/grades/display";
 import type { Assignment, Class } from "@/types/report";
-import { AssignmentRowGrade } from "./assignment-row-grade";
 import { Badge } from "./ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
-import { TableCell, TableRow } from "./ui/table";
 
-function dueDate(assignment: Assignment) {
-  return new Date(assignment.due).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+const dateFormat = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  year: "numeric",
+  timeZone: "UTC",
+});
 
 function AssignmentGrade({
   assignment,
@@ -26,129 +17,104 @@ function AssignmentGrade({
   assignment: Assignment;
   gradingMethod: Class["gradingMethod"];
 }) {
-  if (assignment.status === "valid") {
-    return (
-      <AssignmentRowGrade
-        points={assignment.points}
-        maxPoints={assignment.maxPoints}
-        gradingMethod={gradingMethod}
-      />
-    );
-  }
+  if (assignment.status === "excuse")
+    return <Badge variant="outline">Excused</Badge>;
 
-  if (assignment.status === "missing") {
-    return (
-      <AssignmentRowGrade
-        points={0}
-        maxPoints={assignment.maxPoints}
-        gradingMethod={gradingMethod}
-      />
-    );
-  }
-
-  return <>—</>;
-}
-
-function AssignmentStatus({
-  assignment,
-  weakPoint,
-}: {
-  assignment: Assignment;
-  weakPoint: boolean;
-}) {
+  const points = assignment.status === "missing" ? 0 : assignment.points;
   return (
-    <div className="flex flex-wrap gap-2">
-      {weakPoint && <Badge variant="destructive">Weak point</Badge>}
-      <Badge
-        variant={assignment.status === "missing" ? "destructive" : "outline"}
-      >
-        {assignment.status === "valid" ? (
-          <>
-            <Check data-icon="inline-start" /> Graded
-          </>
-        ) : (
-          assignment.status[0].toUpperCase() + assignment.status.substring(1)
-        )}
-      </Badge>
+    <div className="flex flex-col items-end gap-0.5 text-right tabular-nums">
+      {assignment.status === "missing" ? (
+        <Badge variant="destructive">Missing</Badge>
+      ) : assignment.maxPoints > 0 ? (
+        <span className="font-semibold">
+          {formatGrade(points / assignment.maxPoints)}
+        </span>
+      ) : (
+        <span className="font-semibold">Extra credit</span>
+      )}
+      <span className="text-xs text-muted-foreground">
+        {assignment.maxPoints > 0
+          ? `${points} / ${assignment.maxPoints} pts`
+          : `${points >= 0 ? "+" : ""}${points}${gradingMethod === "percent" ? "%" : " pts"}`}
+      </span>
     </div>
   );
 }
 
 export function AssignmentRow({
   assignment,
-  weakPoint,
   gradingMethod,
 }: {
   assignment: Assignment;
-  weakPoint: boolean;
   gradingMethod: Class["gradingMethod"];
 }) {
-  return (
-    <TableRow>
-      <TableCell className="min-w-72 whitespace-normal">
-        <div className="flex flex-col gap-2">
-          <span className="font-medium">{assignment.name}</span>
-          {assignment.description && (
-            <span className="wrap-break-word whitespace-break-spaces text-sm text-muted-foreground">
-              {assignment.description}
-            </span>
-          )}
-        </div>
-      </TableCell>
-      <TableCell className="whitespace-nowrap">{dueDate(assignment)}</TableCell>
-      <TableCell className="whitespace-nowrap font-mono">
-        <AssignmentGrade
-          assignment={assignment}
-          gradingMethod={gradingMethod}
-        />
-      </TableCell>
-      <TableCell>
-        <AssignmentStatus assignment={assignment} weakPoint={weakPoint} />
-      </TableCell>
-    </TableRow>
-  );
-}
-
-export function AssignmentCard({
-  assignment,
-  weakPoint,
-  gradingMethod,
-}: {
-  assignment: Assignment;
-  weakPoint: boolean;
-  gradingMethod: Class["gradingMethod"];
-}) {
-  return (
-    <Card className="gap-4 py-4 shadow-none">
-      <CardHeader className="gap-2 px-4">
-        <CardTitle className="text-base leading-snug">
+  const due = new Date(assignment.due);
+  const dueLabel = Number.isNaN(due.getTime()) ? "" : dateFormat.format(due);
+  const adjustments = [
+    ["Curve", assignment.curve],
+    ["Bonus", assignment.bonus],
+    ["Penalty", assignment.penalty],
+  ] as const;
+  const hasDetails =
+    Boolean(assignment.description?.trim() || assignment.note?.trim()) ||
+    adjustments.some(([, value]) => value !== undefined);
+  const row = (
+    <>
+      <div className="min-w-0 space-y-1">
+        <p className="wrap-break-word text-sm leading-snug font-medium sm:text-base">
           {assignment.name}
-        </CardTitle>
-        {assignment.description && (
-          <CardDescription className="wrap-break-word whitespace-break-spaces">
-            {assignment.description}
-          </CardDescription>
+        </p>
+        {dueLabel && (
+          <p className="text-xs text-muted-foreground">Due {dueLabel}</p>
         )}
-      </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-4 px-4 text-sm">
-        <div className="grid min-w-0 gap-1">
-          <span className="text-muted-foreground">Due</span>
-          <span>{dueDate(assignment)}</span>
-        </div>
-        <div className="grid min-w-0 gap-1">
-          <span className="text-muted-foreground">Grade</span>
-          <span className="font-mono">
-            <AssignmentGrade
-              assignment={assignment}
-              gradingMethod={gradingMethod}
-            />
-          </span>
-        </div>
-        <div className="col-span-2 grid gap-2">
-          <span className="text-muted-foreground">Status</span>
-          <AssignmentStatus assignment={assignment} weakPoint={weakPoint} />
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+      <AssignmentGrade assignment={assignment} gradingMethod={gradingMethod} />
+    </>
+  );
+
+  if (!hasDetails)
+    return (
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 py-3.5 pr-8">
+        {row}
+      </div>
+    );
+
+  return (
+    <details className="group">
+      <summary className="grid cursor-pointer list-none grid-cols-[minmax(0,1fr)_auto_1rem] items-center gap-3 rounded-sm py-3.5 pr-1 transition-colors hover:bg-muted/45 [&::-webkit-details-marker]:hidden">
+        {row}
+        <ChevronDown
+          className="size-4 text-muted-foreground transition-transform group-open:rotate-180"
+          aria-hidden="true"
+        />
+      </summary>
+      <div className="mb-3 space-y-3 rounded-lg bg-muted/50 p-3 text-sm sm:p-4">
+        {assignment.description?.trim() && (
+          <p className="wrap-break-word whitespace-pre-wrap">
+            {assignment.description}
+          </p>
+        )}
+        {assignment.note?.trim() && (
+          <div>
+            <p className="font-medium">Teacher note</p>
+            <p className="wrap-break-word whitespace-pre-wrap text-muted-foreground">
+              {assignment.note}
+            </p>
+          </div>
+        )}
+        {adjustments.some(([, value]) => value !== undefined) && (
+          <dl className="flex flex-wrap gap-x-4 gap-y-1 text-muted-foreground">
+            {adjustments.map(([label, value]) =>
+              value === undefined ? null : (
+                <div key={label} className="flex gap-1">
+                  <dt>{label}</dt>
+                  <dd className="tabular-nums">{value}</dd>
+                </div>
+              ),
+            )}
+          </dl>
+        )}
+      </div>
+    </details>
   );
 }

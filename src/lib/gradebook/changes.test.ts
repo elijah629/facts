@@ -17,3 +17,29 @@ test("dashboard comparisons use prior marks in the same academic term", () => {
   });
   expect(compareReportGrades(newReport, null)).toEqual({ classChanges: {} });
 });
+
+test("dashboard change feed skips metadata and gives updated scores plain labels", async () => {
+  const { gradebookChanges } = await import("./changes");
+  const { diffGradebooks } = await import("./diff");
+  const earlier = state();
+  const latest = structuredClone(earlier);
+  latest.classes.chemistry.teacher = "New teacher";
+  latest.classes.chemistry.grading.roundingPrecision = 3;
+  expect(
+    gradebookChanges(
+      latest,
+      diffGradebooks(earlier, latest),
+      reportProjection(latest),
+      earlier,
+    ),
+  ).toEqual([]);
+  latest.classes.chemistry.assignments.a1.earned = "46";
+  const changes = gradebookChanges(
+    latest,
+    diffGradebooks(earlier, latest),
+    reportProjection(latest),
+    earlier,
+  );
+  expect(changes[0].entries[0].text).toBe("Test 1: 44/50 to 46/50");
+  expect(changes[0].entries[0].change).toBeCloseTo(4);
+});
