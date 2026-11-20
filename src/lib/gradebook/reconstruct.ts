@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, gte, lte } from "drizzle-orm";
 import { db } from "@/lib/db/client";
+import { databaseRead } from "@/lib/db/read";
 import {
   gradebookHeads,
   gradebookRevisions,
@@ -31,25 +32,43 @@ export function reconstructHistoryRows(rows: RevisionRow[]) {
   return result;
 }
 
+export async function readHistoryHead(
+  tx: HistoryTransaction,
+  owner: { userId: string } | { streamId: string },
+) {
+  const [head] = await tx
+    .select({
+      streamId: gradebookStreams.id,
+      storageFormat: gradebookStreams.storageFormat,
+      currentState: gradebookHeads.currentState,
+      headSequence: gradebookHeads.headSequence,
+      headStateHash: gradebookHeads.headStateHash,
+      headRevisionId: gradebookHeads.headRevisionId,
+    })
+    .from(gradebookStreams)
+    .innerJoin(gradebookHeads, eq(gradebookHeads.streamId, gradebookStreams.id))
+    .where(
+      "userId" in owner
+        ? eq(gradebookStreams.userId, owner.userId)
+        : eq(gradebookStreams.id, owner.streamId),
+    )
+    .limit(1);
+  return head;
+}
+
 // Use within a repeatable-read transaction so sync cannot mix head and delta versions.
 export async function readHistoryRange(
   tx: HistoryTransaction,
   streamId: string,
   from = 0,
   to?: number,
+  knownHead?: Awaited<ReturnType<typeof readHistoryHead>>,
 ) {
-  const [stream] = await tx
-    .select()
-    .from(gradebookStreams)
-    .where(eq(gradebookStreams.id, streamId));
-  const [head] = await tx
-    .select()
-    .from(gradebookHeads)
-    .where(eq(gradebookHeads.streamId, streamId));
-  if (!stream || !head || head.headSequence < 0) return [];
+  const head = knownHead ?? (await readHistoryHead(tx, { streamId }));
+  if (!head || head.headSequence < 0) return [];
   const upper = Math.min(to ?? head.headSequence, head.headSequence);
   if (from > upper) return [];
-  const reverse = stream.storageFormat === "reverse-v1";
+  const reverse = head.storageFormat === "reverse-v1";
   const rows = await tx
     .select({
       id: gradebookRevisions.id,
@@ -80,7 +99,7 @@ export async function readHistoryRange(
     ...row,
     data: packedDelta ? unpackGradebook<GradebookDelta>(packedDelta) : row.data,
   }));
-  walkHistory(decoded, stream.storageFormat, head, (row, state) => {
+  walkHistory(decoded, head.storageFormat, head, (row, state) => {
     if (row.sequence >= from && row.sequence <= upper)
       result.push({ ...row, state });
   });
@@ -92,41 +111,49 @@ export async function readHistoryRange(
 export async function reconstructRevision(
   revisionId: string,
 ): Promise<GradebookState> {
-  return db.transaction(
-    async (tx) => {
-      const [row] = await tx
-        .select()
-        .from(gradebookRevisions)
-        .where(eq(gradebookRevisions.id, revisionId));
-      if (!row) throw new Error("REVISION_NOT_FOUND");
-      const [result] = await readHistoryRange(
-        tx,
-        row.streamId,
-        row.sequence,
-        row.sequence,
-      );
-      if (!result) throw new Error("REVISION_NOT_FOUND");
-      return result.state;
-    },
-    { isolationLevel: "repeatable read", accessMode: "read only" },
+  return databaseRead(() =>
+    db.transaction(
+      async (tx) => {
+        const [row] = await tx
+          .select()
+          .from(gradebookRevisions)
+          .where(eq(gradebookRevisions.id, revisionId));
+        if (!row) throw new Error("REVISION_NOT_FOUND");
+        const [result] = await readHistoryRange(
+          tx,
+          row.streamId,
+          row.sequence,
+          row.sequence,
+        );
+        if (!result) throw new Error("REVISION_NOT_FOUND");
+        return result.state;
+      },
+      { isolationLevel: "repeatable read", accessMode: "read only" },
+    ),
   );
 }
 
 export async function reconstructLatest(
   streamId: string,
 ): Promise<GradebookState> {
-  return db.transaction(
-    async (tx) => {
-      const [head] = await tx
-        .select()
-        .from(gradebookHeads)
-        .where(eq(gradebookHeads.streamId, streamId));
-      if (!head) throw new Error("GRADEBOOK_HAS_NO_REVISIONS");
-      const [result] = await readHistoryRange(tx, streamId, head.headSequence);
-      if (!result) throw new Error("GRADEBOOK_HAS_NO_REVISIONS");
-      return result.state;
-    },
-    { isolationLevel: "repeatable read", accessMode: "read only" },
+  return databaseRead(() =>
+    db.transaction(
+      async (tx) => {
+        const [head] = await tx
+          .select()
+          .from(gradebookHeads)
+          .where(eq(gradebookHeads.streamId, streamId));
+        if (!head) throw new Error("GRADEBOOK_HAS_NO_REVISIONS");
+        const [result] = await readHistoryRange(
+          tx,
+          streamId,
+          head.headSequence,
+        );
+        if (!result) throw new Error("GRADEBOOK_HAS_NO_REVISIONS");
+        return result.state;
+      },
+      { isolationLevel: "repeatable read", accessMode: "read only" },
+    ),
   );
 }
 
@@ -134,32 +161,34 @@ export async function reconstructAt(
   streamId: string,
   timestamp: Date,
 ): Promise<GradebookState> {
-  return db.transaction(
-    async (tx) => {
-      const [row] = await tx
-        .select({ sequence: gradebookRevisions.sequence })
-        .from(gradebookRevisions)
-        .where(
-          and(
-            eq(gradebookRevisions.streamId, streamId),
-            lte(gradebookRevisions.observedAt, timestamp),
-          ),
-        )
-        .orderBy(
-          desc(gradebookRevisions.observedAt),
-          desc(gradebookRevisions.sequence),
-        )
-        .limit(1);
-      if (!row) throw new Error("REVISION_NOT_FOUND_AT_TIMESTAMP");
-      const [result] = await readHistoryRange(
-        tx,
-        streamId,
-        row.sequence,
-        row.sequence,
-      );
-      if (!result) throw new Error("REVISION_NOT_FOUND_AT_TIMESTAMP");
-      return result.state;
-    },
-    { isolationLevel: "repeatable read", accessMode: "read only" },
+  return databaseRead(() =>
+    db.transaction(
+      async (tx) => {
+        const [row] = await tx
+          .select({ sequence: gradebookRevisions.sequence })
+          .from(gradebookRevisions)
+          .where(
+            and(
+              eq(gradebookRevisions.streamId, streamId),
+              lte(gradebookRevisions.observedAt, timestamp),
+            ),
+          )
+          .orderBy(
+            desc(gradebookRevisions.observedAt),
+            desc(gradebookRevisions.sequence),
+          )
+          .limit(1);
+        if (!row) throw new Error("REVISION_NOT_FOUND_AT_TIMESTAMP");
+        const [result] = await readHistoryRange(
+          tx,
+          streamId,
+          row.sequence,
+          row.sequence,
+        );
+        if (!result) throw new Error("REVISION_NOT_FOUND_AT_TIMESTAMP");
+        return result.state;
+      },
+      { isolationLevel: "repeatable read", accessMode: "read only" },
+    ),
   );
 }

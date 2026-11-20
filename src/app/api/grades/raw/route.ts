@@ -1,4 +1,5 @@
 import { currentSession } from "@/lib/auth/session";
+import { isConnectionError } from "@/lib/db/read";
 import { rawGradebookReport } from "@/lib/gradebook/raw-report";
 
 const RAW_REPORT_HEADERS = {
@@ -11,17 +12,26 @@ const RAW_REPORT_HEADERS = {
 };
 
 export async function GET() {
-  const session = await currentSession();
-  if (!session) return new Response("Unauthorized", { status: 401 });
-
   try {
+    const session = await currentSession();
+    if (!session)
+      return new Response("Sign in to view the FACTS report.", {
+        status: 401,
+        headers: RAW_REPORT_HEADERS,
+      });
     return new Response(await rawGradebookReport(session.user.id), {
       headers: RAW_REPORT_HEADERS,
     });
-  } catch {
-    return new Response("Raw report unavailable. Refresh grades first.", {
-      status: 404,
-      headers: { "cache-control": "private, no-store, max-age=0" },
-    });
+  } catch (error) {
+    const disconnected = isConnectionError(error);
+    return new Response(
+      disconnected
+        ? "The report service is temporarily unavailable. Reload the page to try again."
+        : "The raw FACTS report could not be opened. Refresh your gradebook and try again.",
+      {
+        status: disconnected ? 503 : 404,
+        headers: RAW_REPORT_HEADERS,
+      },
+    );
   }
 }

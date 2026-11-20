@@ -14,10 +14,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { mcpResource } from "@/lib/auth";
+import { mcpResource } from "@/lib/auth/options";
 import { currentSession } from "@/lib/auth/session";
 import { oauthClient, oauthConsent } from "@/lib/db/auth-schema";
 import { db } from "@/lib/db/client";
+import { databaseRead } from "@/lib/db/read";
 import { EndpointCopy, RefreshApps, RevokeApp } from "./connection-controls";
 
 export const metadata: Metadata = { title: "Connected apps · facts" };
@@ -66,17 +67,19 @@ async function AuthorizedApps() {
   }[];
   try {
     // Explicit projection: never send client secrets, tokens, or other users' grants.
-    grants = await db
-      .select({
-        clientId: oauthConsent.clientId,
-        name: oauthClient.name,
-        scopes: oauthConsent.scopes,
-        updatedAt: oauthConsent.updatedAt,
-      })
-      .from(oauthConsent)
-      .leftJoin(oauthClient, eq(oauthConsent.clientId, oauthClient.clientId))
-      .where(eq(oauthConsent.userId, session.user.id))
-      .orderBy(desc(oauthConsent.updatedAt));
+    grants = await databaseRead(() =>
+      db
+        .select({
+          clientId: oauthConsent.clientId,
+          name: oauthClient.name,
+          scopes: oauthConsent.scopes,
+          updatedAt: oauthConsent.updatedAt,
+        })
+        .from(oauthConsent)
+        .leftJoin(oauthClient, eq(oauthConsent.clientId, oauthClient.clientId))
+        .where(eq(oauthConsent.userId, session.user.id))
+        .orderBy(desc(oauthConsent.updatedAt)),
+    );
   } catch {
     return (
       <div className="space-y-4">

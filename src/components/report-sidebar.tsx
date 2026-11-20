@@ -2,170 +2,88 @@
 
 import {
   Calculator,
-  ChartAreaIcon,
-  FileText,
+  ChartNoAxesColumnIncreasing,
   GraduationCap,
   History,
-  Plug,
+  LayoutDashboard,
+  Settings,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Switch } from "@/components/ui/switch";
-import { classGrade, gpa, letterGrade } from "@/lib/grades";
 import { sidebarClassName } from "@/lib/report/sidebar-class-name";
 import { useReport } from "@/lib/report/store";
-import { timeAgo } from "@/lib/utils";
-import { Badge } from "./ui/badge";
-import { Label } from "./ui/label";
+
+const pages = [
+  { href: "/", label: "Gradebook", icon: LayoutDashboard },
+  { href: "/history", label: "History", icon: History },
+  { href: "/gpa", label: "GPA & A–G", icon: ChartNoAxesColumnIncreasing },
+  { href: "/final-calculator", label: "Final calculator", icon: Calculator },
+] as const;
 
 export function ReportSidebar() {
-  const { lastUpdated, report, weighted, setWeighted } = useReport();
+  const pathname = usePathname();
+  const report = useReport((state) => state.report);
   const { isMobile, setOpenMobile } = useSidebar();
-  const closeMobileMenu = () => {
-    if (isMobile) {
-      setOpenMobile(false);
-    }
-  };
+  function closeMobile() {
+    if (isMobile) setOpenMobile(false);
+  }
 
   return (
     <Sidebar>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/" onClick={closeMobileMenu}>
-                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <GraduationCap />
-                </div>
-                <div className="flex flex-col gap-2 leading-none">
-                  <span className="font-semibold">🔥 facts 🔥</span>
-                  {report && (
-                    <span>
-                      GPA:{" "}
-                      <span className="font-mono font-semibold">
-                        {gpa(report.classes, weighted).toFixed(3)}
-                      </span>
-                    </span>
-                  )}
-                </div>
+            <SidebarMenuButton asChild className="font-semibold">
+              <Link href="/" onClick={closeMobile}>
+                <GraduationCap />
+                <span>facts</span>
               </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          {report ? (
-            <SidebarMenuItem>
-              <SidebarMenuButton size="lg" asChild>
-                <Link href="/raw-report" onClick={closeMobileMenu}>
-                  <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <FileText />
-                  </div>
-                  <div className="flex flex-col gap-2 leading-none">
-                    Raw report
-                  </div>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ) : null}
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/college" onClick={closeMobileMenu}>
-                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <GraduationCap />
-                </div>
-                <span>College GPA &amp; A–G</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/gpa-guide" onClick={closeMobileMenu}>
-                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <ChartAreaIcon />
-                </div>
-                <div className="flex flex-col gap-2 leading-none">
-                  GPA Guide
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/final-calculator" onClick={closeMobileMenu}>
-                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Calculator />
-                </div>
-                <div className="flex flex-col gap-2 leading-none">
-                  Final Calculator
-                </div>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/history" onClick={closeMobileMenu}>
-                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <History />
-                </div>
-                <span>Grade history</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/connected-apps" onClick={closeMobileMenu}>
-                <div className="flex aspect-square size-10 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Plug />
-                </div>
-                <span>Connected apps</span>
-              </Link>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton asChild>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={weighted}
-                  onCheckedChange={setWeighted}
-                  id="weighted-gpa"
-                />
-                <Label htmlFor="weighted-gpa">AP/Honors Boost</Label>
-              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        {report && (
+        <SidebarGroup className="pt-0">
+          <SidebarMenu>
+            {pages.map(({ href, label, icon: Icon }) => (
+              <SidebarMenuItem key={href}>
+                <SidebarMenuButton asChild isActive={pathname === href}>
+                  <Link href={href} prefetch={false} onClick={closeMobile}>
+                    <Icon />
+                    <span>{label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            ))}
+          </SidebarMenu>
+        </SidebarGroup>
+        {!!report?.classes.length && (
           <SidebarGroup>
+            <SidebarGroupLabel>Courses</SidebarGroupLabel>
             <SidebarMenu>
-              {report.classes.map((cls, i) => {
-                const percentage = classGrade(cls);
-                const letter = letterGrade(percentage);
-
+              {report.classes.map((cls, index) => {
+                const href = `/class/${index}` as const;
                 return (
                   <SidebarMenuItem key={cls.fullName}>
-                    <SidebarMenuButton asChild>
-                      <Link href={`/class/${i}`} onClick={closeMobileMenu}>
-                        <div className="flex min-w-0 flex-1 items-center gap-2">
-                          <GraduationCap />
-                          <span className="truncate">
-                            {sidebarClassName(cls.displayName)}
-                          </span>
-                        </div>
-                        <Badge variant="default" className="ml-auto">
-                          {letter}
-                        </Badge>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === href}
+                      className="pl-3"
+                    >
+                      <Link href={href} onClick={closeMobile}>
+                        <span>{sidebarClassName(cls.displayName)}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -175,29 +93,17 @@ export function ReportSidebar() {
           </SidebarGroup>
         )}
       </SidebarContent>
-      <SidebarFooter>
-        <span className="text-sm">
-          <strong>App Version</strong>: {process.env.NEXT_PUBLIC_APP_VERSION}
-          {lastUpdated && (
-            <>
-              <br />
-              <strong>Last fetched</strong>: {timeAgo(lastUpdated)}
-            </>
-          )}
-        </span>
-
-        <span>
-          made with ❤ by{" "}
-          <Link href="https://eli.best" className="underline">
-            Eli Özcan
-          </Link>
-        </span>
-
-        <span>
-          <Link href="https://github.com/elijah629/facts" className="underline">
-            source code
-          </Link>
-        </span>
+      <SidebarFooter className="border-t">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild isActive={pathname === "/settings"}>
+              <Link href="/settings" onClick={closeMobile}>
+                <Settings />
+                <span>Settings</span>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
     </Sidebar>
   );

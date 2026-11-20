@@ -1,5 +1,6 @@
 import { and, eq, isNull, lte, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db/client";
+import { databaseRead } from "@/lib/db/read";
 import {
   gradebookHeads,
   gradebookRevisions,
@@ -65,30 +66,35 @@ function safeError(error: unknown): { code: string; message: string } {
 }
 
 async function readHead(userId: string) {
-  const [row] = await db
-    .select({
-      streamId: gradebookHeads.streamId,
-      storageFormat: gradebookStreams.storageFormat,
-      revisionId: gradebookHeads.headRevisionId,
-      stateHash: gradebookHeads.headStateHash,
-      state: gradebookHeads.currentState,
-      encryptedUrl: gradebookHeads.encryptedActiveFactsUrl,
-      sourceMessageId: gradebookHeads.activeSourceMessageId,
-      sourceReceivedAt: gradebookHeads.activeSourceEmailReceivedAt,
-      lastSuccessfulFactsFetch: gradebookHeads.lastSuccessfulFetchAt,
-      errorCode: gradebookHeads.lastErrorCode,
-      delta: sql<GradebookDelta | null>`case when ${gradebookRevisions.kind} = 'delta' then ${gradebookRevisions.data} end`,
-      packedDelta: gradebookRevisions.packedDelta,
-      observedAt: gradebookRevisions.observedAt,
-    })
-    .from(gradebookStreams)
-    .innerJoin(gradebookHeads, eq(gradebookHeads.streamId, gradebookStreams.id))
-    .leftJoin(
-      gradebookRevisions,
-      eq(gradebookRevisions.id, gradebookHeads.headRevisionId),
-    )
-    .where(eq(gradebookStreams.userId, userId))
-    .limit(1);
+  const [row] = await databaseRead(() =>
+    db
+      .select({
+        streamId: gradebookHeads.streamId,
+        storageFormat: gradebookStreams.storageFormat,
+        revisionId: gradebookHeads.headRevisionId,
+        stateHash: gradebookHeads.headStateHash,
+        state: gradebookHeads.currentState,
+        encryptedUrl: gradebookHeads.encryptedActiveFactsUrl,
+        sourceMessageId: gradebookHeads.activeSourceMessageId,
+        sourceReceivedAt: gradebookHeads.activeSourceEmailReceivedAt,
+        lastSuccessfulFactsFetch: gradebookHeads.lastSuccessfulFetchAt,
+        errorCode: gradebookHeads.lastErrorCode,
+        delta: sql<GradebookDelta | null>`case when ${gradebookRevisions.kind} = 'delta' then ${gradebookRevisions.data} end`,
+        packedDelta: gradebookRevisions.packedDelta,
+        observedAt: gradebookRevisions.observedAt,
+      })
+      .from(gradebookStreams)
+      .innerJoin(
+        gradebookHeads,
+        eq(gradebookHeads.streamId, gradebookStreams.id),
+      )
+      .leftJoin(
+        gradebookRevisions,
+        eq(gradebookRevisions.id, gradebookHeads.headRevisionId),
+      )
+      .where(eq(gradebookStreams.userId, userId))
+      .limit(1),
+  );
   return row;
 }
 

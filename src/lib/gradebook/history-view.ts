@@ -1,18 +1,25 @@
-import { and, desc, eq, lt } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { gradebookRevisions, gradebookStreams } from "@/lib/db/schema";
+import { databaseRead } from "@/lib/db/read";
+import { gradebookRevisions } from "@/lib/db/schema";
+import { schoolGpas } from "@/lib/grades";
 import { historyChanges } from "./history-changes";
-import { calculateGradebook } from "./projection";
-import { type HistoryTransaction, readHistoryRange } from "./reconstruct";
+import { calculateGradebook, reportProjection } from "./projection";
+import {
+  type HistoryTransaction,
+  readHistoryHead,
+  readHistoryRange,
+} from "./reconstruct";
 import type { TimelineGrades, TimelinePage } from "./timeline-types";
 import type { GradebookState } from "./types";
 
 export function timelineGrades(state: GradebookState): TimelineGrades {
-  const weighted = calculateGradebook(state);
-  const hasGrades = weighted.classes.some((cls) => cls.percentage !== null);
+  const report = reportProjection(state);
+  const school = schoolGpas(report.classes);
+  const weighted = calculateGradebook(state, true, report);
   return {
-    gpa: hasGrades ? weighted.gpa : null,
-    unweightedGpa: hasGrades ? calculateGradebook(state, false).gpa : null,
+    gpa: school.weighted,
+    unweightedGpa: school.unweighted,
     classes: weighted.classes.map(({ id, name, percentage, letter }) => ({
       id,
       name,
@@ -26,10 +33,12 @@ export async function revisionHistoryPage(
   userId: string,
   options: { before?: number; revision?: string } = {},
 ): Promise<TimelinePage> {
-  return db.transaction((tx) => historyPageInTransaction(tx, userId, options), {
-    isolationLevel: "repeatable read",
-    accessMode: "read only",
-  });
+  return databaseRead(() =>
+    db.transaction((tx) => historyPageInTransaction(tx, userId, options), {
+      isolationLevel: "repeatable read",
+      accessMode: "read only",
+    }),
+  );
 }
 
 export async function historyPageInTransaction(
@@ -44,12 +53,8 @@ export async function historyPageInTransaction(
     hasNewer: false,
     unavailable: Boolean(options.revision),
   };
-  const [stream] = await tx
-    .select({ id: gradebookStreams.id })
-    .from(gradebookStreams)
-    .where(eq(gradebookStreams.userId, userId))
-    .limit(1);
-  if (!stream) return empty;
+  const head = await readHistoryHead(tx, { userId });
+  if (!head || head.headSequence < 0) return empty;
   let before = options.before;
   if (options.revision) {
     // Check ownership before reading payloads, even for direct links.
@@ -58,7 +63,7 @@ export async function historyPageInTransaction(
       .from(gradebookRevisions)
       .where(
         and(
-          eq(gradebookRevisions.streamId, stream.id),
+          eq(gradebookRevisions.streamId, head.streamId),
           eq(gradebookRevisions.id, options.revision),
         ),
       )
@@ -66,31 +71,18 @@ export async function historyPageInTransaction(
     if (!selected) return empty;
     before = selected.sequence + 1;
   }
-  const metadata = await tx
-    .select({
-      id: gradebookRevisions.id,
-      sequence: gradebookRevisions.sequence,
-    })
-    .from(gradebookRevisions)
-    .where(
-      and(
-        eq(gradebookRevisions.streamId, stream.id),
-        before === undefined
-          ? undefined
-          : lt(gradebookRevisions.sequence, before),
-      ),
-    )
-    .orderBy(desc(gradebookRevisions.sequence))
-    .limit(21);
-  const selectedRows = metadata.slice(0, 20);
-  if (!selectedRows.length) return empty;
-  const newest = selectedRows[0].sequence;
-  const oldest = selectedRows[selectedRows.length - 1].sequence;
+  const newest = Math.min(
+    (before ?? head.headSequence + 1) - 1,
+    head.headSequence,
+  );
+  if (newest < 0) return empty;
+  const oldest = Math.max(0, newest - 19);
   const rows = await readHistoryRange(
     tx,
-    stream.id,
+    head.streamId,
     Math.max(0, oldest - 1),
     newest,
+    head,
   );
   const grades = new Map(
     rows.map((row) => [row.sequence, timelineGrades(row.state)]),
@@ -114,17 +106,11 @@ export async function historyPageInTransaction(
         changes: previousState ? historyChanges(previousState, row.state) : [],
       };
     });
-  const [latest] = await tx
-    .select({ sequence: gradebookRevisions.sequence })
-    .from(gradebookRevisions)
-    .where(eq(gradebookRevisions.streamId, stream.id))
-    .orderBy(desc(gradebookRevisions.sequence))
-    .limit(1);
   return {
     points,
-    selectedId: options.revision ?? selectedRows[0].id,
-    before: metadata.length > 20 ? oldest : null,
-    hasNewer: latest.sequence > newest,
+    selectedId: options.revision ?? points.at(-1)?.id ?? null,
+    before: oldest > 0 ? oldest : null,
+    hasNewer: head.headSequence > newest,
     unavailable: false,
   };
 }

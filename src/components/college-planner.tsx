@@ -38,8 +38,12 @@ import {
   observedCourses,
 } from "@/lib/admissions/courses";
 import { type AdmissionRow, admissionsGpas, marks } from "@/lib/admissions/gpa";
-import { classGrade, letterGrade } from "@/lib/grades";
+import { classGrade, GPA_WEIGHTS, letterGrade, schoolGpas } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
+
+const mobileRow = "grid grid-cols-2 gap-2 py-3 lg:table-row lg:py-0";
+const mobileField =
+  "min-w-0 whitespace-normal before:mb-1 before:block before:text-xs before:text-muted-foreground before:content-[attr(data-label)] lg:before:hidden";
 
 const catalogLink =
   "https://hs-articulation.ucop.edu/agcourselist/institution/2845";
@@ -94,6 +98,7 @@ export function CollegePlanner() {
   const [filter, setFilter] = useState("all");
 
   const result = admissionsGpas(rows, includeProgress);
+  const school = schoolGpas(report?.classes ?? []);
   const courses =
     report?.classes.map((cls) => matchCourse(cls.fullName, cls.displayName)) ??
     [];
@@ -180,12 +185,11 @@ export function CollegePlanner() {
           <GraduationCap className="size-5" /> College planning
         </div>
         <h1 className="text-3xl font-bold tracking-tight sm:text-5xl">
-          College GPA &amp; A–G
+          GPA &amp; A–G
         </h1>
         <p className="max-w-3xl text-muted-foreground">
-          Match Garces classes to college admission requirements. Enter
-          transcript grades or preview how your current FACTS grades could
-          affect your GPA.
+          Compare your current school GPA with college admissions estimates. Use
+          transcript grades or preview your current FACTS marks.
         </p>
         <div className="flex flex-wrap gap-2 pt-1">
           <Button asChild size="sm">
@@ -197,9 +201,9 @@ export function CollegePlanner() {
         </div>
       </header>
 
-      <section aria-label="College GPA estimates" className="space-y-3">
+      <section aria-label="GPA comparison" className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-xl font-semibold">GPA estimates</h2>
+          <h2 className="text-xl font-semibold">GPA comparison</h2>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -217,47 +221,104 @@ export function CollegePlanner() {
             Includes FACTS progress grades projected as semester grades.
           </p>
         )}
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="divide-y rounded-xl border">
+          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center">
+            <div>
+              <h3 className="font-semibold">Garces school GPA</h3>
+              <p className="text-xs text-muted-foreground">
+                Current FACTS grades · school scale
+              </p>
+            </div>
+            <p className="text-2xl font-semibold tabular-nums">
+              {score(school.weighted)}
+            </p>
+            <div className="col-span-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm sm:col-span-1 sm:justify-self-end">
+              <span>Unweighted {score(school.unweighted)}</span>
+              <a
+                className="text-xs underline underline-offset-4"
+                href="#school-scale"
+              >
+                School scale
+              </a>
+            </div>
+          </div>
           {systems.map((system) => {
-            const gpa =
+            const grade =
               system.key === "uc" && nonresident
                 ? result.ucNonresident
                 : result[system.key];
             return (
-              <Card key={system.key} className="gap-3">
-                <CardHeader className="gap-2">
-                  <CardTitle className="text-base">{system.title}</CardTitle>
-                  <CardDescription>{system.label}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <div className="text-4xl font-semibold tabular-nums">
-                    {score(gpa.value, system.key === "uc")}
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    {gpa.semesters} grades used
-                    {gpa.bonus ? ` · +${gpa.bonus} total bonus points` : ""}
+              <div
+                key={system.key}
+                className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 p-4 sm:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] sm:items-center"
+              >
+                <div>
+                  <h3 className="font-semibold">{system.title}</h3>
+                  <p className="text-xs text-muted-foreground">
+                    {system.label}
                   </p>
+                </div>
+                <p className="text-2xl font-semibold tabular-nums">
+                  {score(grade.value, system.key === "uc")}
+                </p>
+                <div className="col-span-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground sm:col-span-1 sm:justify-self-end">
+                  <span>
+                    {grade.semesters} grades
+                    {grade.bonus ? ` · +${grade.bonus} bonus points` : ""}
+                  </span>
                   {system.key === "uc" && (
-                    <p className="text-sm">
+                    <span>
                       Unweighted {score(result.ucUnweighted.value, true)}
-                    </p>
+                    </span>
                   )}
                   {system.key === "csu" && (
-                    <p className="text-sm">
-                      Through grade 12 {score(result.csuAll.value)}
-                    </p>
+                    <span>Through grade 12 {score(result.csuAll.value)}</span>
                   )}
                   <a
-                    className="inline-flex items-center gap-1 text-xs underline underline-offset-4"
+                    className="inline-flex items-center gap-1 underline underline-offset-4"
                     href={system.href}
                   >
                     Official rules <ArrowUpRight className="size-3" />
                   </a>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             );
           })}
         </div>
+        <details
+          id="school-scale"
+          className="scroll-mt-4 rounded-lg border px-4 py-3"
+        >
+          <summary className="cursor-pointer text-sm font-medium">
+            School letter-grade scale
+          </summary>
+          <div className="mt-2">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Grade</TableHead>
+                  <TableHead>Standard</TableHead>
+                  <TableHead>AP / Honors</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {Object.entries(GPA_WEIGHTS.regular).map(
+                  ([grade, standard]) => (
+                    <TableRow key={grade}>
+                      <TableCell>{grade}</TableCell>
+                      <TableCell>{standard.toFixed(1)}</TableCell>
+                      <TableCell>
+                        {GPA_WEIGHTS.weighted[
+                          grade as keyof typeof GPA_WEIGHTS.weighted
+                        ].toFixed(1)}
+                      </TableCell>
+                    </TableRow>
+                  ),
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </details>
       </section>
 
       <Card id="transcript" className="scroll-mt-4">
@@ -326,7 +387,7 @@ export function CollegePlanner() {
             </div>
           </div>
           <div className="flex flex-wrap items-end gap-2">
-            <div className="min-w-55 flex-1 space-y-1.5">
+            <div className="w-full min-w-0 flex-1 sm:min-w-55 space-y-1.5">
               <Label htmlFor="college-add-course">Approved Garces course</Label>
               <select
                 id="college-add-course"
@@ -392,8 +453,8 @@ export function CollegePlanner() {
                 />{" "}
                 Include projected progress grades in GPA
               </label>
-              <Table className="min-w-190">
-                <TableHeader>
+              <Table className="grid lg:table">
+                <TableHeader className="sr-only lg:not-sr-only">
                   <TableRow>
                     <TableHead>Course</TableHead>
                     <TableHead>Grade level</TableHead>
@@ -404,12 +465,12 @@ export function CollegePlanner() {
                     <TableHead>Remove</TableHead>
                   </TableRow>
                 </TableHeader>
-                <TableBody>
+                <TableBody className="block lg:table-row-group">
                   {rows.map((row) => {
                     const entry = classifyCourse(row, row.year);
                     return (
-                      <TableRow key={row.id}>
-                        <TableCell className="max-w-65 whitespace-normal">
+                      <TableRow key={row.id} className={mobileRow}>
+                        <TableCell className="col-span-2 min-w-0 max-w-65 whitespace-normal">
                           <div className="font-medium">{row.name}</div>
                           <div className="text-xs text-muted-foreground">
                             {formatYear(row.year)} ·{" "}
@@ -419,7 +480,10 @@ export function CollegePlanner() {
                             {entry.level !== "Standard" && ` · ${entry.level}`}
                           </div>
                         </TableCell>
-                        <TableCell>
+                        <TableCell
+                          className={mobileField}
+                          data-label="Grade level"
+                        >
                           <select
                             className={selectStyle}
                             value={row.gradeLevel}
@@ -439,7 +503,10 @@ export function CollegePlanner() {
                             ))}
                           </select>
                         </TableCell>
-                        <TableCell>
+                        <TableCell
+                          className={mobileField}
+                          data-label="Semester"
+                        >
                           <select
                             className={selectStyle}
                             value={row.semester}
@@ -457,7 +524,10 @@ export function CollegePlanner() {
                             <option value={3}>Summer</option>
                           </select>
                         </TableCell>
-                        <TableCell>
+                        <TableCell
+                          className={mobileField}
+                          data-label="Letter grade"
+                        >
                           <select
                             className={selectStyle}
                             value={row.mark}
@@ -476,7 +546,10 @@ export function CollegePlanner() {
                             ))}
                           </select>
                         </TableCell>
-                        <TableCell>
+                        <TableCell
+                          className={mobileField}
+                          data-label="Grade source"
+                        >
                           <select
                             className={selectStyle}
                             value={row.progress ? "progress" : "transcript"}
@@ -491,7 +564,10 @@ export function CollegePlanner() {
                             <option value="progress">Progress</option>
                           </select>
                         </TableCell>
-                        <TableCell>
+                        <TableCell
+                          className={mobileField}
+                          data-label="Use in ASU GPA"
+                        >
                           {entry.asu ? (
                             <input
                               type="checkbox"
@@ -507,7 +583,7 @@ export function CollegePlanner() {
                             "—"
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className={mobileField} data-label="Remove">
                           <Button
                             size="icon"
                             variant="ghost"
@@ -601,7 +677,7 @@ export function CollegePlanner() {
       )}
       <section id="course-matches" className="scroll-mt-4 space-y-3">
         <div className="flex flex-wrap items-end gap-2">
-          <div className="min-w-45 flex-1 space-y-1.5">
+          <div className="w-full min-w-0 flex-1 sm:min-w-45 space-y-1.5">
             <Label htmlFor="college-course-search">
               <ListFilter className="size-4" /> Search course matches
             </Label>
@@ -683,8 +759,8 @@ function MatchTable({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Table className="min-w-190">
-          <TableHeader>
+        <Table className="grid lg:table">
+          <TableHeader className="sr-only lg:not-sr-only">
             <TableRow>
               <TableHead>Course</TableHead>
               <TableHead>UC / CSU</TableHead>
@@ -693,12 +769,12 @@ function MatchTable({
               <TableHead>UF GPA weight</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="block lg:table-row-group">
             {rows.map((row) => {
               const info = classifyCourse(row, year);
               return (
-                <TableRow key={`${row.code}:${row.name}`}>
-                  <TableCell className="max-w-82 whitespace-normal">
+                <TableRow key={`${row.code}:${row.name}`} className={mobileRow}>
+                  <TableCell className="col-span-2 min-w-0 max-w-82 whitespace-normal">
                     <div className="font-medium">{row.name}</div>
                     <div className="text-xs text-muted-foreground">
                       {row.code}
@@ -710,7 +786,7 @@ function MatchTable({
                       </p>
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className={mobileField} data-label="UC / CSU">
                     {info.approval ? (
                       <Badge variant="outline">
                         {info.approval.area} ·{" "}
@@ -720,7 +796,10 @@ function MatchTable({
                       "—"
                     )}
                   </TableCell>
-                  <TableCell>
+                  <TableCell
+                    className={mobileField}
+                    data-label="UC / CSU honors"
+                  >
                     {info.approval?.honors ? (
                       <Badge>+1 eligible</Badge>
                     ) : info.approval ? (
@@ -729,8 +808,13 @@ function MatchTable({
                       "—"
                     )}
                   </TableCell>
-                  <TableCell>{info.asu ?? "—"}</TableCell>
-                  <TableCell>
+                  <TableCell
+                    className={mobileField}
+                    data-label="ASU competency"
+                  >
+                    {info.asu ?? "—"}
+                  </TableCell>
+                  <TableCell className={mobileField} data-label="UF GPA weight">
                     {info.ufCore || info.level === "AP"
                       ? info.level === "AP"
                         ? "+1.0"

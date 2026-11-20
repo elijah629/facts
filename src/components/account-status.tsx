@@ -24,7 +24,7 @@ export function AccountStatus() {
     return pathname !== "/" &&
       !pathname.startsWith("/class/") &&
       pathname !== "/final-calculator" &&
-      pathname !== "/college" ? (
+      pathname !== "/gpa" ? (
       <Button asChild size="sm" variant="ghost">
         <Link href="/">Gradebook</Link>
       </Button>
@@ -60,7 +60,9 @@ export function AccountStatus() {
     <div className="flex flex-wrap items-center gap-2 text-sm">
       <span
         aria-live="polite"
-        className={stale ? "text-amber-500" : "text-muted-foreground"}
+        className={
+          stale ? "text-amber-500" : "hidden text-muted-foreground sm:inline"
+        }
       >
         {loading
           ? "Refreshing…"

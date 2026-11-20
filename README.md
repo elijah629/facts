@@ -19,7 +19,7 @@ email bodies, FACTS URLs, SessionIDs, and raw FACTS HTML never enter MCP output.
 
 ## Development
 
-Use Node 24 LTS (the repository pins `24.20.0`) and Bun 1.4.0. Vercel should
+Use Node 24 LTS (the repository pins `24.20.0`) and Bun 1.4.5. Vercel should
 also be set to Node `24.x`.
 
 ```bash

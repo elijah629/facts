@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { auth } from "@/lib/auth";
+import { webAuth } from "@/lib/auth/web";
 import { db } from "@/lib/db/client";
 import { account } from "@/lib/db/schema";
 import { gmailErrorCode } from "./errors";
@@ -19,7 +19,7 @@ export async function googleAccessToken(userId: string): Promise<string> {
     .where(and(eq(account.userId, userId), eq(account.providerId, "google")))
     .limit(1);
   if (!google) throw new Error("GOOGLE_ACCOUNT_NOT_CONNECTED");
-  const token = await auth.api
+  const token = await webAuth.api
     .getAccessToken({
       body: { accountId: google.id, userId },
     })

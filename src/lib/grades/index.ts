@@ -25,6 +25,8 @@ export enum LetterGrade {
   F = "F",
 }
 
+type ClassType = "regular" | "weighted";
+
 export const GPA_WEIGHTS: Record<ClassType, Record<LetterGrade, number>> = {
   regular: {
     [LetterGrade.Ap]: 4.3,
@@ -93,27 +95,30 @@ export function letterGrade(percentage: number): LetterGrade {
   return LetterGrade.F;
 }
 
-type ClassType = "regular" | "weighted";
-
-export function classGpa(cls: Class, classType: ClassType | undefined): number {
-  const p = classGrade(cls);
-
-  const cT: ClassType = classType
-    ? classType
-    : ["Honors", "AP"].includes(courseLevel(cls.displayName || cls.fullName))
-      ? "weighted"
-      : "regular";
-
-  return GPA_WEIGHTS[cT][letterGrade(p)];
+export function schoolGpas(classes: Class[]) {
+  let weighted = 0;
+  let unweighted = 0;
+  let count = 0;
+  for (const cls of classes) {
+    const percent = classGrade(cls);
+    if (!Number.isFinite(percent)) continue;
+    const grade = letterGrade(percent);
+    const level = courseLevel(cls.displayName || cls.fullName);
+    const applyWeight = level === "Honors" || level === "AP";
+    weighted += GPA_WEIGHTS[applyWeight ? "weighted" : "regular"][grade];
+    unweighted += GPA_WEIGHTS.regular[grade];
+    count++;
+  }
+  return {
+    weighted: count ? weighted / count : null,
+    unweighted: count ? unweighted / count : null,
+    count,
+  };
 }
 
-export function gpa(classes: Class[], weighted: boolean = true): number {
-  const totalGp = classes.reduce(
-    (sum, cls) => sum + classGpa(cls, weighted ? undefined : "regular"),
-    0,
-  );
-
-  return classes.length > 0 ? totalGp / classes.length : 0;
+export function gpa(classes: Class[], weighted = true): number {
+  const summary = schoolGpas(classes);
+  return (weighted ? summary.weighted : summary.unweighted) ?? 0;
 }
 
 export function assignmentPoints(assignment: Assignment): {

@@ -2,7 +2,7 @@
 
 import { CalendarIcon, ChevronRight, Dot } from "lucide-react";
 import Link from "next/link";
-import { GradeCalculatorToggle } from "@/components/grade-calculator-toggle";
+
 import { refreshGradebook } from "@/components/gradebook-loader";
 import { StudentOverview } from "@/components/student-overview";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { gpa } from "@/lib/grades";
+import { schoolGpas } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
 
 export default function Home() {
@@ -55,7 +55,8 @@ export default function Home() {
     );
   }
 
-  const currentGPA = gpa(report.classes, weighted);
+  const school = schoolGpas(report.classes);
+  const currentGPA = weighted ? school.weighted : school.unweighted;
 
   return (
     <>
@@ -70,16 +71,19 @@ export default function Home() {
         <span>
           GPA:{" "}
           <span className="font-mono font-semibold">
-            {currentGPA.toFixed(3)}
+            {currentGPA?.toFixed(3) ?? "—"}
           </span>
         </span>
       </p>
       <div className="mt-6 space-y-6">
-        <GradeCalculatorToggle>
-          <Button asChild variant="outline">
-            <Link href="/college">College GPA &amp; A–G</Link>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild>
+            <Link href="/final-calculator">Grade &amp; final calculator</Link>
           </Button>
-        </GradeCalculatorToggle>
+          <Button asChild variant="outline">
+            <Link href="/gpa">GPA &amp; A–G</Link>
+          </Button>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>Latest changes</CardTitle>

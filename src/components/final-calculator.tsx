@@ -39,7 +39,6 @@ import {
 } from "@/lib/final-calculator";
 import { classGrade, sectionGradePoints } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
-import type { Class } from "@/types/report";
 
 type CalculatorMode = "required" | "projected";
 type FinalScenario = "final-only" | "final-plus-replace";
@@ -65,9 +64,9 @@ function formatPercent(value: number, digits = 2): string {
   return `${(value * 100).toFixed(digits)}%`;
 }
 
-export function FinalCalculator({ course }: { course?: Class }) {
+export function FinalCalculator({ initialCourse }: { initialCourse?: string }) {
   const report = useReport((state) => state.report);
-  const [classIndex, setClassIndex] = useState("0");
+  const [selectedCourse, setSelectedCourse] = useState(initialCourse);
   const [selectedFinalIndex, setFinalSectionIndex] = useState("");
   const [selectedReplaceIndex, setReplaceSectionIndex] = useState("");
   const [mode, setMode] = useState<CalculatorMode>("required");
@@ -77,7 +76,13 @@ export function FinalCalculator({ course }: { course?: Class }) {
   const [finalPossiblePoints, setFinalPossiblePoints] = useState("100");
   const [showWhatIfRange, setShowWhatIfRange] = useState(true);
 
-  const selectedClass = course ?? report?.classes[Number(classIndex)];
+  const selectedClass =
+    report?.classes.find((cls) => cls.fullName === selectedCourse) ??
+    report?.classes[0];
+  const classIndex =
+    selectedClass && report
+      ? String(report.classes.indexOf(selectedClass))
+      : "";
   const defaultFinalIndex = selectedClass
     ? findFinalSectionIndex(selectedClass)
     : -1;
@@ -106,7 +111,7 @@ export function FinalCalculator({ course }: { course?: Class }) {
     replaceIndex === -1 ? "" : (replaceIndex?.toString() ?? "");
 
   function changeClass(index: string) {
-    setClassIndex(index);
+    setSelectedCourse(report?.classes[Number(index)]?.fullName);
     setFinalSectionIndex("");
     setReplaceSectionIndex("");
   }
@@ -181,7 +186,7 @@ export function FinalCalculator({ course }: { course?: Class }) {
         })
       : null;
 
-  if (!course && !report) {
+  if (!report) {
     return (
       <Card className="mx-auto max-w-xl border-dashed text-center">
         <CardHeader>
@@ -197,7 +202,7 @@ export function FinalCalculator({ course }: { course?: Class }) {
 
   return (
     <div className="mx-auto flex w-full max-w-5xl flex-col gap-5">
-      {!course && (
+      {
         <Card>
           <CardHeader className="gap-4 md:grid md:grid-cols-[1fr_auto] md:items-end">
             <div className="grid gap-3">
@@ -227,7 +232,7 @@ export function FinalCalculator({ course }: { course?: Class }) {
             </div>
           </CardHeader>
         </Card>
-      )}
+      }
 
       <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
         <Card>
@@ -240,7 +245,7 @@ export function FinalCalculator({ course }: { course?: Class }) {
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-5">
-            {!course && (
+            {
               <div className="grid gap-2">
                 <Label htmlFor="calculator-class">Class</Label>
                 <Select value={classIndex} onValueChange={changeClass}>
@@ -262,7 +267,7 @@ export function FinalCalculator({ course }: { course?: Class }) {
                   <GradingMethodHelp method={selectedClass.gradingMethod} />
                 )}
               </div>
-            )}
+            }
 
             <div className="grid gap-2">
               <Label htmlFor="final-category">Final category</Label>

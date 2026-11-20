@@ -1,70 +1,16 @@
 import { cimd } from "@better-auth/cimd";
 import { mcp } from "@better-auth/mcp";
-import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth/minimal";
 import { nextCookies } from "better-auth/next-js";
 import { jwt } from "better-auth/plugins";
-import { db } from "@/lib/db/client";
-import * as schema from "@/lib/db/schema";
-import { requiredEnv } from "@/lib/env";
 import { fetchClientMetadataResource } from "./cimd-fetch";
 
-const baseUrl = requiredEnv("BETTER_AUTH_URL");
-const googleWorkspaceDomain = process.env.GOOGLE_WORKSPACE_DOMAIN?.trim()
-  .toLowerCase()
-  .replace(/^@/, "");
-export const mcpResource = `${new URL(baseUrl).origin}/mcp`;
+import { authOptions, mcpResource } from "./options";
+
+export { mcpResource } from "./options";
 
 export const auth = betterAuth({
-  appName: "facts",
-  baseURL: baseUrl,
-  secret: requiredEnv("BETTER_AUTH_SECRET"),
-  database: drizzleAdapter(db, {
-    provider: "pg",
-    schema,
-  }),
-  session: {
-    expiresIn: 30 * 86400,
-    updateAge: 86400,
-    cookieCache: { enabled: true, maxAge: 60 },
-  },
-  trustedOrigins: [new URL(baseUrl).origin],
-  account: {
-    accountLinking: { enabled: false },
-    encryptOAuthTokens: true,
-  },
-  user: {
-    validateUserInfo: ({ user, source }) => {
-      const allowed =
-        source.oauth?.providerId === "google" &&
-        user.emailVerified === true &&
-        (!googleWorkspaceDomain ||
-          user.email?.toLowerCase().endsWith(`@${googleWorkspaceDomain}`));
-      return allowed
-        ? undefined
-        : {
-            error: "email_not_allowed",
-            errorDescription:
-              "Sign in with the verified Google account that receives your FACTS report links.",
-          };
-    },
-  },
-  socialProviders: {
-    google: {
-      clientId: requiredEnv("GOOGLE_CLIENT_ID"),
-      clientSecret: requiredEnv("GOOGLE_CLIENT_SECRET"),
-      scope: [
-        "openid",
-        "email",
-        "profile",
-        "https://www.googleapis.com/auth/gmail.readonly",
-      ],
-      accessType: "offline",
-      prompt: "select_account",
-      includeGrantedScopes: false,
-      ...(googleWorkspaceDomain ? { hd: googleWorkspaceDomain } : {}),
-    },
-  },
+  ...authOptions,
   plugins: [
     jwt(),
     mcp({

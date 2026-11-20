@@ -73,7 +73,7 @@ export function GradebookLoader() {
   const needsGradebook =
     pathname === "/" ||
     pathname === "/final-calculator" ||
-    pathname === "/college" ||
+    pathname === "/gpa" ||
     pathname.startsWith("/class/");
   useEffect(() => {
     if (needsGradebook && useReport.getState().loading) void refreshGradebook();

@@ -1,12 +1,13 @@
 "use client";
 
-import { User } from "lucide-react";
+import { Calculator, User } from "lucide-react";
+import Link from "next/link";
 import { classGrade, letterGrade } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
-import { GradeCalculatorToggle } from "./grade-calculator-toggle";
 import { GradingMethodHelp } from "./grading-method-help";
 import { SectionDisplay } from "./section-display";
 import { Badge } from "./ui/badge";
+import { Button } from "./ui/button";
 
 export function ClassReport({ index }: { index: number }) {
   const report = useReport((x) => x.report);
@@ -55,7 +56,13 @@ export function ClassReport({ index }: { index: number }) {
           <GradingMethodHelp method={cls.gradingMethod} />
         </div>
         <div className="mt-4">
-          <GradeCalculatorToggle course={cls} />
+          <Button asChild variant="outline">
+            <Link
+              href={`/final-calculator?course=${encodeURIComponent(cls.fullName)}`}
+            >
+              <Calculator /> Grade &amp; final calculator
+            </Link>
+          </Button>
         </div>
       </div>
       <div className="flex flex-col gap-4">
