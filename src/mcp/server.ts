@@ -122,7 +122,7 @@ export function createFactsMcpServer(userId: string): McpServer {
     {
       title: "Get observed grade history",
       description:
-        "Return calculated grades for each distinct state observed by facts. Timestamps are observation times, not teacher edit times.",
+        "Return calculated grades for each saved gradebook revision. Timestamps are observation times, not teacher edit times.",
       inputSchema: z.object({
         classId: z.string().optional(),
         assignmentId: z.string().optional(),
@@ -131,7 +131,6 @@ export function createFactsMcpServer(userId: string): McpServer {
       _meta: historySecurity,
     },
     async ({ classId, assignmentId }) => {
-      await currentGradebook(userId);
       const history = (await gradeHistory(userId)).map((revision) => {
         const classIds = classId
           ? revision.calculated.classes
@@ -151,7 +150,8 @@ export function createFactsMcpServer(userId: string): McpServer {
         return {
           revision: revision.id,
           sequence: revision.sequence,
-          firstObserved: revision.observedAt,
+          firstObserved: revision.windowStartedAt ?? revision.observedAt,
+          lastObserved: revision.observedAt,
           stateHash: revision.stateHash,
           grades: revision.calculated.classes.filter((item) =>
             classIds.includes(item.id),

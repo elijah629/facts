@@ -19,19 +19,22 @@ export async function googleAccessToken(userId: string): Promise<string> {
     .where(and(eq(account.userId, userId), eq(account.providerId, "google")))
     .limit(1);
   if (!google) throw new Error("GOOGLE_ACCOUNT_NOT_CONNECTED");
-  const token = await auth.api.getAccessToken({
-    body: { accountId: google.id, userId },
-  });
+  const token = await auth.api
+    .getAccessToken({
+      body: { accountId: google.id, userId },
+    })
+    .catch(() => {
+      throw new Error("GOOGLE_AUTHORIZATION_UNAVAILABLE");
+    });
   if (!token.accessToken) throw new Error("GOOGLE_AUTHORIZATION_UNAVAILABLE");
   return token.accessToken;
 }
 
 export async function gmailFetch<T>(
-  userId: string,
+  token: string,
   path: string,
   searchParams: Record<string, string> = {},
 ): Promise<T> {
-  const token = await googleAccessToken(userId);
   const url = new URL(path, GMAIL_API);
   for (const [key, value] of Object.entries(searchParams)) {
     url.searchParams.set(key, value);
@@ -41,6 +44,8 @@ export async function gmailFetch<T>(
     cache: "no-store",
     signal: AbortSignal.timeout(15_000),
   });
+  if (response.status === 401)
+    throw new Error("GOOGLE_AUTHORIZATION_UNAVAILABLE");
   if (!response.ok) throw new Error(await gmailErrorCode(response));
   return (await response.json()) as T;
 }

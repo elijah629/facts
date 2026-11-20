@@ -52,6 +52,11 @@ beforeAll(async () => {
       `${import.meta.dir}/../../../drizzle/0001_reverse_history.sql`,
     ).text(),
   );
+  await engine.exec(
+    await Bun.file(
+      `${import.meta.dir}/../../../drizzle/0002_daily_gradebook_history.sql`,
+    ).text(),
+  );
   await database.insert(schema.user).values([
     { id: "owner", name: "Test owner", email: "owner@example.test" },
     { id: "other", name: "Test other", email: "other@example.test" },

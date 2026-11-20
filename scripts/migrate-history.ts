@@ -8,6 +8,9 @@ import {
   type RevisionRow,
 } from "../src/lib/gradebook/history-chain";
 
+import { unpackGradebook } from "../src/lib/gradebook/packed";
+import type { GradebookDelta } from "../src/lib/gradebook/types";
+
 loadEnvConfig(process.cwd());
 const args = new Set(process.argv.slice(2));
 const allowed = new Set(["--apply", "--dry-run", "--to-forward"]);
@@ -65,10 +68,18 @@ async function migrate() {
           await client.query("ROLLBACK");
           continue;
         }
-        const { rows } = await client.query<RevisionRow>(
-          `SELECT id, sequence, kind, data, state_hash AS "stateHash", observed_at AS "observedAt" FROM gradebook_revisions WHERE stream_id = $1 ORDER BY sequence`,
+        const revisions = await client.query<
+          RevisionRow & { packed_delta: Buffer | null }
+        >(
+          `SELECT id, sequence, kind, data, packed_delta, state_hash AS "stateHash", observed_at AS "observedAt" FROM gradebook_revisions WHERE stream_id = $1 ORDER BY sequence`,
           [id],
         );
+        const rows = revisions.rows.map(({ packed_delta, ...row }) => ({
+          ...row,
+          data: packed_delta
+            ? unpackGradebook<GradebookDelta>(packed_delta)
+            : row.data,
+        }));
         const head = headResult.rows[0];
         if (rows.length && !head) throw new Error("REVISION_CHAIN_INCOMPLETE");
         if (
@@ -101,7 +112,7 @@ async function migrate() {
         if (apply) {
           for (const row of result)
             await client.query(
-              "UPDATE gradebook_revisions SET data = $1::jsonb WHERE id = $2 AND stream_id = $3",
+              "UPDATE gradebook_revisions SET data = $1::jsonb, packed_delta = NULL WHERE id = $2 AND stream_id = $3",
               [row.data === null ? null : JSON.stringify(row.data), row.id, id],
             );
           await client.query(

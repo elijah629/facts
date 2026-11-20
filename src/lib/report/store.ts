@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import type { GradebookChange } from "@/lib/gradebook/changes";
 import type { Report } from "@/types/report";
 
 interface Store {
@@ -9,6 +10,8 @@ interface Store {
   authenticated: boolean;
   stale: boolean;
   syncError?: string;
+  changes: GradebookChange[];
+  changesObservedAt?: string;
 
   setWeighted: (weighted: boolean) => void;
   setSyncResult: (result: {
@@ -17,6 +20,8 @@ interface Store {
     stale?: boolean;
     error?: string;
     lastSuccessfulFactsFetch?: string | null;
+    changes?: GradebookChange[];
+    changesObservedAt?: string;
   }) => void;
 }
 
@@ -27,6 +32,7 @@ export const useReport = create<Store>((set) => ({
   loading: true,
   authenticated: false,
   stale: false,
+  changes: [],
 
   setWeighted: (weighted: boolean) => set({ weighted }),
   setSyncResult: ({
@@ -35,12 +41,16 @@ export const useReport = create<Store>((set) => ({
     stale = false,
     error,
     lastSuccessfulFactsFetch,
+    changes = [],
+    changesObservedAt,
   }) =>
     set({
       report,
       authenticated,
       stale,
       syncError: error,
+      changes,
+      changesObservedAt,
       loading: false,
       lastUpdated: lastSuccessfulFactsFetch
         ? Date.parse(lastSuccessfulFactsFetch)

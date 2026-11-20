@@ -104,3 +104,16 @@ and isolated PGlite PostgreSQL integration tests. The integration tests apply bo
 real SQL migrations, check rollback/restart, compare all reconstructed versions,
 exercise pagination/direct links/ownership, and confirm that a latest read does
 not depend on older payloads. No live database is mutated by these tests.
+
+## Daily revisions
+
+Migration `0002_daily_gradebook_history` adds two nullable columns. It preserves
+all saved revisions and payloads. Each new changed report starts a 24-hour
+window or replaces the open window's revision. Replacement preserves the
+revision ID and records the latest observation time. New delta payloads use
+a versioned Brotli encoding in `bytea`. For reverse streams the existing head
+delta supplies the baseline, so merging requires no additional stored snapshot.
+
+Use a build that supports packed deltas for rollback. If an older build is
+required, stop writers and unpack the affected deltas into their legacy
+JSONB columns before routing traffic to that build.

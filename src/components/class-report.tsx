@@ -3,15 +3,19 @@
 import { User } from "lucide-react";
 import { classGrade, letterGrade } from "@/lib/grades";
 import { useReport } from "@/lib/report/store";
+import { GradeCalculatorToggle } from "./grade-calculator-toggle";
 import { GradingMethodHelp } from "./grading-method-help";
 import { SectionDisplay } from "./section-display";
 import { Badge } from "./ui/badge";
 
 export function ClassReport({ index }: { index: number }) {
   const report = useReport((x) => x.report);
+  const loading = useReport((x) => x.loading);
 
   if (!report) {
-    return "Please load a report";
+    return loading
+      ? "Loading your gradebook…"
+      : "Open your gradebook to load this class.";
   }
 
   const cls = report.classes[index];
@@ -49,6 +53,9 @@ export function ClassReport({ index }: { index: number }) {
             <span>{cls.instructor}</span>
           </div>
           <GradingMethodHelp method={cls.gradingMethod} />
+        </div>
+        <div className="mt-4">
+          <GradeCalculatorToggle course={cls} />
         </div>
       </div>
       <div className="flex flex-col gap-4">

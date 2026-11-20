@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { authClient } from "@/lib/auth/client";
 
-export function SignInButton() {
+export function SignInButton({ reconnect }: { reconnect: boolean }) {
   const [error, setError] = useState<string>();
   const [pending, setPending] = useState(false);
 
@@ -16,6 +16,9 @@ export function SignInButton() {
       const { error } = await authClient.signIn.social({
         provider: "google",
         callbackURL: "/",
+        ...(reconnect
+          ? { additionalParams: { prompt: "select_account consent" } }
+          : {}),
       });
       if (error) setError(error.message || "Google sign-in failed.");
     } catch (cause) {

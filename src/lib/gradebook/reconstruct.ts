@@ -6,7 +6,8 @@ import {
   gradebookStreams,
 } from "@/lib/db/schema";
 import { type RevisionRow, walkHistory } from "./history-chain";
-import type { GradebookState } from "./types";
+import { unpackGradebook } from "./packed";
+import type { GradebookDelta, GradebookState } from "./types";
 
 export type { RevisionRow } from "./history-chain";
 export type HistoryTransaction = Parameters<
@@ -55,6 +56,8 @@ export async function readHistoryRange(
       sequence: gradebookRevisions.sequence,
       kind: gradebookRevisions.kind,
       data: gradebookRevisions.data,
+      packedDelta: gradebookRevisions.packedDelta,
+      windowStartedAt: gradebookRevisions.windowStartedAt,
       observedAt: gradebookRevisions.observedAt,
       stateHash: gradebookRevisions.stateHash,
       sourceEmailReceivedAt: gradebookRevisions.sourceEmailReceivedAt,
@@ -73,7 +76,11 @@ export async function readHistoryRange(
         : asc(gradebookRevisions.sequence),
     );
   const result: Array<RevisionRow & { state: GradebookState }> = [];
-  walkHistory(rows, stream.storageFormat, head, (row, state) => {
+  const decoded = rows.map(({ packedDelta, ...row }) => ({
+    ...row,
+    data: packedDelta ? unpackGradebook<GradebookDelta>(packedDelta) : row.data,
+  }));
+  walkHistory(decoded, stream.storageFormat, head, (row, state) => {
     if (row.sequence >= from && row.sequence <= upper)
       result.push({ ...row, state });
   });

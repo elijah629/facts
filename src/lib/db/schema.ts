@@ -1,5 +1,6 @@
 import {
   type AnyPgColumn,
+  customType,
   index,
   integer,
   jsonb,
@@ -15,6 +16,10 @@ import type { GradebookDelta, GradebookState } from "@/lib/gradebook/types";
 import { user } from "./auth-schema";
 
 export * from "./auth-schema";
+
+const bytea = customType<{ data: Buffer; driverData: Buffer }>({
+  dataType: () => "bytea",
+});
 
 export const revisionKind = pgEnum("gradebook_revision_kind", [
   "initial",
@@ -80,6 +85,8 @@ export const gradebookRevisions = pgTable(
     sequence: integer("sequence").notNull(),
     kind: revisionKind("kind").notNull(),
     data: jsonb("data").$type<GradebookState | GradebookDelta>(),
+    packedDelta: bytea("packed_delta"),
+    windowStartedAt: timestamp("window_started_at", { withTimezone: true }),
     stateHash: text("state_hash").notNull(),
     observedAt: timestamp("observed_at", { withTimezone: true }).notNull(),
     sourceMessageId: text("source_message_id"),

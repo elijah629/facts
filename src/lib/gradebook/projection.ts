@@ -7,17 +7,21 @@ function finite(value: number): number | null {
   return Number.isFinite(value) ? value : null;
 }
 
-export function calculateGradebook(state: GradebookState, weighted = true) {
-  const report = reportFromCanonical(state);
+export function calculateGradebook(
+  state: GradebookState,
+  weighted = true,
+  report = reportFromCanonical(state),
+) {
+  const classesByName = new Map(
+    report.classes.map((cls) => [cls.fullName, cls]),
+  );
   return {
     studentName: state.studentName,
     term: state.term,
     yearRange: state.yearRange,
     gpa: finite(gpa(report.classes, weighted)),
     classes: Object.entries(state.classes).map(([classId, canonical]) => {
-      const cls = report.classes.find(
-        (item) => item.fullName === canonical.name,
-      );
+      const cls = classesByName.get(canonical.name);
       if (!cls) throw new Error("CANONICAL_PROJECTION_FAILED");
       const percentage = classGrade(cls);
       return {

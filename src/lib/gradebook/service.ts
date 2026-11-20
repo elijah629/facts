@@ -14,7 +14,10 @@ import {
 } from "./reconstruct";
 import { syncGradebook } from "./sync";
 
-export async function currentGradebook(userId: string) {
+export async function currentGradebook(
+  userId: string,
+  includeCalculated = true,
+) {
   const sync = await syncGradebook(userId);
   if (!sync.revisionId || !sync.state) {
     return { sync, state: null, report: null, calculated: null };
@@ -24,7 +27,7 @@ export async function currentGradebook(userId: string) {
     sync,
     state,
     report: reportProjection(state),
-    calculated: calculateGradebook(state),
+    calculated: includeCalculated ? calculateGradebook(state) : null,
   };
 }
 

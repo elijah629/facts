@@ -1,4 +1,9 @@
-import { flattenGmailBody, type GmailPart, gmailFetch } from "./client";
+import {
+  flattenGmailBody,
+  type GmailPart,
+  gmailFetch,
+  googleAccessToken,
+} from "./client";
 import { extractFactsUrls } from "./extract-facts-url";
 
 interface MessageList {
@@ -17,29 +22,33 @@ export interface FactsSourceCandidate {
   url: string;
 }
 
-export async function findFactsReportCandidates(
+export async function* findFactsReportCandidates(
   userId: string,
-): Promise<FactsSourceCandidate[]> {
-  const list = await gmailFetch<MessageList>(userId, "users/me/messages", {
-    q: 'newer_than:30d ("Gradebook Progress Report" OR "Progress Report")',
+  newerThan?: Date | null,
+): AsyncGenerator<FactsSourceCandidate> {
+  const token = await googleAccessToken(userId);
+  const after = newerThan
+    ? ` after:${Math.floor(newerThan.getTime() / 1_000)}`
+    : "";
+  const list = await gmailFetch<MessageList>(token, "users/me/messages", {
+    q: `newer_than:30d${after} ("Gradebook Progress Report" OR "Progress Report")`,
     maxResults: "20",
+    fields: "messages(id)",
   });
-  const candidates: FactsSourceCandidate[] = [];
   for (const item of list.messages ?? []) {
     const message = await gmailFetch<Message>(
-      userId,
+      token,
       `users/me/messages/${encodeURIComponent(item.id)}`,
       { format: "full" },
     );
+    const receivedAt = new Date(Number(message.internalDate));
+    if (newerThan && receivedAt <= newerThan) continue;
     for (const url of extractFactsUrls(flattenGmailBody(message.payload))) {
-      candidates.push({
+      yield {
         messageId: message.id,
-        receivedAt: new Date(Number(message.internalDate)),
+        receivedAt,
         url,
-      });
+      };
     }
   }
-  return candidates.sort(
-    (left, right) => right.receivedAt.getTime() - left.receivedAt.getTime(),
-  );
 }

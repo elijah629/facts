@@ -15,7 +15,9 @@ export default async function SignInPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const params = await searchParams;
-  const connecting = Object.values(params).some((value) => value !== undefined);
+  const reconnect = params.reconnect === "gmail" && !params.client_id;
+  const connecting =
+    !reconnect && Object.values(params).some((value) => value !== undefined);
 
   return (
     <div className="mx-auto flex min-h-[calc(100svh-8rem)] max-w-md items-center py-8">
@@ -25,7 +27,11 @@ export default async function SignInPage({
             <KeyRound aria-hidden="true" className="size-6" />
           </div>
           <CardTitle className="text-2xl">
-            {connecting ? "Connect facts to ChatGPT" : "Welcome to facts"}
+            {reconnect
+              ? "Reconnect Gmail"
+              : connecting
+                ? "Connect facts to ChatGPT"
+                : "Welcome to facts"}
           </CardTitle>
           <CardDescription className="max-w-sm text-balance">
             Use the Google account that receives your FACTS grade report links.
@@ -42,7 +48,7 @@ export default async function SignInPage({
               </p>
             </div>
           ) : null}
-          <SignInButton />
+          <SignInButton reconnect={reconnect} />
         </CardContent>
         <CardFooter className="justify-center gap-2 border-t bg-muted/20 px-6 py-4 text-xs text-muted-foreground">
           <LockKeyhole aria-hidden="true" className="size-3.5" />

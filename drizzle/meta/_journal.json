@@ -15,6 +15,13 @@
       "when": 1788539675940,
       "tag": "0001_reverse_history",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795196950564,
+      "tag": "0002_daily_gradebook_history",
+      "breakpoints": true
     }
   ]
 }

@@ -12,6 +12,7 @@ export interface RevisionRow {
   observedAt: Date;
   stateHash: string;
   sourceEmailReceivedAt?: Date | null;
+  windowStartedAt?: Date | null;
 }
 export interface HistoryHead {
   currentState: GradebookState | null;

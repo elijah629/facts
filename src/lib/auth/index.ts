@@ -2,6 +2,7 @@ import { cimd } from "@better-auth/cimd";
 import { mcp } from "@better-auth/mcp";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { betterAuth } from "better-auth/minimal";
+import { nextCookies } from "better-auth/next-js";
 import { jwt } from "better-auth/plugins";
 import { db } from "@/lib/db/client";
 import * as schema from "@/lib/db/schema";
@@ -22,6 +23,11 @@ export const auth = betterAuth({
     provider: "pg",
     schema,
   }),
+  session: {
+    expiresIn: 30 * 86400,
+    updateAge: 86400,
+    cookieCache: { enabled: true, maxAge: 60 },
+  },
   trustedOrigins: [new URL(baseUrl).origin],
   account: {
     accountLinking: { enabled: false },
@@ -54,7 +60,7 @@ export const auth = betterAuth({
         "https://www.googleapis.com/auth/gmail.readonly",
       ],
       accessType: "offline",
-      prompt: "select_account consent",
+      prompt: "select_account",
       includeGrantedScopes: false,
       ...(googleWorkspaceDomain ? { hd: googleWorkspaceDomain } : {}),
     },
@@ -88,6 +94,7 @@ export const auth = betterAuth({
       fetchClientMetadataResource,
       metadataProfile: "mcp-2026-07-28",
     }),
+    nextCookies(),
   ],
 });
 
