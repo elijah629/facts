@@ -160,17 +160,32 @@
 
 @layer components {
   .glow {
-    @apply bg-linear-to-r from-[#FF00EE] via-[#0FF] to-[#FF00EE] bg-clip-text text-transparent;
-    background-size: 200% 200%;
-    animation: gradient-flow 5s linear infinite;
+    --glow-colors: #a21caf, #b42337, #925c05, #067453, #2857aa, #a21caf;
+    background-image: linear-gradient(100deg, var(--glow-colors));
+    background-size: 180% 100%;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .dark .glow {
+    --glow-colors: #f5a0ff, #ffa1bb, #ffe594, #92fac7, #98d9ff, #f5a0ff;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .glow {
+      animation: gradient-flow 5s ease-in-out infinite alternate;
+    }
+  }
+
+  @media (forced-colors: active) {
+    .glow {
+      color: inherit;
+    }
   }
 
   @keyframes gradient-flow {
-    0% {
-      background-position: 0% 50%;
-    }
-    100% {
-      background-position: 200% 50%;
+    to {
+      background-position: 100% 50%;
     }
   }
 }

@@ -1,6 +1,6 @@
 import { ChevronDown } from "lucide-react";
-import { formatGrade } from "@/lib/grades/display";
 import type { Assignment, Class } from "@/types/report";
+import { GradePercentage } from "./grade-mark";
 import { Badge } from "./ui/badge";
 
 const dateFormat = new Intl.DateTimeFormat("en-US", {
@@ -26,9 +26,10 @@ function AssignmentGrade({
       {assignment.status === "missing" ? (
         <Badge variant="destructive">Missing</Badge>
       ) : assignment.maxPoints > 0 ? (
-        <span className="font-semibold">
-          {formatGrade(points / assignment.maxPoints)}
-        </span>
+        <GradePercentage
+          percentage={points / assignment.maxPoints}
+          className="text-base leading-tight font-semibold"
+        />
       ) : (
         <span className="font-semibold">Extra credit</span>
       )}

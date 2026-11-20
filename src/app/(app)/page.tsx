@@ -71,7 +71,7 @@ export default function Home() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6">
-      <header className="flex flex-wrap items-end justify-between gap-3 border-b pb-4">
+      <header className="flex flex-wrap items-center gap-x-6 gap-y-3 border-b pb-4">
         <div className="min-w-0">
           <h1 className="break-words text-2xl font-bold tracking-tight sm:text-3xl">
             {report.for}’s gradebook
@@ -121,14 +121,16 @@ export default function Home() {
             <Link
               key={course.fullName}
               href={`/class/${index}`}
-              className="group flex min-h-17 items-center gap-3 rounded-xl border bg-card px-3 py-2 transition-colors hover:bg-muted/60"
+              className="flex items-center gap-3 rounded-xl border bg-card px-4 py-3 transition-colors hover:bg-muted/60"
             >
-              <p className="min-w-0 flex-1 text-sm font-medium group-hover:text-foreground">
-                {course.displayName}
-              </p>
-              <div className="flex min-w-17 flex-col items-end gap-0.5">
-                <GradeMark percentage={classGrade(course)} />
-                <GradeChange value={classChanges[course.fullName]} compact />
+              <div className="min-w-0 flex-1">
+                <p className="wrap-break-word text-sm font-medium">
+                  {course.displayName}
+                </p>
+                <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  <GradeMark percentage={classGrade(course)} />
+                  <GradeChange value={classChanges[course.fullName]} compact />
+                </div>
               </div>
               <ChevronRight
                 className="size-3 shrink-0 text-muted-foreground"

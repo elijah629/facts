@@ -29,13 +29,20 @@ export function ClassReport({ index }: { index: number }) {
   const percentage = classGrade(cls);
 
   return (
-    <>
-      <div className="mb-6 flex flex-col gap-4 rounded-xl border bg-card p-4 sm:flex-row sm:items-start sm:justify-between sm:p-6">
-        <div className="min-w-0">
-          <h1 className="wrap-break-word text-2xl font-bold tracking-tight sm:text-3xl">
+    <div className="mx-auto w-full max-w-3xl space-y-5">
+      <header className="space-y-4 rounded-xl border bg-card p-4 sm:p-6">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h1 className="min-w-0 wrap-break-word text-2xl font-bold tracking-tight sm:text-3xl">
             {cls.displayName}
           </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="sr-only">Current grade</span>
+            <GradeMark percentage={percentage} />
+            <GradeChange value={changes[cls.fullName]} />
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
             {cls.instructor && (
               <span className="inline-flex items-center gap-1.5">
                 <User className="size-4 shrink-0" aria-hidden="true" />
@@ -43,15 +50,6 @@ export function ClassReport({ index }: { index: number }) {
               </span>
             )}
             <GradingMethodHelp method={cls.gradingMethod} />
-          </div>
-        </div>
-        <div className="flex shrink-0 flex-wrap items-center gap-3 sm:flex-col sm:items-end">
-          <div>
-            <p className="mb-1 text-xs text-muted-foreground">Current grade</p>
-            <div className="flex flex-wrap items-center gap-2">
-              <GradeMark percentage={percentage} />
-              <GradeChange value={changes[cls.fullName]} />
-            </div>
           </div>
           <Button asChild size="sm" variant="outline">
             <Link
@@ -61,7 +59,7 @@ export function ClassReport({ index }: { index: number }) {
             </Link>
           </Button>
         </div>
-      </div>
+      </header>
       <div className="flex flex-col gap-4">
         {cls.sections.map((x) => (
           <SectionDisplay
@@ -71,6 +69,6 @@ export function ClassReport({ index }: { index: number }) {
           />
         ))}
       </div>
-    </>
+    </div>
   );
 }

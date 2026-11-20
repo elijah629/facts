@@ -3,6 +3,26 @@ import { letterGrade } from "@/lib/grades";
 import { formatGrade, formatGradeChange } from "@/lib/grades/display";
 import { cn } from "@/lib/utils";
 
+export function GradePercentage({
+  percentage,
+  className,
+}: {
+  percentage: number;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "whitespace-nowrap tabular-nums",
+        className,
+        Number.isFinite(percentage) && percentage >= 1 && "glow",
+      )}
+    >
+      {formatGrade(percentage)}
+    </span>
+  );
+}
+
 export function GradeMark({
   percentage,
   compact = false,
@@ -31,9 +51,10 @@ export function GradeMark({
       >
         {letter}
       </span>
-      <span className={cn("font-semibold", compact ? "text-xs" : "text-xl")}>
-        {formatGrade(percentage)}
-      </span>
+      <GradePercentage
+        percentage={percentage}
+        className={cn("font-semibold", compact ? "text-xs" : "text-xl")}
+      />
     </span>
   );
 }

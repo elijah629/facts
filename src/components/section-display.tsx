@@ -1,4 +1,5 @@
 import { AssignmentRow } from "@/components/assignment-row";
+import { GradePercentage } from "@/components/grade-mark";
 import {
   Card,
   CardContent,
@@ -48,49 +49,53 @@ export function SectionDisplay({
       : section.weight;
 
   return (
-    <Card>
-      <CardHeader className="gap-4">
-        <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-          <div className="min-w-0">
-            <CardTitle className="wrap-break-word text-lg leading-snug">
-              {section.name}
-            </CardTitle>
-            <CardDescription>{section.description}</CardDescription>
+    <Card className="gap-3 py-4 sm:py-5">
+      <CardHeader className="gap-2 px-4 sm:px-6">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <CardTitle className="min-w-0 wrap-break-word text-lg leading-snug">
+            {section.name}
+          </CardTitle>
+          {percentage === false ? (
+            <span className="text-sm text-muted-foreground">
+              No graded work
+            </span>
+          ) : (
+            <GradePercentage
+              percentage={percentage}
+              className="text-lg font-semibold"
+            />
+          )}
+        </div>
+        {section.description && (
+          <CardDescription>{section.description}</CardDescription>
+        )}
+        <dl className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-muted-foreground">
+          <div className="flex gap-1.5">
+            <dt>Points</dt>
+            <dd className="font-medium text-foreground tabular-nums">
+              {roundTo(points.totalPoints, 2)} /{" "}
+              {roundTo(points.possiblePoints, 2)}
+            </dd>
           </div>
-          <div className="grid w-full grid-cols-2 gap-x-4 gap-y-3 text-sm sm:w-auto sm:shrink-0 sm:grid-cols-3 sm:gap-x-6 sm:text-right">
-            <div className="grid gap-1">
-              <span className="text-muted-foreground">Category points</span>
-              <span className="tabular-nums font-semibold">
-                {roundTo(points.totalPoints, 2)} /{" "}
-                {roundTo(points.possiblePoints, 2)}
-              </span>
-            </div>
-            <div className="grid gap-1">
-              <span className="text-muted-foreground">Category grade</span>
-              <span className="tabular-nums font-semibold">
-                {percentage === false
-                  ? "No graded work"
-                  : formatGrade(percentage)}
-              </span>
-            </div>
-            <div className="col-span-2 grid gap-1 sm:col-span-1">
-              <span className="text-muted-foreground">
+          {classShare !== undefined && (
+            <div className="flex gap-1.5">
+              <dt>
                 {cls.gradingMethod === "points"
                   ? "Share of class points"
-                  : "Weight in class grade"}
-              </span>
-              <span className="tabular-nums font-semibold">
-                {classShare === undefined ? "—" : formatGrade(classShare)}
-              </span>
+                  : "Weight"}
+              </dt>
+              <dd className="font-medium text-foreground tabular-nums">
+                {formatGrade(classShare)}
+              </dd>
             </div>
-          </div>
-        </div>
+          )}
+        </dl>
       </CardHeader>
-      <CardContent>
+      <CardContent className="px-4 sm:px-6">
         {section.assignments.length === 0 ? (
           <p className="text-sm text-muted-foreground">No assignments yet.</p>
         ) : (
-          <ul className="divide-y">
+          <ul className="divide-y border-t">
             {section.assignments.map((assignment) => (
               <li key={assignment.sourceIndex}>
                 <AssignmentRow
